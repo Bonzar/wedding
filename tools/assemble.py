@@ -29,15 +29,16 @@ for nm in ORDER:
     if o and o.group(1).strip():
         ovs.append(f'/* {nm} */\n' + o.group(1).strip())
 
-css = fontface + '\n' + kit + '\n' + '\n'.join(ovs)
+css = kit + '\n' + '\n'.join(ovs)   # БЕЗ шрифтов — их вклеим после px->cqw
 html = (f'<!doctype html>\n<html lang="ru"><head>\n'
         f'<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">\n'
         f'<title>Владислав &amp; Ольга · 26 сентября 2026</title>\n'
-        f'<style>{css}</style></head>\n'
+        f'<style>__FONTS__\n{css}</style></head>\n'
         f'<body><main class="sheet">\n{"".join(markups)}\n</main><script>{js}</script>\n'
         f'<script type="module" src="assets/rsvp.js"></script></body></html>')
 
 html = re.sub(r'(\d+(?:\.\d+)?)px', lambda m: f'{float(m.group(1))/440*100:.3f}cqw', html)
+html = html.replace('__FONTS__', fontface)   # base64-шрифты ПОСЛЕ px->cqw (иначе px внутри base64 портит шрифт)
 html = html.replace('__CAP__', '900px')
 open('index.html','w').write(html)
 print('assembled index.html:', len(html), 'bytes; sections:', len(markups), '; overrides:', len(ovs))
