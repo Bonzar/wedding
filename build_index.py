@@ -152,6 +152,36 @@ section{position:relative;overflow:hidden;padding:60px var(--gutter)}
 
 /* closing */
 .closing .c-names{font-family:var(--f-script);font-size:46px;color:var(--ink-strong);line-height:1;margin-top:20px}
+
+/* survey (RSVP) — внутри .sheet, px -> cqw как у остальных секций */
+.survey .rsvp-list{display:flex;flex-direction:column;gap:0;max-width:80%;margin:30px auto 0;text-align:left}
+.rsvp-guest{display:flex;align-items:center;gap:12px;width:100%;background:none;border:none;border-bottom:1px solid var(--line);padding:14px 2px;cursor:pointer;text-align:left;font:inherit;color:var(--text)}
+.rsvp-guest .rsvp-sprig{width:22px;height:22px;flex:0 0 auto;color:var(--ink)}
+.rsvp-guest-ttl{flex:1;font-family:var(--f-label);font-weight:300;font-size:15px;letter-spacing:.02em;color:var(--ink-strong)}
+.rsvp-guest-ttl b{font-weight:500}
+.rsvp-guest-state{font-family:var(--f-label);font-size:13px;color:var(--ink-muted);text-decoration:underline;text-underline-offset:2px}
+.rsvp-guest[data-answered="1"] .rsvp-guest-state{color:var(--ink)}
+.rsvp-note{font-family:var(--f-body);font-size:14px;line-height:1.7;color:var(--ink-muted);max-width:80%;margin:30px auto 0}
+
+/* rsvp modal — рендерится в body ВНЕ .sheet, единицы rem (px->cqw их не трогает) */
+.rsvp-overlay{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;padding:1.25rem;background:color-mix(in srgb,#0f1620 55%,transparent);overflow-y:auto}
+.rsvp-overlay[hidden]{display:none}
+.rsvp-modal{position:relative;width:100%;max-width:27.5rem;margin:auto;background:var(--paper-bright);color:var(--text);border-radius:1.375rem;padding:1.875rem 1.625rem;box-shadow:0 1.5rem 3.75rem rgba(15,22,32,.35);font-family:var(--f-body)}
+.rsvp-close{position:absolute;top:.875rem;right:.875rem;width:2.125rem;height:2.125rem;border-radius:50%;border:none;background:color-mix(in srgb,var(--ink) 10%,var(--paper));color:var(--ink-strong);font-size:1.25rem;line-height:1;cursor:pointer}
+.rsvp-m-ttl{font-family:var(--f-label);font-weight:500;font-size:1.3125rem;letter-spacing:.01em;color:var(--ink-strong);margin:0 2.5rem .25rem 0}
+.rsvp-q{margin-top:1.25rem}
+.rsvp-q[hidden]{display:none}
+.rsvp-q-ttl{font-family:var(--f-label);font-weight:500;font-size:.9375rem;color:var(--ink-strong);margin:0 0 .625rem}
+.rsvp-opt-hint{font-weight:400;color:var(--ink-muted)}
+.rsvp-opt{display:flex;align-items:center;gap:.625rem;padding:.375rem 0;font-size:.9375rem;color:var(--text);cursor:pointer}
+.rsvp-opt input{width:1.125rem;height:1.125rem;accent-color:var(--ink);flex:0 0 auto;margin:0}
+.rsvp-checks{display:grid;grid-template-columns:1fr 1fr;gap:0 1.125rem}
+.rsvp-textarea{width:100%;border:.0625rem solid var(--line);border-radius:.75rem;padding:.625rem;font:inherit;font-size:.875rem;color:var(--text);background:var(--paper);resize:vertical}
+.rsvp-save{display:block;width:100%;margin-top:1.5rem;font-family:var(--f-label);letter-spacing:.04em;font-size:1rem;padding:.8125rem;border-radius:6.25rem;background:var(--ink);color:var(--on-ink);border:none;cursor:pointer}
+.rsvp-save:disabled{opacity:.6;cursor:default}
+.rsvp-msg{margin:.75rem 0 0;font-size:.8125rem;color:var(--ink-muted);text-align:center}
+.rsvp-msg.err{color:#b03b3b}
+@media(max-width:23.75rem){.rsvp-checks{grid-template-columns:1fr}}
 """
 
 def cqw(m):
@@ -276,8 +306,15 @@ rsvp = '<section class="rsvp" id="rsvp"><div class="tree">'+ill('tree-large',329
   '<div class="rwrap">'+ \
   '<div class="rttl">RSVP</div>'+ \
   '<p class="body" style="margin-top:13px;color:var(--ink-muted)">Пожалуйста, подтвердите своё присутствие до 1 сентября 2026 года — это поможет нам всё подготовить.</p>'+ \
-  '<a class="btn" style="margin-top:14px;letter-spacing:.16em;padding-left:34px;padding-right:34px" href="#">Ответить</a>'+ \
+  '<a class="btn" style="margin-top:14px;letter-spacing:.16em;padding-left:34px;padding-right:34px" href="#survey">Ответить</a>'+ \
   '</div></section>'
+
+survey = ('<section class="survey" id="survey"><div class="wrap">'
+  '<div class="eyebrow">RSVP</div>'
+  '<h2 class="script gap-s" style="font-size:42px">Для нас важно знать</h2>'
+  '<p class="body gap-m" style="max-width:84%;margin-left:auto;margin-right:auto">Пожалуйста, ответьте на несколько вопросов, чтобы подтвердить своё присутствие. Ваш ответ очень поможет нам в подготовке к свадьбе.</p>'
+  '<div id="rsvp-list" class="rsvp-list" aria-live="polite"></div>'
+  '</div></section>')
 
 closing = section(f"""
   <p class="body" style="margin-top:40px;max-width:86%;margin-left:auto;margin-right:auto">Мы благодарны за вашу любовь и поддержку. Ваше присутствие сделает этот день по-настоящему особенным — и мы с радостью разделим его с вами.</p>
@@ -302,8 +339,9 @@ html = f"""<!doctype html>
 <title>Владислав &amp; Ольга · 26 сентября 2026</title>
 <style>{FONTFACE}{CSS}</style></head>
 <body><main class="sheet">
-{hero}{wedding_of}{countdown}{calendar}{location}{timeline}{details}{attire}{gift}{journey}{rsvp}{closing}
-</main><script>{JS}</script></body></html>"""
+{hero}{wedding_of}{countdown}{calendar}{location}{timeline}{details}{attire}{gift}{journey}{rsvp}{survey}{closing}
+</main><script>{JS}</script>
+<script type="module" src="assets/rsvp.js"></script></body></html>"""
 html = re.sub(r'(\d+(?:\.\d+)?)px', cqw, html)
 html = html.replace('__CAP__', '900px')
 open('index.html','w').write(html)
@@ -312,7 +350,7 @@ print('index.html:', len(html), 'bytes;  sections: 12;  cqw base', BASE)
 # --- режим --dump: standalone-файл на каждую секцию (px@440, шрифты base64) для пиксель-сверки ---
 SECTIONS = {'hero':hero,'wedding-of':wedding_of,'countdown':countdown,'calendar':calendar,
   'location':location,'timeline':timeline,'details':details,'attire':attire,'gift':gift,
-  'journey':journey,'rsvp':rsvp,'closing':closing}
+  'journey':journey,'rsvp':rsvp,'survey':survey,'closing':closing}
 import sys
 if '--dump' in sys.argv:
     import base64

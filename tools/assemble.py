@@ -5,7 +5,7 @@
 import re, os
 
 ORDER = ['hero','wedding-of','countdown','calendar','location','timeline',
-         'details','attire','gift','journey','rsvp','closing']
+         'details','attire','gift','journey','rsvp','survey','closing']
 
 kit = open('refs/kit.css').read()
 js  = open('refs/_js.txt').read()
