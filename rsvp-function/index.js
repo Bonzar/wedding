@@ -10,10 +10,12 @@
  *
  * Наружу — ровно две операции, только над гостевой коллекцией (роутинг по методу,
  * т.к. у публичного URL функции нет путей):
- *   GET  ?inv=TOKEN                       -> гости группы + их текущие ответы
+ *   GET  ?inv=<id приглашения>            -> гости этого приглашения + их ответы
  *   POST {inv, guestId, name?, answers}   -> сохранить ответ одного гостя
  *        (name учитывается только для слота «+1»; attending="Нет" у +1 = без спутника)
- * Никаких DELETE, никакого доступа к другим коллекциям/документам.
+ * `inv` — это id записи в коллекции «Приглашения». Связь гость->приглашение хранится
+ * relation-полем прямо в строке гостя, поэтому функция читает ОДНУ коллекцию («Гости»)
+ * и фильтрует по этому id. Никаких DELETE, никакого доступа к другим коллекциям.
  *
  * Переменные окружения функции:
  *   CRAFT_API        — полный базовый URL с линком:
@@ -25,19 +27,20 @@
 // Гостевая коллекция — захардкожена. Клиент НИКОГДА не передаёт id коллекции.
 const GUESTS_COLLECTION = "2fd42736-e580-ff98-a421-e5ba577ad706"; // «Гости (RSVP)»
 
-// Карта ключей полей коллекции «Гости (RSVP)». Сверена с боевой схемой 2026-06-21
-// (collections schema + raw item JSON): имя приходит как it.title; «Токен» — это
-// контент-проперти с ПУСТЫМ ключом ""; остальные колонки — _2.._6.
-const TITLE = "_7";  // «Имя» — заголовок item'а (при записи кладётся верхним полем)
+// Карта ключей полей коллекции «Гости (RSVP)». ВНИМАНИЕ: ключи Craft позиционные и
+// СДВИГАЮТСЯ при изменении схемы — сверять при ЛЮБОЙ правке (collections schema + raw
+// item JSON). Текущая (сверено 2026-06-21, после добавления relation «Приглашение»):
+// имя — it.title; «Приглашение» (relation на коллекцию «Приглашения») — ключ "".
+const TITLE = "_8";  // «Имя» — заголовок item'а (при записи кладётся верхним полем)
 const F = {
-  token:     "",     // text (контент-проперти, ключ "") — токен приглашения
-  attending: "_2",   // singleSelect  — «Придёт»: Да / Нет
-  drinks:    "_3",   // singleSelect  — «Алкоголь»: Да / Нет
-  drinkList: "_4",   // multiSelect   — «Напитки»
-  answered:  "_",    // boolean       — «Ответ получен»
-  date:      "__2",  // date          — «Дата ответа» (YYYY-MM-DD)
-  comment:   "_5",   // text          — «Комментарий»
-  isPlus:    "_6",   // boolean       — «Спутник» (+1; имя редактируемое самим гостем)
+  invitation: "",    // relation -> {relations:[{blockId}]}; blockId = id приглашения = inv
+  attending:  "_3",  // singleSelect  — «Придёт»: Да / Нет
+  drinks:     "_4",  // singleSelect  — «Алкоголь»: Да / Нет
+  drinkList:  "_5",  // multiSelect   — «Напитки»
+  answered:   "_",   // boolean       — «Ответ получен»
+  date:       "__2", // date          — «Дата ответа» (YYYY-MM-DD)
+  comment:    "_6",  // text          — «Комментарий»
+  isPlus:     "_7",  // boolean       — «Спутник» (+1; имя редактируемое самим гостем)
 };
 const MAX_NAME = 100;
 
@@ -72,24 +75,24 @@ exports.handler = async function (event) {
   }
 };
 
-// ---- GET ?inv=TOKEN ---------------------------------------------------------
-async function handleGet(token, cors) {
-  const guests = (await readGuests()).filter((g) => g.token === token);
+// ---- GET ?inv=<id приглашения> ----------------------------------------------
+async function handleGet(inv, cors) {
+  const guests = (await readGuests()).filter((g) => g.invitationIds.includes(inv));
   if (guests.length === 0) return jsonResp(404, cors, { error: "invitation_not_found" });
-  return jsonResp(200, cors, { token, guests: guests.map(publicGuest) });
+  return jsonResp(200, cors, { inv, guests: guests.map(publicGuest) });
 }
 
 // ---- POST {inv, guestId, answers} -------------------------------------------
 async function handlePost(body, cors) {
   if (!body) return jsonResp(400, cors, { error: "bad_json" });
 
-  const token = String(body.inv || "").trim();
+  const inv = String(body.inv || "").trim();
   const guestId = String(body.guestId || "").trim();
   const a = body.answers || {};
-  if (!token || !guestId) return jsonResp(400, cors, { error: "missing_fields" });
+  if (!inv || !guestId) return jsonResp(400, cors, { error: "missing_fields" });
 
   // авторизация: гость должен реально принадлежать этому приглашению
-  const guest = (await readGuests()).find((g) => g.id === guestId && g.token === token);
+  const guest = (await readGuests()).find((g) => g.id === guestId && g.invitationIds.includes(inv));
   if (!guest) return jsonResp(403, cors, { error: "forbidden" });
 
   // строгая валидация входа (whitelist значений)
@@ -138,6 +141,13 @@ async function craft(method, path, body) {
   });
 }
 
+// id приглашений, к которым привязан гость (из relation «Приглашение»).
+function invitationIdsOf(p) {
+  const rel = p[F.invitation];
+  const arr = rel && Array.isArray(rel.relations) ? rel.relations : [];
+  return arr.map((r) => r && r.blockId).filter(Boolean);
+}
+
 // Один вызов отдаёт все item'ы коллекции с именами И свойствами.
 async function readGuests() {
   const res = await craft("GET", `/blocks?id=${GUESTS_COLLECTION}`);
@@ -149,7 +159,7 @@ async function readGuests() {
     return {
       id: it.id,
       name: it.title || "",
-      token: (p[F.token] || "").trim(),
+      invitationIds: invitationIdsOf(p),
       attending: p[F.attending] || "",
       drinks: p[F.drinks] || "",
       drinkList: Array.isArray(p[F.drinkList]) ? p[F.drinkList] : [],

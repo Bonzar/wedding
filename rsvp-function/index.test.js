@@ -14,25 +14,26 @@ process.env.ALLOWED_ORIGINS = "https://bonzarr.github.io";
 const { handler } = require("./index.js");
 
 const GUESTS_COLLECTION = "2fd42736-e580-ff98-a421-e5ba577ad706";
-// карта ключей полей (должна совпадать с index.js; сверена с боевой схемой 2026-06-21)
-const TITLE = "_7";
-const F = { token: "", attending: "_2", drinks: "_3", drinkList: "_4", answered: "_", date: "__2", comment: "_5", isPlus: "_6" };
+// карта ключей полей (должна совпадать с index.js; сверена с боевой схемой 2026-06-21).
+// inv = id приглашения; связь хранится relation-полем «Приглашение» (ключ "").
+const TITLE = "_8";
+const F = { invitation: "", attending: "_3", drinks: "_4", drinkList: "_5", answered: "_", date: "__2", comment: "_6", isPlus: "_7" };
 
-// --- фикстуры: несколько приглашений, чтобы проверять скоупинг и +1 ------------
+// --- фикстуры: несколько приглашений (inv = id), чтобы проверять скоупинг и +1 ---
 function fixtureGuests() {
   return [
-    { id: "g1", name: "Ольга",     token: "AAA" },
-    { id: "g2", name: "Владислав", token: "AAA" },
-    { id: "g3", name: "Иван",      token: "BBB" },
-    { id: "gc", name: "Аня",       token: "CCC" },                 // основной гость
-    { id: "gp", name: "+1",        token: "CCC", isPlus: true },   // слот спутника
+    { id: "g1", name: "Ольга",     inv: "AAA" },
+    { id: "g2", name: "Владислав", inv: "AAA" },
+    { id: "g3", name: "Иван",      inv: "BBB" },
+    { id: "gc", name: "Аня",       inv: "CCC" },                 // основной гость
+    { id: "gp", name: "+1",        inv: "CCC", isPlus: true },   // слот спутника
   ];
 }
 function toItem(g) {
   return {
     id: g.id, type: "collectionItem", title: g.name,
     properties: {
-      [F.token]: g.token,
+      [F.invitation]: { relations: [{ blockId: g.inv }] },
       [F.attending]: g.attending || "",
       [F.drinks]: g.drinks || "",
       [F.drinkList]: g.drinkList || [],
@@ -100,11 +101,11 @@ test("неизвестный метод -> 405", async () => {
 });
 
 // ============================ GET чтение =====================================
-test("GET valid token -> только гости этой группы (скоупинг)", async () => {
+test("GET valid inv -> только гости этого приглашения (скоупинг)", async () => {
   const r = await handler(ev("GET", { q: { inv: "AAA" } }));
   assert.equal(r.statusCode, 200);
   const data = parse(r);
-  assert.equal(data.token, "AAA");
+  assert.equal(data.inv, "AAA");
   assert.deepEqual(data.guests.map((g) => g.name).sort(), ["Владислав", "Ольга"]);
   // чужой гость не утёк
   assert.ok(!data.guests.some((g) => g.name === "Иван"));
@@ -118,7 +119,7 @@ test("GET читает именно гостевую коллекцию чере
   assert.ok(get.url.includes(`/blocks?id=${GUESTS_COLLECTION}`));
 });
 
-test("GET неизвестный токен -> 404", async () => {
+test("GET неизвестный inv -> 404", async () => {
   const r = await handler(ev("GET", { q: { inv: "ZZZ" } }));
   assert.equal(r.statusCode, 404);
 });
@@ -222,7 +223,7 @@ test("GET отдаёт флаг isPlus для слота спутника", asyn
   assert.equal(plus.isPlus, true);
 });
 
-test("+1: можно задать имя спутника -> уходит в title (_7)", async () => {
+test("+1: можно задать имя спутника -> уходит в title (_8)", async () => {
   const r = await handler(ev("POST", { body: { inv: "CCC", guestId: "gp", name: "Пётр", answers: { attending: "Да" } } }));
   assert.equal(r.statusCode, 200);
   const upd = putCall().body.itemsToUpdate[0];
