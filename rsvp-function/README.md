@@ -49,14 +49,17 @@ yc serverless function allow-unauthenticated-invoke wedding-rsvp
 - **`POST`** с JSON-телом — сохранить ответ.
 - `GET` без `inv` — health-check (`{"ok":true}`).
 
-### Ответ `GET ?inv=TOKEN`
+### Ответ `GET ?inv=<id приглашения>`
+`inv` — это **id записи в коллекции «Приглашения»**. Связь гость→приглашение хранится
+relation-полем «Приглашение» прямо в строке гостя, поэтому функция читает одну
+коллекцию «Гости» и фильтрует по этому id.
 ```json
-{ "token": "<TEST_TOKEN>",
+{ "inv": "<id приглашения>",
   "guests": [
     { "guestId": "…", "name": "Ольга", "answered": false,
       "attending": "", "drinks": "", "drinkList": [], "comment": "" } ] }
 ```
-`404` — приглашение с таким токеном не найдено.
+`404` — приглашение с таким id не найдено (нет гостей с такой связью).
 
 ### Тело `POST`
 ```json

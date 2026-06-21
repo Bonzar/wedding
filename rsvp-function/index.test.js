@@ -14,31 +14,30 @@ process.env.ALLOWED_ORIGINS = "https://bonzarr.github.io";
 const { handler } = require("./index.js");
 
 const GUESTS_COLLECTION = "2fd42736-e580-ff98-a421-e5ba577ad706";
-// карта ключей полей (должна совпадать с index.js; сверена с боевой схемой 2026-06-21)
-const TITLE = "_7";
-const F = { token: "", attending: "_2", drinks: "_3", drinkList: "_4", answered: "_", date: "__2", comment: "_5", isPlus: "_6" };
+// СТАБИЛЬНЫЕ ключи колонок (должны совпадать с index.js): деривированы из латинских
+// имён колонок «Гости». inv = id приглашения; связь — relation guests_group.
+const F = { invitation: "guests_group", attending: "attending", drinks: "alcohol", drinkList: "drinks", answered: "answered", date: "answeredat", comment: "comment" };
 
-// --- фикстуры: несколько приглашений, чтобы проверять скоупинг и +1 ------------
+// --- фикстуры: несколько приглашений (inv = id), для проверки скоупинга ---
 function fixtureGuests() {
   return [
-    { id: "g1", name: "Ольга",     token: "AAA" },
-    { id: "g2", name: "Владислав", token: "AAA" },
-    { id: "g3", name: "Иван",      token: "BBB" },
-    { id: "gc", name: "Аня",       token: "CCC" },                 // основной гость
-    { id: "gp", name: "+1",        token: "CCC", isPlus: true },   // слот спутника
+    { id: "g1", name: "Ольга",     inv: "AAA" },
+    { id: "g2", name: "Владислав", inv: "AAA" },
+    { id: "g3", name: "Иван",      inv: "BBB" },
+    { id: "g4", name: "Аня",       inv: "CCC" },
+    { id: "g5", name: "Пётр",      inv: "CCC" },
   ];
 }
 function toItem(g) {
   return {
     id: g.id, type: "collectionItem", title: g.name,
     properties: {
-      [F.token]: g.token,
+      [F.invitation]: { relations: [{ blockId: g.inv }] },
       [F.attending]: g.attending || "",
       [F.drinks]: g.drinks || "",
       [F.drinkList]: g.drinkList || [],
       [F.answered]: !!g.answered,
       [F.comment]: g.comment || "",
-      [F.isPlus]: !!g.isPlus,
     },
   };
 }
@@ -100,11 +99,11 @@ test("неизвестный метод -> 405", async () => {
 });
 
 // ============================ GET чтение =====================================
-test("GET valid token -> только гости этой группы (скоупинг)", async () => {
+test("GET valid inv -> только гости этого приглашения (скоупинг)", async () => {
   const r = await handler(ev("GET", { q: { inv: "AAA" } }));
   assert.equal(r.statusCode, 200);
   const data = parse(r);
-  assert.equal(data.token, "AAA");
+  assert.equal(data.inv, "AAA");
   assert.deepEqual(data.guests.map((g) => g.name).sort(), ["Владислав", "Ольга"]);
   // чужой гость не утёк
   assert.ok(!data.guests.some((g) => g.name === "Иван"));
@@ -118,7 +117,7 @@ test("GET читает именно гостевую коллекцию чере
   assert.ok(get.url.includes(`/blocks?id=${GUESTS_COLLECTION}`));
 });
 
-test("GET неизвестный токен -> 404", async () => {
+test("GET неизвестный inv -> 404", async () => {
   const r = await handler(ev("GET", { q: { inv: "ZZZ" } }));
   assert.equal(r.statusCode, 404);
 });
@@ -213,36 +212,12 @@ test("POST: тело в base64 (как шлёт Yandex) парсится", async
   assert.equal(r.statusCode, 200);
 });
 
-// ============================ +1 (спутник) ===================================
-test("GET отдаёт флаг isPlus для слота спутника", async () => {
-  const data = parse(await handler(ev("GET", { q: { inv: "CCC" } })));
-  const anya = data.guests.find((g) => g.name === "Аня");
-  const plus = data.guests.find((g) => g.guestId === "gp");
-  assert.equal(anya.isPlus, false);
-  assert.equal(plus.isPlus, true);
-});
-
-test("+1: можно задать имя спутника -> уходит в title (_7)", async () => {
-  const r = await handler(ev("POST", { body: { inv: "CCC", guestId: "gp", name: "Пётр", answers: { attending: "Да" } } }));
-  assert.equal(r.statusCode, 200);
-  const upd = putCall().body.itemsToUpdate[0];
-  assert.equal(upd[TITLE], "Пётр");
-  assert.equal(parse(r).saved.name, "Пётр");
-});
-
-test("+1: «приду без спутника» = attending Нет, без имени", async () => {
-  const r = await handler(ev("POST", { body: { inv: "CCC", guestId: "gp", answers: { attending: "Нет" } } }));
-  assert.equal(r.statusCode, 200);
-  const upd = putCall().body.itemsToUpdate[0];
-  assert.equal(upd.properties[F.attending], "Нет");
-  assert.equal(upd.properties[F.drinkList].length, 0);
-  assert.ok(!(TITLE in upd), "имя не трогаем, если не прислано");
-});
-
-test("обычный гость НЕ может себя переименовать (name игнорируется)", async () => {
+// ============================ запись НЕ трогает имя/title =====================
+test("POST никогда не пишет title (имя гостя неизменно)", async () => {
   await handler(ev("POST", { body: { inv: "AAA", guestId: "g1", name: "Хакер", answers: { attending: "Да" } } }));
   const upd = putCall().body.itemsToUpdate[0];
-  assert.ok(!(TITLE in upd), "title обычного гостя не меняется");
+  assert.ok(!("name" in upd), "верхний ключ name (title) не трогаем");
+  assert.ok(!("name" in upd.properties), "и в properties name не пишем");
 });
 
 // ============================ устойчивость к сбоям Craft ======================

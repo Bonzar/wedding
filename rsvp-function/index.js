@@ -10,10 +10,11 @@
  *
  * Наружу — ровно две операции, только над гостевой коллекцией (роутинг по методу,
  * т.к. у публичного URL функции нет путей):
- *   GET  ?inv=TOKEN                       -> гости группы + их текущие ответы
- *   POST {inv, guestId, name?, answers}   -> сохранить ответ одного гостя
- *        (name учитывается только для слота «+1»; attending="Нет" у +1 = без спутника)
- * Никаких DELETE, никакого доступа к другим коллекциям/документам.
+ *   GET  ?inv=<id приглашения>       -> гости этого приглашения + их ответы
+ *   POST {inv, guestId, answers}     -> сохранить ответ одного гостя
+ * `inv` — это id записи в коллекции «Приглашения». Связь гость->приглашение хранится
+ * relation-полем прямо в строке гостя, поэтому функция читает ОДНУ коллекцию («Гости»)
+ * и фильтрует по этому id. Никаких DELETE, никакого доступа к другим коллекциям.
  *
  * Переменные окружения функции:
  *   CRAFT_API        — полный базовый URL с линком:
@@ -25,21 +26,21 @@
 // Гостевая коллекция — захардкожена. Клиент НИКОГДА не передаёт id коллекции.
 const GUESTS_COLLECTION = "2fd42736-e580-ff98-a421-e5ba577ad706"; // «Гости (RSVP)»
 
-// Карта ключей полей коллекции «Гости (RSVP)». Сверена с боевой схемой 2026-06-21
-// (collections schema + raw item JSON): имя приходит как it.title; «Токен» — это
-// контент-проперти с ПУСТЫМ ключом ""; остальные колонки — _2.._6.
-const TITLE = "_7";  // «Имя» — заголовок item'а (при записи кладётся верхним полем)
+// СТАБИЛЬНЫЕ ключи колонок. В Craft ключ деривируется из ЛАТИНСКОГО имени колонки
+// ("Attending" -> "attending", "Guests group" -> "guests_group") и НЕ сдвигается при
+// reorder/add/remove — в отличие от позиционных ключей кириллических имён (_2, _3, …).
+// Поэтому колонки «Гости» названы латиницей. ⚠️ НЕ переименовывать колонки: ключ
+// следует за именем (переименовал — ключ сменился, функцию надо обновить).
+const TITLE = "name"; // «Name» — заголовок item'а (читается как it.title)
 const F = {
-  token:     "",     // text (контент-проперти, ключ "") — токен приглашения
-  attending: "_2",   // singleSelect  — «Придёт»: Да / Нет
-  drinks:    "_3",   // singleSelect  — «Алкоголь»: Да / Нет
-  drinkList: "_4",   // multiSelect   — «Напитки»
-  answered:  "_",    // boolean       — «Ответ получен»
-  date:      "__2",  // date          — «Дата ответа» (YYYY-MM-DD)
-  comment:   "_5",   // text          — «Комментарий»
-  isPlus:    "_6",   // boolean       — «Спутник» (+1; имя редактируемое самим гостем)
+  invitation: "guests_group", // relation -> «Приглашения»; blockId = id приглашения = inv
+  attending:  "attending",    // singleSelect — придёт: Да / Нет
+  drinks:     "alcohol",      // singleSelect — будет пить алкоголь: Да / Нет
+  drinkList:  "drinks",       // multiSelect  — какие напитки
+  answered:   "answered",     // boolean      — ответ получен
+  date:       "answeredat",   // date         — дата ответа (YYYY-MM-DD)
+  comment:    "comment",      // text         — комментарий
 };
-const MAX_NAME = 100;
 
 const YES_NO = ["Да", "Нет"];
 const DRINKS = [
@@ -72,24 +73,24 @@ exports.handler = async function (event) {
   }
 };
 
-// ---- GET ?inv=TOKEN ---------------------------------------------------------
-async function handleGet(token, cors) {
-  const guests = (await readGuests()).filter((g) => g.token === token);
+// ---- GET ?inv=<id приглашения> ----------------------------------------------
+async function handleGet(inv, cors) {
+  const guests = (await readGuests()).filter((g) => g.invitationIds.includes(inv));
   if (guests.length === 0) return jsonResp(404, cors, { error: "invitation_not_found" });
-  return jsonResp(200, cors, { token, guests: guests.map(publicGuest) });
+  return jsonResp(200, cors, { inv, guests: guests.map(publicGuest) });
 }
 
 // ---- POST {inv, guestId, answers} -------------------------------------------
 async function handlePost(body, cors) {
   if (!body) return jsonResp(400, cors, { error: "bad_json" });
 
-  const token = String(body.inv || "").trim();
+  const inv = String(body.inv || "").trim();
   const guestId = String(body.guestId || "").trim();
   const a = body.answers || {};
-  if (!token || !guestId) return jsonResp(400, cors, { error: "missing_fields" });
+  if (!inv || !guestId) return jsonResp(400, cors, { error: "missing_fields" });
 
   // авторизация: гость должен реально принадлежать этому приглашению
-  const guest = (await readGuests()).find((g) => g.id === guestId && g.token === token);
+  const guest = (await readGuests()).find((g) => g.id === guestId && g.invitationIds.includes(inv));
   if (!guest) return jsonResp(403, cors, { error: "forbidden" });
 
   // строгая валидация входа (whitelist значений)
@@ -116,17 +117,10 @@ async function handlePost(body, cors) {
 
   const item = { id: guestId, properties };
 
-  // имя можно задать ТОЛЬКО у слота «+1» (спутник) — обычный гость себя не переименует
-  let savedName;
-  if (guest.isPlus) {
-    const name = String(body.name || "").trim().slice(0, MAX_NAME);
-    if (name) { item[TITLE] = name; savedName = name; }
-  }
-
   const res = await craft("PUT", `/collections/${GUESTS_COLLECTION}/items`, { itemsToUpdate: [item] });
   if (!res.ok) return jsonResp(502, cors, { error: "craft_write_failed", status: res.status });
 
-  return jsonResp(200, cors, { ok: true, guestId, saved: { attending, drinks, drinkList, comment, name: savedName } });
+  return jsonResp(200, cors, { ok: true, guestId, saved: { attending, drinks, drinkList, comment } });
 }
 
 // ---- Craft helpers ----------------------------------------------------------
@@ -136,6 +130,12 @@ async function craft(method, path, body) {
     headers: { "Content-Type": "application/json", "Accept": "application/json", "User-Agent": UA },
     body: body == null ? undefined : JSON.stringify(body),
   });
+}
+
+// id приглашений, к которым привязан гость (из relation guests_group).
+function relIds(rel) {
+  const arr = rel && Array.isArray(rel.relations) ? rel.relations : [];
+  return arr.map((r) => r && r.blockId).filter(Boolean);
 }
 
 // Один вызов отдаёт все item'ы коллекции с именами И свойствами.
@@ -149,20 +149,19 @@ async function readGuests() {
     return {
       id: it.id,
       name: it.title || "",
-      token: (p[F.token] || "").trim(),
+      invitationIds: relIds(p[F.invitation]),
       attending: p[F.attending] || "",
       drinks: p[F.drinks] || "",
       drinkList: Array.isArray(p[F.drinkList]) ? p[F.drinkList] : [],
       answered: !!p[F.answered],
       comment: p[F.comment] || "",
-      isPlus: !!p[F.isPlus],
     };
   });
 }
 
 function publicGuest(g) {
   return {
-    guestId: g.id, name: g.name, answered: g.answered, isPlus: g.isPlus,
+    guestId: g.id, name: g.name, answered: g.answered,
     attending: g.attending, drinks: g.drinks, drinkList: g.drinkList, comment: g.comment,
   };
 }
