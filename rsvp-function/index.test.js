@@ -14,9 +14,9 @@ process.env.ALLOWED_ORIGINS = "https://bonzarr.github.io";
 const { handler } = require("./index.js");
 
 const GUESTS_COLLECTION = "2fd42736-e580-ff98-a421-e5ba577ad706";
-// карта ключей полей (должна совпадать с index.js)
-const TITLE = "_8";
-const F = { token: "_2", attending: "_3", drinks: "_4", drinkList: "_5", answered: "_", date: "__2", comment: "_6", isPlus: "_7" };
+// карта ключей полей (должна совпадать с index.js; сверена с боевой схемой 2026-06-21)
+const TITLE = "_7";
+const F = { token: "", attending: "_2", drinks: "_3", drinkList: "_4", answered: "_", date: "__2", comment: "_5", isPlus: "_6" };
 
 // --- фикстуры: несколько приглашений, чтобы проверять скоупинг и +1 ------------
 function fixtureGuests() {
@@ -222,7 +222,7 @@ test("GET отдаёт флаг isPlus для слота спутника", asyn
   assert.equal(plus.isPlus, true);
 });
 
-test("+1: можно задать имя спутника -> уходит в title (_8)", async () => {
+test("+1: можно задать имя спутника -> уходит в title (_7)", async () => {
   const r = await handler(ev("POST", { body: { inv: "CCC", guestId: "gp", name: "Пётр", answers: { attending: "Да" } } }));
   assert.equal(r.statusCode, 200);
   const upd = putCall().body.itemsToUpdate[0];
