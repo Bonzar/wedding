@@ -1,0 +1,64 @@
+/* ----------------------------------------------------------------------------
+   Photo theming — растровые фото под палитру темы, без правки самих файлов.
+   Цвета берутся из токенов: --ink (тёмный «чернильный»), --paper (светлый фон).
+   Меняешь токены темы -> фото перекрашиваются автоматически.
+   Фото остаются исходными (свопаются на реальные), эффект — только в рантайме.
+---------------------------------------------------------------------------- */
+
+:root {
+  /* дефолтные плейсхолдеры (реальные значения зададим, когда выберем цвет) */
+  --ink: #2b3a4f;
+  --paper: #f4efe4;
+}
+
+/* Базовая рамка-обёртка для фото (по желанию) */
+.photo {
+  position: relative;
+  overflow: hidden;
+  display: inline-block;
+  line-height: 0;
+}
+.photo > img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* --- Вариант 1: лёгкий тон (hue темы поверх ЧБ) -------------------------- */
+/* Самый дешёвый. Сохраняет полутона фото, подкрашивает в цвет --ink.        */
+.photo--tint > img {
+  filter: grayscale(1) contrast(1.05) brightness(1.02);
+}
+.photo--tint::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--ink);
+  mix-blend-mode: color;   /* берёт hue+sat оверлея, luma — из фото */
+  opacity: .82;
+  pointer-events: none;
+}
+
+/* --- Вариант 2: полноценный дуотон (тени=--ink, света=--paper) ----------- */
+/* Ближе к «гравюрной» эстетике: двухцветное фото, оба цвета из темы.        */
+.photo--duotone {
+  background: var(--ink);            /* база теней */
+  isolation: isolate;               /* запираем blend внутри */
+}
+.photo--duotone > img {
+  filter: grayscale(1) contrast(1.1);
+  mix-blend-mode: screen;           /* светлота фото поверх тёмной базы */
+}
+.photo--duotone::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--paper);
+  mix-blend-mode: multiply;         /* ограничивает света цветом бумаги */
+  pointer-events: none;
+}
+
+/* --- Вариант 3: чистое ЧБ (если тема нейтральная / для save-the-date) ----- */
+.photo--bw > img { filter: grayscale(1) contrast(1.06); }
+
+/* Доступность: при prefers-reduced-data можно отключать тяжёлые эффекты, и т.п. */

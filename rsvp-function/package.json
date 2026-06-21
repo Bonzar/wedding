@@ -1,0 +1,10 @@
+{
+  "name": "wedding-rsvp",
+  "version": "1.0.0",
+  "private": true,
+  "description": "RSVP proxy (Yandex Cloud Function) for the wedding landing",
+  "main": "index.js",
+  "scripts": {
+    "test": "node --test"
+  }
+}

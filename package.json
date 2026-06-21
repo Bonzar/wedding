@@ -1,0 +1,9 @@
+{
+  "type": "module",
+  "scripts": {
+    "test": "node --test assets/rsvp.test.mjs"
+  },
+  "dependencies": {
+    "puppeteer-core": "^25.1.0"
+  }
+}
