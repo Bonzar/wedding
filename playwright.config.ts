@@ -26,7 +26,7 @@ export default defineConfig({
   },
   projects: [{ name: "chromium" }],
   webServer: {
-    command: "npm run dev -- --port 5180 --strictPort",
+    command: "node node_modules/vite/bin/vite.js --port 5180 --strictPort",
     url: "http://localhost:5180",
     reuseExistingServer: !process.env.CI,
     timeout: 60_000,

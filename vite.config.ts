@@ -2,6 +2,12 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { fileURLToPath, URL } from "node:url";
 
+// Боевая функция-прокси (читает/пишет Craft). В dev фронт ходит на /rsvp-api
+// (см. src/rsvp/api.ts), а ЭТОТ прокси форвардит запрос server-side — поэтому
+// браузерного CORS нет (same-origin), и localhost НЕ нужно добавлять в
+// ALLOWED_ORIGINS функции (прод остаётся залочен на bonzar.github.io).
+const RSVP_FN = "https://functions.yandexcloud.net/d4ej3htfmmdbnvbfsvkq";
+
 // Relative base → работает и на user-pages (bonzar.github.io), и на project-pages
 // (.../wedding/), и при локальном preview. Сайт одностраничный (хэш-якоря + ?inv=),
 // path-роутинга нет, поэтому относительные пути безопасны.
@@ -11,6 +17,18 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": fileURLToPath(new URL("./src", import.meta.url)),
+    },
+  },
+  server: {
+    // dev: /rsvp-api/* -> функция (server-side, без CORS). Origin подменяем на
+    // разрешённый, чтобы функция отвечала как «своему».
+    proxy: {
+      "/rsvp-api": {
+        target: RSVP_FN,
+        changeOrigin: true,
+        rewrite: (p) => p.replace(/^\/rsvp-api/, ""),
+        headers: { origin: "https://bonzar.github.io" },
+      },
     },
   },
   build: {

@@ -15,7 +15,7 @@ export const FIXTURE_GUESTS = [
  */
 export async function setupDeterministic(page: Page) {
   await freezeNow(page);
-  await page.route(/functions\.yandexcloud\.net/, async (route) => {
+  await page.route(/functions\.yandexcloud\.net|\/rsvp-api/, async (route) => {
     const method = route.request().method();
     if (method === "GET") {
       await route.fulfill({ json: { token: "TEST", guests: FIXTURE_GUESTS } });
