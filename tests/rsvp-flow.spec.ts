@@ -5,7 +5,7 @@ import { setupDeterministic, settle, freezeNow } from "./screenshot/fixtures";
 test("гость отвечает и видит подтверждение", async ({ page }) => {
   const posted: unknown[] = [];
   await freezeNow(page);
-  await page.route(/functions\.yandexcloud\.net/, async (route) => {
+  await page.route(/functions\.yandexcloud\.net|\/rsvp-api/, async (route) => {
     const req = route.request();
     if (req.method() === "GET") {
       await route.fulfill({

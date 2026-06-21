@@ -5,7 +5,12 @@
  */
 import type { Answers, FetchLike, InviteResponse, SavePayload, YesNo } from "./types";
 
-export const RSVP_API = "https://functions.yandexcloud.net/d4ej3htfmmdbnvbfsvkq";
+// В dev фронт ходит на /rsvp-api — Vite проксирует его в функцию server-side (без
+// браузерного CORS, см. vite.config.ts), поэтому localhost НЕ нужно добавлять в
+// ALLOWED_ORIGINS функции. В проде — прямой публичный URL (CORS залочен на github.io).
+export const RSVP_API = import.meta.env.DEV
+  ? "/rsvp-api"
+  : "https://functions.yandexcloud.net/d4ej3htfmmdbnvbfsvkq";
 
 export const DRINKS = [
   "Игристое вино",
