@@ -1,0 +1,18 @@
+/* WeddingOf — соответствует спекам исходного build_index.py (.wedding-of). */
+.weddingOf {
+}
+
+.photoWrap {
+  width: 46%;
+  margin: 0 auto;
+  position: relative;
+}
+
+.eyebrow {
+  margin-top: calc(39 * var(--u));
+}
+
+.names {
+  font-size: calc(56 * var(--u));
+  margin-top: calc(20 * var(--u));
+}

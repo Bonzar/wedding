@@ -1,0 +1,160 @@
+/* ============================================================================
+   База: reset, лист (.sheet — флюид-контейнер), общие утилиты типографики и
+   иллюстраций. Имена классов сохранены как в исходном лендинге, чтобы перенос
+   секций был дословным. Размеры — через calc(N * var(--u)) (база макета 440px).
+   ========================================================================== */
+
+* {
+  box-sizing: border-box;
+}
+html,
+body {
+  margin: 0;
+}
+body {
+  background: var(--page-edge);
+  color: var(--text);
+  font-family: var(--f-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Лист-приглашение: флюид 100% -> max 900px; контейнер для cqw-единиц. */
+.sheet {
+  width: 100%;
+  max-width: var(--page-max);
+  margin: 0 auto;
+  min-height: 100vh;
+  background: var(--paper);
+  container-type: inline-size;
+  box-shadow: var(--shadow-sheet);
+}
+
+section {
+  position: relative;
+  overflow: hidden;
+  padding: var(--section-pad-y) var(--gutter);
+}
+.wrap {
+  position: relative;
+  margin: 0 auto;
+  text-align: center;
+}
+
+/* — иллюстрации (инлайновый SVG, наследует currentColor) — */
+.ill {
+  display: inline-flex;
+  color: var(--ink);
+  line-height: 0;
+  vertical-align: top;
+}
+.ill svg {
+  display: block;
+  width: auto !important;
+  height: var(--h) !important;
+}
+
+/* — типографика (как в исходнике) — */
+.eyebrow {
+  font-family: var(--f-label);
+  text-transform: uppercase;
+  letter-spacing: 0.25em;
+  font-size: calc(12.5 * var(--u));
+  font-weight: 400;
+  color: var(--ink-muted);
+}
+.script {
+  font-family: var(--f-script);
+  font-weight: 400;
+  color: var(--ink-strong);
+  line-height: 1.02;
+}
+.amp {
+  font-family: var(--f-body);
+  font-weight: 400;
+  color: var(--ink-muted);
+}
+.meta {
+  font-family: var(--f-label);
+  font-weight: 300;
+  font-size: calc(16 * var(--u));
+  letter-spacing: 0.02em;
+  color: var(--ink-muted);
+}
+.body {
+  font-family: var(--f-body);
+  font-weight: 400;
+  font-size: calc(14 * var(--u));
+  line-height: 1.7;
+  color: var(--text);
+}
+.sub {
+  font-family: var(--f-label);
+  font-weight: 400;
+  font-size: calc(15 * var(--u));
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+/* — кнопка-пилюля — */
+.btn {
+  display: inline-block;
+  font-family: var(--f-label);
+  font-size: calc(15 * var(--u));
+  letter-spacing: 0.04em;
+  font-weight: 300;
+  text-decoration: none;
+  text-align: center;
+  background: var(--ink);
+  color: var(--on-ink);
+  padding: calc(15 * var(--u)) calc(30 * var(--u));
+  border-radius: var(--r-pill);
+  border: none;
+  cursor: pointer;
+}
+
+/* — разделители / отступы-хелперы — */
+.divider {
+  display: flex;
+  justify-content: center;
+  margin: calc(18 * var(--u)) 0;
+  color: var(--ink);
+}
+.gap-s {
+  margin-top: calc(9 * var(--u));
+}
+.gap-m {
+  margin-top: calc(18 * var(--u));
+}
+.gap-l {
+  margin-top: calc(30 * var(--u));
+}
+
+/* — фоторамка-плейсхолдер (рисованные уголки) — */
+.photo {
+  position: relative;
+  margin: 0 auto;
+}
+.photo .frame {
+  position: absolute;
+  inset: calc(-14 * var(--u));
+  color: var(--ink);
+  pointer-events: none;
+}
+.photo .frame svg {
+  width: 100% !important;
+  height: 100% !important;
+}
+.photo .ph {
+  position: absolute;
+  inset: 0;
+  background: color-mix(in srgb, var(--ink) 9%, var(--paper-bright));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--f-label);
+  font-size: calc(11 * var(--u));
+  letter-spacing: 0.16em;
+  color: var(--ink-muted);
+  text-transform: uppercase;
+}

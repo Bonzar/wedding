@@ -1,0 +1,40 @@
+/* Attire — соответствует спекам исходного build_index.py (.attire). */
+.ill {
+  margin-top: calc(14 * var(--u));
+}
+
+.text {
+  margin-top: calc(14 * var(--u));
+  max-width: 84%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.palette {
+  display: flex;
+  justify-content: center;
+  gap: calc(10 * var(--u));
+  margin-top: calc(16 * var(--u));
+}
+.palette i {
+  width: calc(34 * var(--u));
+  height: calc(34 * var(--u));
+  border-radius: 50%;
+  display: block;
+  box-shadow: inset 0 0 0 calc(2 * var(--u)) var(--paper-bright);
+}
+.palette i:nth-child(1) {
+  background: var(--ink);
+}
+.palette i:nth-child(2) {
+  background: color-mix(in srgb, var(--ink) 78%, var(--paper));
+}
+.palette i:nth-child(3) {
+  background: color-mix(in srgb, var(--ink) 58%, var(--paper));
+}
+.palette i:nth-child(4) {
+  background: color-mix(in srgb, var(--ink) 40%, var(--paper));
+}
+.palette i:nth-child(5) {
+  background: color-mix(in srgb, var(--ink) 24%, var(--paper));
+}

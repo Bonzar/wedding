@@ -1,0 +1,66 @@
+/* Timeline — соответствует спекам исходного build_index.py (.timeline / .tl). */
+.timeline {
+  position: relative;
+}
+
+.decoLeft {
+  position: absolute;
+  top: calc(4 * var(--u));
+  left: calc(-14 * var(--u));
+}
+
+.decoRight {
+  position: absolute;
+  top: calc(4 * var(--u));
+  right: calc(-14 * var(--u));
+}
+
+.tl {
+  position: relative;
+  max-width: calc(330 * var(--u));
+  margin: calc(30 * var(--u)) auto 0;
+}
+.tl::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: calc(6 * var(--u));
+  bottom: calc(6 * var(--u));
+  width: 1px;
+  background: var(--line);
+}
+
+.item {
+  position: relative;
+  width: 50%;
+  padding: 0 calc(16 * var(--u));
+  margin-top: calc(30 * var(--u));
+}
+.item:first-child {
+  margin-top: 0;
+}
+
+.itemL {
+  text-align: right;
+}
+.itemR {
+  margin-left: 50%;
+  text-align: left;
+}
+
+.time {
+  font-family: var(--f-label);
+  font-weight: 300;
+  font-size: calc(12 * var(--u));
+  letter-spacing: 0.04em;
+  color: var(--ink-muted);
+}
+
+.title {
+  font-family: var(--f-label);
+  font-weight: 400;
+  font-size: calc(16 * var(--u));
+  letter-spacing: 0.02em;
+  color: var(--ink-strong);
+  margin-top: calc(3 * var(--u));
+}

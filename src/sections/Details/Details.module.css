@@ -1,0 +1,8 @@
+/* Details — соответствует спекам исходного build_index.py (.details). */
+.blk {
+  margin-top: calc(22 * var(--u));
+}
+
+.text {
+  margin-top: calc(8 * var(--u));
+}

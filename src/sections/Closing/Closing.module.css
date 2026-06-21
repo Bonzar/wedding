@@ -1,0 +1,23 @@
+/* Closing — соответствует спекам исходного build_index.py (.closing). */
+.text {
+  margin-top: calc(40 * var(--u));
+  max-width: 86%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.names {
+  font-family: var(--f-script);
+  font-size: calc(46 * var(--u));
+  color: var(--ink-strong);
+  line-height: 1;
+  margin-top: calc(20 * var(--u));
+}
+
+.birds {
+  display: flex;
+  justify-content: center;
+  gap: calc(24 * var(--u));
+  margin-top: calc(24 * var(--u));
+  color: var(--ink-muted);
+}
