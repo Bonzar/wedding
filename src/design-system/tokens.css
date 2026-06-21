@@ -1,0 +1,72 @@
+/* ============================================================================
+   Дизайн-токены — единственный источник правды по цвету / типографике / шкале.
+   Вся палитра деривируется из ДВУХ seed-токенов: --ink (чернила) и --paper (бумага).
+   Меняешь тему (data-theme на <html>) -> перекрашивается вся страница.
+
+   ФЛЮИД (важно): макет нарисован при ширине листа 440px. Любой размер «из макета»
+   пишется как calc(N * var(--u)), где N — пиксели при 440. --u переводит их в cqw,
+   поэтому лист плавно масштабируется от 440 до --page-max (900), сохраняя пропорции.
+   Это точная замена прежнему build_index.py (px -> px/440*100 cqw).
+   --u резолвится относительно ближайшего контейнера (.sheet, container-type:inline-size).
+   ========================================================================== */
+
+:root {
+  /* — seed-токены (дефолтная тема: индиго/чернила) — */
+  --ink: #344f73;
+  --paper: #f6f1e8;
+
+  /* — деривированная палитра (как в исходном лендинге) — */
+  --ink-strong: color-mix(in srgb, var(--ink) 80%, #0f1620);
+  --ink-muted: color-mix(in srgb, var(--ink) 60%, var(--paper));
+  --ink-faint: color-mix(in srgb, var(--ink) 30%, transparent);
+  --text: color-mix(in srgb, var(--ink) 86%, var(--paper));
+  --line: color-mix(in srgb, var(--ink) 20%, transparent);
+  --paper-bright: color-mix(in srgb, var(--paper) 50%, #fff);
+  --on-ink: var(--paper);
+
+  /* фон вокруг листа (paper-edge) */
+  --page-edge: color-mix(in srgb, var(--ink) 16%, #c7ccd2);
+
+  /* — шрифты — */
+  --f-script: "Great Vibes", cursive;
+  --f-label: "Jost", system-ui, sans-serif;
+  --f-body: "Arimo", "Helvetica Neue", Arial, sans-serif;
+  --f-num: "Special Elite", "Courier New", monospace;
+
+  /* — геометрия листа — */
+  --page-max: 900px; /* кап ширины листа на десктопе */
+  --u: calc(100cqw / 440); /* 1 «пиксель макета» (база 440) в cqw */
+  --gutter: calc(26 * var(--u));
+  --section-pad-y: calc(60 * var(--u));
+  --r-pill: 999px;
+  --r-card: calc(16 * var(--u));
+
+  /* — тени — */
+  --shadow-sheet: 0 0 60px color-mix(in srgb, #000 22%, transparent);
+  --shadow-card: 0 calc(6 * var(--u)) calc(18 * var(--u)) color-mix(in srgb, var(--ink) 14%, transparent);
+}
+
+/* ============================================================================
+   Конфигурируемая палитра — пять тем из исходной дизайн-системы.
+   Применяется через [data-theme] на <html> (см. ThemeStore).
+   ========================================================================== */
+[data-theme="indigo"] {
+  --ink: #344f73;
+  --paper: #f6f1e8;
+}
+[data-theme="bordo"] {
+  --ink: #7a1f2b;
+  --paper: #f4ece2;
+}
+[data-theme="graphite"] {
+  --ink: #2f3338;
+  --paper: #f1efea;
+}
+[data-theme="forest"] {
+  --ink: #244231;
+  --paper: #eef0e6;
+}
+[data-theme="sepia"] {
+  --ink: #5b3a24;
+  --paper: #f4ebdc;
+}

@@ -1,0 +1,37 @@
+.rsvp {
+  position: relative;
+  min-height: calc(340 * var(--u));
+}
+
+.tree {
+  position: absolute;
+  left: calc(-30 * var(--u));
+  bottom: calc(-10 * var(--u));
+  color: var(--ink);
+}
+
+.rwrap {
+  position: relative;
+  text-align: right;
+  padding: calc(54 * var(--u)) calc(6 * var(--u)) calc(54 * var(--u)) 42%;
+}
+
+.rttl {
+  font-family: var(--f-label);
+  font-weight: 500;
+  font-size: calc(30 * var(--u));
+  letter-spacing: .04em;
+  color: var(--ink-strong);
+}
+
+.text {
+  margin-top: calc(13 * var(--u));
+  color: var(--ink-muted);
+}
+
+.cta {
+  margin-top: calc(14 * var(--u));
+  letter-spacing: .16em;
+  padding-left: calc(34 * var(--u));
+  padding-right: calc(34 * var(--u));
+}

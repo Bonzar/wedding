@@ -1,0 +1,22 @@
+/* Gift — соответствует спекам исходного build_index.py (.gift .card). */
+.card {
+  position: relative;
+  border: 1px solid var(--line);
+  border-radius: calc(16 * var(--u));
+  padding: calc(26 * var(--u)) calc(22 * var(--u));
+  margin: 0 auto;
+  width: 74%;
+}
+
+.ill {
+  margin-top: calc(16 * var(--u));
+}
+
+.text {
+  margin-top: calc(14 * var(--u));
+}
+
+.cta {
+  margin-top: calc(16 * var(--u));
+  width: 44%;
+}

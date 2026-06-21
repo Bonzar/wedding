@@ -1,0 +1,45 @@
+/* Journey — соответствует спекам исходного build_index.py (.journey). */
+.step {
+  display: flex;
+  align-items: center;
+  gap: calc(14 * var(--u));
+  margin-top: calc(30 * var(--u));
+}
+
+.rev {
+  flex-direction: row-reverse;
+}
+
+.phWrap {
+  flex: 0 0 56%;
+}
+
+.deco {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  color: var(--ink);
+}
+
+.cap {
+  font-family: var(--f-body);
+  font-style: italic;
+  font-size: calc(13 * var(--u));
+  line-height: 1.6;
+  color: var(--ink-muted);
+  margin-top: calc(10 * var(--u));
+}
+
+.arrow {
+  display: flex;
+  justify-content: center;
+  color: var(--ink);
+  margin: calc(4 * var(--u)) 0;
+}
+
+.foot {
+  display: flex;
+  justify-content: center;
+  color: var(--ink);
+  margin-top: calc(26 * var(--u));
+}

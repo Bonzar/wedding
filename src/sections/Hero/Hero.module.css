@@ -1,0 +1,43 @@
+/* Hero — соответствует спекам исходного build_index.py (.hero). */
+.hero {
+  padding-top: calc(84 * var(--u));
+}
+
+.gazebo {
+  margin-top: calc(37 * var(--u));
+}
+
+.names {
+  font-size: calc(48 * var(--u));
+  margin: calc(30 * var(--u)) 0 0;
+  transform: rotate(-8deg);
+}
+.amp {
+  font-family: var(--f-body);
+  font-weight: 400;
+  color: var(--ink-muted);
+  font-size: 0.62em;
+  display: block;
+  line-height: 0.8;
+}
+
+.meta {
+  margin-top: calc(56 * var(--u));
+}
+
+.cta {
+  margin-top: calc(42 * var(--u));
+  display: block;
+  width: 76%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.scrollhint {
+  margin-top: calc(40 * var(--u));
+  font-family: var(--f-label);
+  font-size: calc(10 * var(--u));
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+}
