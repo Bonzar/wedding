@@ -57,9 +57,9 @@ section {
 .eyebrow {
   font-family: var(--f-label);
   text-transform: uppercase;
-  letter-spacing: 0.25em;
+  letter-spacing: 0.22em;
   font-size: calc(12.5 * var(--u));
-  font-weight: 400;
+  font-weight: 300;
   color: var(--ink-muted);
 }
 .script {
@@ -84,7 +84,7 @@ section {
   font-family: var(--f-body);
   font-weight: 400;
   font-size: calc(14 * var(--u));
-  line-height: 1.7;
+  line-height: 1.55;
   color: var(--text);
 }
 .sub {
@@ -157,4 +157,11 @@ section {
   letter-spacing: 0.16em;
   color: var(--ink-muted);
   text-transform: uppercase;
+}
+/* реальное фото заполняет рамку (aspect-ratio задаёт PhotoFrame) */
+.photo > img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }

@@ -9,6 +9,7 @@ export { Details } from "./Details/Details";
 export { Attire } from "./Attire/Attire";
 export { Gift } from "./Gift/Gift";
 export { Journey } from "./Journey/Journey";
+export { Collage } from "./Collage/Collage";
 export { RsvpIntro } from "./RsvpIntro/RsvpIntro";
 export { Survey } from "./Survey/Survey";
 export { Closing } from "./Closing/Closing";

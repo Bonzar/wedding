@@ -27,17 +27,23 @@
   /* фон вокруг листа (paper-edge) */
   --page-edge: color-mix(in srgb, var(--ink) 16%, #c7ccd2);
 
-  /* — шрифты — */
+  /* — шрифты (подобраны под реф design06 по метрикам) —
+     script: Beautifully Delicious Script → Great Vibes (единственный кириллический луп-скрипт)
+     label:  Futura LT Pro Light       → Jost 300
+     body:   TH Sarabun New (СЕРИФ!)    → PT Serif (а не sans Arimo)
+     num:    цифры в рефе — геометрический Futura → Jost tabular (а не Special Elite) */
   --f-script: "Great Vibes", cursive;
   --f-label: "Jost", system-ui, sans-serif;
-  --f-body: "Arimo", "Helvetica Neue", Arial, sans-serif;
-  --f-num: "Special Elite", "Courier New", monospace;
+  --f-body: "PT Serif", "Times New Roman", Georgia, serif;
+  --f-num: "Jost", system-ui, sans-serif;
 
   /* — геометрия листа — */
   --page-max: 900px; /* кап ширины листа на десктопе */
   --u: calc(100cqw / 440); /* 1 «пиксель макета» (база 440) в cqw */
   --gutter: calc(26 * var(--u));
-  --section-pad-y: calc(60 * var(--u));
+  /* базовый верт. отступ секции — реф плотнее (рит­м 40–70px у эйброу-секций);
+     «дисплейные» секции (details/journey) переопределяют на больший. */
+  --section-pad-y: calc(40 * var(--u));
   --r-pill: 999px;
   --r-card: calc(16 * var(--u));
 

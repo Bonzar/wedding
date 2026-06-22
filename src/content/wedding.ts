@@ -19,6 +19,8 @@ export const EVENT = {
   city: "Сочи",
   /** «26 сентября 2026 · Сочи» — мета-строка hero */
   dateCity: "26 сентября 2026 · Сочи",
+  /** дата на обложке-ротонде (как «Sunday, February 2nd 2026» в рефе) */
+  coverDate: "Суббота, 26 сентября 2026",
   rsvpDeadlineHuman: "1 сентября 2026",
 } as const;
 

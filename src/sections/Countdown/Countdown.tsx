@@ -11,7 +11,8 @@ export function Countdown() {
   return (
     <Section className="countdown">
       <div className={styles.corner}>
-        <Engraving name="bird-branch" height={80} />
+        {/* Точная эталонная гравюра 282cc879 (птица-на-ветке, смотрит вправо). */}
+        <Engraving name="282cc87943f727e5b2862c120f6538e8" height={74} />
       </div>
       <div className={`eyebrow ${styles.eyebrow}`}>Скоро наш день</div>
       <div className={styles.cd}>

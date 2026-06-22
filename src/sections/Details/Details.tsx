@@ -1,8 +1,8 @@
-import { Section, Engraving } from "@/design-system";
+import { Section } from "@/design-system";
 import { DETAILS } from "@/content/wedding";
 import styles from "./Details.module.css";
 
-/** Details: надзаголовок, левовыровненные блоки (заголовок + текст), гравюра-здание. */
+/** Details: надзаголовок и левовыровненные блоки (заголовок + текст). В эталоне нижней гравюры нет. */
 export function Details() {
   return (
     <Section wrapStyle={{ textAlign: "left" }}>
@@ -16,10 +16,6 @@ export function Details() {
           <p className={`body ${styles.text}`}>{d.text}</p>
         </div>
       ))}
-
-      <div style={{ textAlign: "center", marginTop: "calc(26*var(--u))" }}>
-        <Engraving name="building" height={123} />
-      </div>
     </Section>
   );
 }

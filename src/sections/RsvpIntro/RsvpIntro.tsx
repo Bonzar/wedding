@@ -7,7 +7,7 @@ export function RsvpIntro() {
   return (
     <Section id="rsvp" bare className={styles.rsvp}>
       <div className={styles.tree}>
-        <Engraving name="tree-large" height={329} />
+        <Engraving name="tree-large" height={331} />
       </div>
 
       <div className={styles.rwrap}>

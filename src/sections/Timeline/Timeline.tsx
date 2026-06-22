@@ -7,10 +7,10 @@ export function Timeline() {
   return (
     <Section id="timeline" className={styles.timeline}>
       <div className={styles.decoLeft}>
-        <Engraving name="floral-spray" height={96} />
+        <Engraving name="bd32a24ce8c9e350adc04acd7823e3f2" height={141} flip />
       </div>
       <div className={styles.decoRight}>
-        <Engraving name="floral-spray" height={80} flip />
+        <Engraving name="bd32a24ce8c9e350adc04acd7823e3f2" height={203} />
       </div>
 
       <div className="eyebrow">Программа дня</div>
@@ -19,7 +19,7 @@ export function Timeline() {
         {TIMELINE.map((it, i) => (
           <div
             key={it.time}
-            className={styles.item + " " + (i % 2 === 0 ? styles.itemL : styles.itemR)}
+            className={styles.item + " " + (i % 2 === 0 ? styles.itemR : styles.itemL)}
           >
             <div className={styles.time}>{it.time}</div>
             <div className={styles.title}>{it.title}</div>

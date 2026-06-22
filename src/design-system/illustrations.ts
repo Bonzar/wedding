@@ -4,7 +4,7 @@
  * (перекрашивание под --ink) и не плодить <img>. Добавил svg в папку — он сразу
  * доступен в <Engraving name="…">.
  */
-const modules = import.meta.glob("../../assets/illustrations/*.svg", {
+const modules = import.meta.glob("../../assets/illustrations/**/*.svg", {
   query: "?raw",
   import: "default",
   eager: true,
