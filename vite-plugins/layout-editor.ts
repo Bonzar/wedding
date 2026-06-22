@@ -1,6 +1,6 @@
 import type { Plugin } from "vite";
 import { Buffer } from "node:buffer";
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 
 /**
@@ -10,6 +10,9 @@ import { resolve } from "node:path";
 export interface ElementEditPayload {
   selector: string;
   label: string;
+  source?: string;
+  sourceSection?: string;
+  owner?: string;
   tag?: string;
   classes?: string[];
   // геометрия
@@ -27,6 +30,7 @@ export interface ElementEditPayload {
 }
 
 const ENDPOINT = "/__layout-edit/save";
+const LOAD_ENDPOINT = "/__layout-edit/load";
 const OUT_REL = "tools/layout-edits";
 
 /**
@@ -41,6 +45,17 @@ export function layoutEditorPlugin(): Plugin {
     apply: "serve",
     configureServer(server) {
       const outDir = resolve(server.config.root, OUT_REL);
+
+      // GET — отдать сохранённые правки (tools/layout-edits/edits.json) для подгрузки на старте.
+      server.middlewares.use(LOAD_ENDPOINT, (_req, res) => {
+        void (async () => {
+          const raw = await readFile(resolve(outDir, "edits.json"), "utf8").catch(() => "[]");
+          res.statusCode = 200;
+          res.setHeader("content-type", "application/json");
+          res.end(raw);
+        })();
+      });
+
       server.middlewares.use(ENDPOINT, (req, res) => {
         if (req.method !== "POST") {
           res.statusCode = 405;
@@ -106,8 +121,11 @@ function renderCss(edits: ElementEditPayload[]): string {
       e.text != null
         ? `\n   ТЕКСТ → ${JSON.stringify(e.text)} (правится в src/content/wedding.ts, не в CSS)`
         : "";
+    const where = e.source ? `  →  ${e.source}` : "";
+    const sect = e.sourceSection ? ` (секция: ${e.sourceSection})` : "";
+    const own = e.owner ? `\n   КОМПОНЕНТ: ${e.owner}` : "";
     const body = decls.length ? decls.join("\n") : "  /* только текст, CSS-правок нет */";
-    return `/* ${e.label}${textNote} */\n${e.selector} {\n${body}\n}`;
+    return `/* ${e.label}${where}${sect}${own}${textNote} */\n${e.selector} {\n${body}\n}`;
   });
 
   return header + (blocks.join("\n\n") || "/* правок нет */") + "\n";

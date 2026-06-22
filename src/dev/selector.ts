@@ -82,3 +82,108 @@ export function hasText(el: HTMLElement): boolean {
 export function isTextLeaf(el: HTMLElement): boolean {
   return el.childElementCount === 0 && hasText(el);
 }
+
+/**
+ * Позиция элемента в исходниках по React-fiber `_debugSource` (dev-рантайм Vite).
+ * Возвращает `src/.../File.tsx:line` самого элемента и, если он отрендерен внутри
+ * переиспользуемого компонента (напр. <Section>), ближайшего предка из файла секции —
+ * чтобы агент прыгал ровно в нужную JSX-строку, а не гадал по позиционному селектору.
+ */
+interface Fiber {
+  type?: unknown;
+  memoizedProps?: Record<string, unknown> | null;
+  _debugSource?: { fileName?: string; lineNumber?: number };
+  _debugOwner?: Fiber | null;
+  return?: Fiber | null;
+}
+
+export interface SourceInfo {
+  /** позиция самого элемента в коде ("src/.../File.tsx:line") */
+  source?: string;
+  /** ближайший предок из файла секции (если элемент внутри общего компонента) */
+  sourceSection?: string;
+  /** компонент-владелец + опознавательный проп + место вызова, напр.
+   *  `Engraving(name="e6dcd…") @ src/sections/Hero/Hero.tsx:37`. Спасает безымянные svg/path,
+   *  у которых нет ни класса, ни своего fiber (Engraving вставляет SVG через innerHTML). */
+  owner?: string;
+}
+
+export function computeSource(el: HTMLElement): SourceInfo {
+  try {
+    // у потомков «сырого» SVG fiber'а нет — поднимаемся по DOM до ближайшего узла с fiber.
+    let host: HTMLElement | null = el;
+    let fiber = reactFiber(host);
+    let climbed = false;
+    while (!fiber && host?.parentElement) {
+      host = host.parentElement;
+      fiber = reactFiber(host);
+      climbed = true;
+    }
+    if (!fiber) return {};
+
+    const chain: { file: string; line: number }[] = [];
+    let node: Fiber | null = fiber;
+    let hops = 0;
+    while (node && hops < 40) {
+      const s = node._debugSource;
+      if (s?.fileName && s.lineNumber != null) chain.push({ file: relSrc(s.fileName), line: s.lineNumber });
+      node = node.return ?? null;
+      hops++;
+    }
+    const own = chain[0];
+    const section = chain.find((c) => c.file.includes("/sections/"));
+    return {
+      source: own ? `${own.file}:${own.line}${climbed ? " (внутри SVG)" : ""}` : undefined,
+      sourceSection:
+        section && own && (section.file !== own.file || section.line !== own.line)
+          ? `${section.file}:${section.line}`
+          : undefined,
+      owner: describeOwner(fiber),
+    };
+  } catch {
+    return {};
+  }
+}
+
+/** Ближайший компонент-владелец (через `_debugOwner`): имя + опознавательный проп + место вызова. */
+function describeOwner(fiber: Fiber | null): string | undefined {
+  let owner = fiber?._debugOwner ?? null;
+  let hops = 0;
+  while (owner && hops < 12) {
+    const t = owner.type as { displayName?: string; name?: string } | undefined;
+    const name = typeof owner.type === "function" ? t?.displayName || t?.name : undefined;
+    if (name) {
+      const src = owner._debugSource
+        ? ` @ ${relSrc(owner._debugSource.fileName ?? "")}:${owner._debugSource.lineNumber}`
+        : "";
+      return `${name}${identifyingProp(owner.memoizedProps)}${src}`;
+    }
+    owner = owner._debugOwner ?? null;
+    hops++;
+  }
+  return undefined;
+}
+
+/** Короткий опознавательный проп компонента (name/href/id/текст). */
+function identifyingProp(props: Record<string, unknown> | null | undefined): string {
+  if (!props) return "";
+  if (typeof props.name === "string") return `(name="${props.name}")`;
+  if (typeof props.href === "string") return `(href="${props.href}")`;
+  if (typeof props.id === "string") return `(#${props.id})`;
+  if (typeof props.children === "string") return `("${props.children.slice(0, 24)}")`;
+  return "";
+}
+
+/** React-fiber DOM-узла (ключ `__reactFiber$…` / старый `__reactInternalInstance$…`). */
+function reactFiber(el: HTMLElement): Fiber | null {
+  const key = Object.keys(el).find(
+    (k) => k.startsWith("__reactFiber$") || k.startsWith("__reactInternalInstance$"),
+  );
+  return key ? ((el as unknown as Record<string, Fiber>)[key] ?? null) : null;
+}
+
+/** Абсолютный путь fiber → путь от корня репо («src/…»). */
+function relSrc(abs: string): string {
+  const i = abs.lastIndexOf("/src/");
+  return i >= 0 ? abs.slice(i + 1) : abs;
+}

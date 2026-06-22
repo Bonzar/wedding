@@ -68,7 +68,10 @@
   position: absolute;
   z-index: 9999;
   display: flex;
-  gap: 10px;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+  max-width: min(92vw, 560px);
   padding: 3px 8px;
   font: 11px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace;
   color: #fff;
@@ -77,4 +80,11 @@
   border-radius: 6px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
   pointer-events: none;
+}
+
+/* строки с источником/владельцем — могут быть длинными, переносим */
+.readout .info {
+  white-space: normal;
+  word-break: break-all;
+  opacity: 0.85;
 }
