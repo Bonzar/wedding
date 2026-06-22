@@ -1,0 +1,80 @@
+/* Хром live-редактора макета — НЕ темизируется (dev-инструмент). */
+
+.frame {
+  position: absolute;
+  z-index: 9998;
+  box-sizing: border-box;
+  border: 1px solid #2d7ff9;
+  outline: 1px solid rgba(255, 255, 255, 0.6);
+  transform-origin: center;
+  pointer-events: none; /* рамка-обводка не ловит клики; ловят только .move/.handle */
+}
+
+/* внутренняя зона — перетаскивание (translate) */
+.move {
+  position: absolute;
+  inset: 0;
+  pointer-events: auto;
+  cursor: move;
+  background: rgba(45, 127, 249, 0.06);
+}
+
+/* угловые ручки — масштаб (аспект залочен) */
+.handle {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  margin: -6px;
+  background: #fff;
+  border: 2px solid #2d7ff9;
+  border-radius: 2px;
+  pointer-events: auto;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+}
+.nw { left: 0; top: 0; cursor: nwse-resize; }
+.se { left: 100%; top: 100%; cursor: nwse-resize; }
+.ne { left: 100%; top: 0; cursor: nesw-resize; }
+.sw { left: 0; top: 100%; cursor: nesw-resize; }
+
+/* ручка поворота над верх-центром */
+.rotateLine {
+  position: absolute;
+  left: 50%;
+  top: -22px;
+  width: 1px;
+  height: 22px;
+  margin-left: -0.5px;
+  background: #2d7ff9;
+  pointer-events: none;
+}
+.rotate {
+  position: absolute;
+  left: 50%;
+  top: -22px;
+  width: 14px;
+  height: 14px;
+  margin: -7px 0 0 -7px;
+  background: #fff;
+  border: 2px solid #2d7ff9;
+  border-radius: 50%;
+  pointer-events: auto;
+  cursor: grab;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+}
+.rotate:active { cursor: grabbing; }
+
+/* readout: цифры под рамкой, сам не трансформируется */
+.readout {
+  position: absolute;
+  z-index: 9999;
+  display: flex;
+  gap: 10px;
+  padding: 3px 8px;
+  font: 11px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace;
+  color: #fff;
+  white-space: nowrap;
+  background: #1f2733;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  pointer-events: none;
+}

@@ -1,0 +1,98 @@
+/* DEV-меню — НЕ темизируется (инструмент, не часть лендинга). */
+
+.bar {
+  position: fixed;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  font: 12px/1 ui-sans-serif, system-ui, sans-serif;
+  color: #e8edf4;
+  background: rgba(31, 39, 51, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(8px);
+}
+
+.group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sep {
+  width: 1px;
+  align-self: stretch;
+  margin: 2px 2px;
+  background: rgba(255, 255, 255, 0.14);
+}
+
+/* свотчи палитры (как в прежнем ThemeBar; title нужен скриншот-тесту hero-bordo) */
+.swatch {
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+}
+.swatch[aria-pressed="true"] {
+  border-color: #fff;
+  outline: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.toggle {
+  padding: 5px 10px;
+  font: inherit;
+  color: #e8edf4;
+  background: #2b3645;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.toggle[aria-pressed="true"] {
+  color: #fff;
+  background: #2d7ff9;
+  border-color: #2d7ff9;
+}
+
+.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  font-size: 13px;
+  background: #2b3645;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 7px;
+  cursor: pointer;
+}
+.icon:hover {
+  border-color: #2d7ff9;
+}
+
+.count {
+  min-width: 18px;
+  padding: 2px 6px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  color: #8fb4ff;
+  background: rgba(45, 127, 249, 0.16);
+  border-radius: 999px;
+}
+
+.status {
+  color: #6ee7a8;
+  white-space: nowrap;
+}
+.err {
+  color: #ff9c9c;
+}

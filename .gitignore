@@ -27,3 +27,8 @@ blob-report/
 
 # Референсы/захваты — не публикуем
 refs/
+
+# Вывод live-редактора макета (dev-only) — генерируется кнопкой «Сохранить», не коммитим
+# (папку держит tools/layout-edits/.gitkeep)
+tools/layout-edits/edits.json
+tools/layout-edits/edits.css
