@@ -1,0 +1,24 @@
+import { PNG } from "pngjs";
+import { readFileSync } from "node:fs";
+// node _bboxx_tmp.mjs <img> <y0> <y1> <x0> <x1> [minRun]
+const [img, y0s, y1s, x0s, x1s, minRunS] = process.argv.slice(2);
+const Y0 = +y0s, Y1 = +y1s, X0 = +x0s, X1 = +x1s, MIN = +(minRunS || 1);
+const s = PNG.sync.read(readFileSync(img));
+const W = s.width;
+const nonPaper = (i) => {
+  const r = s.data[i], g = s.data[i + 1], b = s.data[i + 2];
+  return r < 200 || (Math.max(r, g, b) - Math.min(r, g, b)) > 30;
+};
+const colCount = new Int32Array(W);
+let minY = -1, maxY = -1;
+for (let y = Y0; y < Math.min(Y1, s.height); y++) {
+  let row = 0;
+  for (let x = X0; x < Math.min(X1, W); x++) if (nonPaper((y * W + x) << 2)) { row++; colCount[x]++; }
+  if (row >= MIN) { if (minY < 0) minY = y; maxY = y; }
+}
+let minX = -1, maxX = -1;
+for (let x = X0; x < Math.min(X1, W); x++) if (colCount[x] >= MIN) { if (minX < 0) minX = x; maxX = x; }
+const f = (n) => `${n}px (${(n / 2).toFixed(0)}лог)`;
+console.log(`bbox ${img} y[${Y0}..${Y1}] x[${X0}..${X1}] minRun=${MIN}:`);
+console.log(`  X: ${minX}..${maxX}  w=${f(maxX - minX)}  cx=${((minX + maxX) / 2).toFixed(0)}px`);
+console.log(`  Y: ${minY}..${maxY}  h=${f(maxY - minY)}`);
