@@ -1,6 +1,7 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { fileURLToPath, URL } from "node:url";
+import { layoutEditorPlugin } from "./vite-plugins/layout-editor";
 
 // Боевая функция-прокси (читает/пишет Craft). В dev фронт ходит на /rsvp-api
 // (см. src/rsvp/api.ts), а ЭТОТ прокси форвардит запрос server-side — поэтому
@@ -13,7 +14,9 @@ const RSVP_FN = "https://functions.yandexcloud.net/d4ej3htfmmdbnvbfsvkq";
 // path-роутинга нет, поэтому относительные пути безопасны.
 export default defineConfig({
   base: "./",
-  plugins: [react()],
+  // layoutEditorPlugin — dev-only (apply:"serve"): принимает правки live-редактора макета
+  // и пишет их в tools/layout-edits/. В прод-сборку не входит.
+  plugins: [react(), layoutEditorPlugin()],
   resolve: {
     alias: {
       "@": fileURLToPath(new URL("./src", import.meta.url)),

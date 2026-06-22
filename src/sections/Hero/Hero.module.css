@@ -3,8 +3,8 @@
    ротонда ink W≈290 H≈230 top≈245; кнопка W≈201 H≈45 top≈779; total≈845. */
 .hero {
   text-align: center;
-  /* eyebrow ink top → 199 лог (ref) */
-  padding-top: calc(194 * var(--u));
+  /* eyebrow ink top → 88 лог (ref) */
+  padding-top: calc(88 * var(--u));
   /* кнопка bottom≈824 + хвост → total ≈845 лог */
   padding-bottom: calc(24 * var(--u));
 }
@@ -55,3 +55,5 @@
   margin-top: calc(28 * var(--u));
   padding: calc(11.5 * var(--u)) calc(25.5 * var(--u));
 }
+
+

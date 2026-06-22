@@ -15,6 +15,13 @@ export const FIXTURE_GUESTS = [
  */
 export async function setupDeterministic(page: Page) {
   await freezeNow(page);
+  // Dev-инструменты (меню палитры + оверлей live-редактора) рендерятся на dev-сервере,
+  // но это не часть лендинга — прячем из визуальных эталонов.
+  await page.addInitScript(() => {
+    const style = document.createElement("style");
+    style.textContent = "[data-layout-editor]{display:none !important}";
+    (document.head ?? document.documentElement).appendChild(style);
+  });
   await page.route(/functions\.yandexcloud\.net|\/rsvp-api/, async (route) => {
     const method = route.request().method();
     if (method === "GET") {

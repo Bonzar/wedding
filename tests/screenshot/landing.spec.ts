@@ -40,10 +40,11 @@ test("вся страница целиком", async ({ page }) => {
 
 test("тема bordo перекрашивает страницу", async ({ page }) => {
   await setupDeterministic(page);
+  // Палитра теперь переключается только в dev-меню (скрыто в тестах), поэтому задаём
+  // тему через стор: ThemeStore читает localStorage в конструкторе и красит страницу.
+  await page.addInitScript(() => localStorage.setItem("wedding-theme", "bordo"));
   await page.goto("/");
   await settle(page);
-  await page.locator('button[title="Бордо"]').click();
-  await page.waitForTimeout(100);
   await expect(page.locator("main.sheet > section").first()).toHaveScreenshot("hero-bordo.png");
 });
 

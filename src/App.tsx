@@ -1,4 +1,4 @@
-import { ThemeBar } from "@/components/ThemeBar";
+import { lazy, Suspense } from "react";
 import {
   Hero,
   WeddingOf,
@@ -17,14 +17,22 @@ import {
 } from "@/sections";
 import { RsvpModal } from "@/rsvp/components/RsvpModal";
 
+// DEV-ONLY: расширяемое меню (палитра + live-редактор макета). Динамический импорт под
+// import.meta.env.DEV — в прод-сборке ветка сворачивается, чанк не эмитится (см. план).
+const DevTools = import.meta.env.DEV ? lazy(() => import("@/dev/DevTools")) : null;
+
 /**
- * Корневой компонент: плавающий переключатель темы + лист-приглашение.
+ * Корневой компонент: лист-приглашение (+ dev-меню только в разработке).
  * Порядок секций соответствует исходному лендингу (build_index.py ORDER).
  */
 export function App() {
   return (
     <>
-      <ThemeBar />
+      {DevTools && (
+        <Suspense fallback={null}>
+          <DevTools />
+        </Suspense>
+      )}
       <main className="sheet">
         <Hero />
         <WeddingOf />
