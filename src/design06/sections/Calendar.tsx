@@ -7,32 +7,65 @@ import { layout } from "./Calendar.layout";
 
 export default function Calendar() {
   return (
-      <section className={"rGeu6w"} id="PBtLyKJDZDgGk7P1" data-scroll-ready="true" data-eid="calendar/0" style={elStyle(layout["calendar/0"])}>
+      <section className={"rGeu6w"} id="PBtLyKJDZDgGk7P1" data-scroll-ready="true" data-eid="calendar/section" style={elStyle(layout["calendar/section"])}>
         <div>
           <div className={styles.onhyOQ} data-eid="calendar/1" style={elStyle(layout["calendar/1"])}>
             <div className={styles.twbtjQ}>
               <div className={styles.GDnEHQ} data-eid="calendar/2" style={elStyle(layout["calendar/2"])}>
                 <div className={styles.o2Yl2g}>
                   <div className={styles._mXnjA} lang="en" data-eid="calendar/3" style={elStyle(layout["calendar/3"])}>
+                    <Backdrop />
+                    <div data-eid="calendar/6" style={elStyle(layout["calendar/6"])} />
+                    <EngravingTop />
+                    <Pretitle />
+                    <EngravingMid />
+                    <CalendarGrid />
+                    <EngravingLeaf1 />
+                    <EngravingLeaf2 />
+                    <MapsButton />
+                    <Divider />
+                    <MonthHeading />
+                    <DayCaption />
+                    <LocationHeading />
+                    <LocationAddress />
+                    <MapsLink />
+                    <Countdown />
+                  </div>
+                </div>
+              </div>
+              <div className={cx(styles.QhExXw, styles.pKfnlA)} data-eid="calendar/319" style={elStyle(layout["calendar/319"])} />
+            </div>
+          </div>
+        </div>
+      </section>
+  );
+}
+
+function Backdrop() {
+  return (
                     <div className={styles._6t4CHA}>
                       <div className={styles.a26Xuw}>
-                        <div className={styles.fbzKiw} data-eid="calendar/4" style={elStyle(layout["calendar/4"])} />
+                        <div className={styles.fbzKiw} data-eid="calendar/backdrop" style={elStyle(layout["calendar/backdrop"])} />
                         <div className={styles.PcHy7w}>
                           <div className={cx(styles.uk_25A, styles.Ty61NA)}>
-                            <div className={styles.Izwocg} data-eid="calendar/5" style={elStyle(layout["calendar/5"])}>
+                            <div className={styles.Izwocg} data-eid="calendar/backdrop-photo" style={elStyle(layout["calendar/backdrop-photo"])}>
                               <img className={styles._7_i_XA} crossOrigin="anonymous" draggable={false} src="/design06-exact/_assets/media/2a2388e813cb85fb095b9a0c836a0688.jpg" />
                             </div>
                           </div>
                         </div>
                       </div>
                     </div>
-                    <div data-eid="calendar/6" style={elStyle(layout["calendar/6"])} />
-                    <div className={cx(styles.DF_utQ, styles._682gpw, styles._0xkaeQ)} data-eid="calendar/7" style={elStyle(layout["calendar/7"])}>
+  );
+}
+
+function EngravingTop() {
+  return (
+                    <div className={cx(styles.DF_utQ, styles._682gpw, styles._0xkaeQ)} data-eid="calendar/engraving-top" style={elStyle(layout["calendar/engraving-top"])}>
                       <div className={styles.Zp7NQw}>
                         <div className={styles.a26Xuw}>
                           <div className={styles.PcHy7w}>
                             <div className={cx(styles.uk_25A, styles.Ty61NA)}>
-                              <div className={styles.Izwocg} data-eid="calendar/8" style={elStyle(layout["calendar/8"])}>
+                              <div className={styles.Izwocg} data-eid="calendar/engraving-top-img" style={elStyle(layout["calendar/engraving-top-img"])}>
                                 <img className={styles.dMHlHA} crossOrigin="anonymous" draggable={false} src="/design06-exact/_assets/blobs/PBtLyKJDZDgGk7P1_0.png" />
                               </div>
                             </div>
@@ -41,13 +74,18 @@ export default function Calendar() {
                         <div data-eid="calendar/9" style={elStyle(layout["calendar/9"])} />
                       </div>
                     </div>
-                    <div className={cx(styles.DF_utQ, styles._682gpw, styles._0xkaeQ)} data-eid="calendar/10" style={elStyle(layout["calendar/10"])}>
+  );
+}
+
+function Pretitle() {
+  return (
+                    <div className={cx(styles.DF_utQ, styles._682gpw, styles._0xkaeQ)} data-eid="calendar/pretitle" style={elStyle(layout["calendar/pretitle"])}>
                       <div className={cx(styles.aF9o6Q, styles._0yZ6Qg)} data-eid="calendar/11" style={elStyle(layout["calendar/11"])}>
                         <div data-eid="calendar/12" style={elStyle(layout["calendar/12"])}>
                           <div className={styles.E8yZTA}>
                             <div>
                               <div className={cx(styles._2UyCZQ, styles.vkN2Cw, styles.Mb8E_A, styles.e1_zQg)} lang="en">
-                                <p className={cx(styles._28USrA, styles.AfeL7g, styles.XN6uKA, styles._4N4NA)} data-eid="calendar/13" style={elStyle(layout["calendar/13"])}>
+                                <p className={cx(styles._28USrA, styles.AfeL7g, styles.XN6uKA, styles._4N4NA)} data-eid="calendar/pretitle-text" style={elStyle(layout["calendar/pretitle-text"])}>
                                   <span className={styles.a_GcMg} data-eid="calendar/14" style={elStyle(layout["calendar/14"])}>
                                     {"Happily Ev"}
                                   </span>
@@ -61,12 +99,17 @@ export default function Calendar() {
                         </div>
                       </div>
                     </div>
-                    <div className={cx(styles.DF_utQ, styles._682gpw, styles._0xkaeQ)} data-eid="calendar/16" style={elStyle(layout["calendar/16"])}>
+  );
+}
+
+function EngravingMid() {
+  return (
+                    <div className={cx(styles.DF_utQ, styles._682gpw, styles._0xkaeQ)} data-eid="calendar/engraving-mid" style={elStyle(layout["calendar/engraving-mid"])}>
                       <div className={styles.Zp7NQw}>
                         <div className={styles.a26Xuw}>
                           <div className={styles.PcHy7w}>
                             <div className={cx(styles.uk_25A, styles.Ty61NA)}>
-                              <div className={styles.Izwocg} data-eid="calendar/17" style={elStyle(layout["calendar/17"])}>
+                              <div className={styles.Izwocg} data-eid="calendar/engraving-mid-img" style={elStyle(layout["calendar/engraving-mid-img"])}>
                                 <img className={styles.dMHlHA} crossOrigin="anonymous" draggable={false} src="/design06-exact/_assets/blobs/PBtLyKJDZDgGk7P1_1.png" />
                               </div>
                             </div>
@@ -75,12 +118,17 @@ export default function Calendar() {
                         <div data-eid="calendar/18" style={elStyle(layout["calendar/18"])} />
                       </div>
                     </div>
-                    <div className={cx(styles.DF_utQ, styles._682gpw, styles._0xkaeQ)} data-eid="calendar/19" style={elStyle(layout["calendar/19"])}>
+  );
+}
+
+function CalendarGrid() {
+  return (
+                    <div className={cx(styles.DF_utQ, styles._682gpw, styles._0xkaeQ)} data-eid="calendar/grid" style={elStyle(layout["calendar/grid"])}>
                       <div className={styles.hbcXuA} data-eid="calendar/20" style={elStyle(layout["calendar/20"])}>
                         <svg className={styles.aXBSSA} role="presentation" viewBox="0 0 913 775" data-eid="calendar/21" style={elStyle(layout["calendar/21"])}>
                           <defs />
                         </svg>
-                        <table className={cx(styles.csGvXg, styles._DyBwg)} data-eid="calendar/22" style={elStyle(layout["calendar/22"])}>
+                        <table className={cx(styles.csGvXg, styles._DyBwg)} data-eid="calendar/grid-table" style={elStyle(layout["calendar/grid-table"])}>
                           <tbody>
                             <tr>
                               <td colSpan={1} rowSpan={1}>
@@ -1004,12 +1052,17 @@ export default function Calendar() {
                         <svg className={styles.nrDMmw} role="presentation" viewBox="0 0 913 775" strokeLinecap="butt" strokeLinejoin="miter" data-eid="calendar/275" style={elStyle(layout["calendar/275"])} />
                       </div>
                     </div>
-                    <div className={cx(styles.DF_utQ, styles._682gpw, styles._0xkaeQ)} data-eid="calendar/276" style={elStyle(layout["calendar/276"])}>
+  );
+}
+
+function EngravingLeaf1() {
+  return (
+                    <div className={cx(styles.DF_utQ, styles._682gpw, styles._0xkaeQ)} data-eid="calendar/engraving-leaf1" style={elStyle(layout["calendar/engraving-leaf1"])}>
                       <div className={styles.Zp7NQw}>
                         <div className={styles.a26Xuw}>
                           <div className={styles.PcHy7w}>
                             <div className={cx(styles.uk_25A, styles.Ty61NA)}>
-                              <div className={styles.Izwocg} data-eid="calendar/277" style={elStyle(layout["calendar/277"])}>
+                              <div className={styles.Izwocg} data-eid="calendar/engraving-leaf1-img" style={elStyle(layout["calendar/engraving-leaf1-img"])}>
                                 <img className={styles.dMHlHA} crossOrigin="anonymous" draggable={false} src="/design06-exact/_assets/blobs/PBtLyKJDZDgGk7P1_2.png" />
                               </div>
                             </div>
@@ -1018,12 +1071,17 @@ export default function Calendar() {
                         <div data-eid="calendar/278" style={elStyle(layout["calendar/278"])} />
                       </div>
                     </div>
-                    <div className={cx(styles.DF_utQ, styles._682gpw, styles._0xkaeQ)} data-eid="calendar/279" style={elStyle(layout["calendar/279"])}>
+  );
+}
+
+function EngravingLeaf2() {
+  return (
+                    <div className={cx(styles.DF_utQ, styles._682gpw, styles._0xkaeQ)} data-eid="calendar/engraving-leaf2" style={elStyle(layout["calendar/engraving-leaf2"])}>
                       <div className={styles.Zp7NQw}>
                         <div className={styles.a26Xuw}>
                           <div className={styles.PcHy7w}>
                             <div className={cx(styles.uk_25A, styles.Ty61NA)}>
-                              <div className={styles.Izwocg} data-eid="calendar/280" style={elStyle(layout["calendar/280"])}>
+                              <div className={styles.Izwocg} data-eid="calendar/engraving-leaf2-img" style={elStyle(layout["calendar/engraving-leaf2-img"])}>
                                 <img className={styles.dMHlHA} crossOrigin="anonymous" draggable={false} src="/design06-exact/_assets/blobs/PBtLyKJDZDgGk7P1_3.png" />
                               </div>
                             </div>
@@ -1032,7 +1090,12 @@ export default function Calendar() {
                         <div data-eid="calendar/281" style={elStyle(layout["calendar/281"])} />
                       </div>
                     </div>
-                    <div className={cx(styles.DF_utQ, styles._682gpw, styles._0xkaeQ)} data-eid="calendar/282" style={elStyle(layout["calendar/282"])}>
+  );
+}
+
+function MapsButton() {
+  return (
+                    <div className={cx(styles.DF_utQ, styles._682gpw, styles._0xkaeQ)} data-eid="calendar/maps-button" style={elStyle(layout["calendar/maps-button"])}>
                       <div data-eid="calendar/283" style={elStyle(layout["calendar/283"])}>
                         <div className={styles.hWv4NA} data-eid="calendar/284" style={elStyle(layout["calendar/284"])}>
                           <svg className={styles._7KaXww}>
@@ -1042,11 +1105,16 @@ export default function Calendar() {
                               </clipPath>
                             </defs>
                           </svg>
-                          <div className={styles.bFnJ2A} data-eid="calendar/285" style={elStyle(layout["calendar/285"])} />
+                          <div className={styles.bFnJ2A} data-eid="calendar/maps-button-pill" style={elStyle(layout["calendar/maps-button-pill"])} />
                         </div>
                       </div>
                     </div>
-                    <div className={cx(styles.DF_utQ, styles._682gpw)} data-eid="calendar/286" style={elStyle(layout["calendar/286"])}>
+  );
+}
+
+function Divider() {
+  return (
+                    <div className={cx(styles.DF_utQ, styles._682gpw)} data-eid="calendar/divider" style={elStyle(layout["calendar/divider"])}>
                       <div className={styles.V7MmMA} data-eid="calendar/287" style={elStyle(layout["calendar/287"])}>
                         <svg className={styles.Fe_H_Q} data-eid="calendar/288" style={elStyle(layout["calendar/288"])}>
                           <path className={styles._682gpw} d="M1,1L926.0097496448416,1" strokeLinecap="butt" strokeWidth="2" fill="none" pointerEvents="auto" opacity="0" data-eid="calendar/289" style={elStyle(layout["calendar/289"])} />
@@ -1056,13 +1124,18 @@ export default function Calendar() {
                         </svg>
                       </div>
                     </div>
-                    <div className={cx(styles.DF_utQ, styles._682gpw, styles._0xkaeQ)} data-eid="calendar/290" style={elStyle(layout["calendar/290"])}>
+  );
+}
+
+function MonthHeading() {
+  return (
+                    <div className={cx(styles.DF_utQ, styles._682gpw, styles._0xkaeQ)} data-eid="calendar/month-heading" style={elStyle(layout["calendar/month-heading"])}>
                       <div className={cx(styles.aF9o6Q, styles._0yZ6Qg)} data-eid="calendar/291" style={elStyle(layout["calendar/291"])}>
                         <div data-eid="calendar/292" style={elStyle(layout["calendar/292"])}>
                           <div className={styles.E8yZTA}>
                             <div>
                               <div className={cx(styles._2UyCZQ, styles.vkN2Cw, styles.Mb8E_A, styles.e1_zQg)} lang="en">
-                                <p className={cx(styles._28USrA, styles.AfeL7g, styles.XN6uKA, styles._4N4NA)} data-eid="calendar/293" style={elStyle(layout["calendar/293"])}>
+                                <p className={cx(styles._28USrA, styles.AfeL7g, styles.XN6uKA, styles._4N4NA)} data-eid="calendar/month-heading-text" style={elStyle(layout["calendar/month-heading-text"])}>
                                   <span className={styles.a_GcMg} data-eid="calendar/294" style={elStyle(layout["calendar/294"])}>
                                     {"February, 2026"}
                                   </span>
@@ -1073,13 +1146,18 @@ export default function Calendar() {
                         </div>
                       </div>
                     </div>
-                    <div className={cx(styles.DF_utQ, styles._682gpw, styles._0xkaeQ)} data-eid="calendar/295" style={elStyle(layout["calendar/295"])}>
+  );
+}
+
+function DayCaption() {
+  return (
+                    <div className={cx(styles.DF_utQ, styles._682gpw, styles._0xkaeQ)} data-eid="calendar/day-caption" style={elStyle(layout["calendar/day-caption"])}>
                       <div className={cx(styles.aF9o6Q, styles._0yZ6Qg)} data-eid="calendar/296" style={elStyle(layout["calendar/296"])}>
                         <div data-eid="calendar/297" style={elStyle(layout["calendar/297"])}>
                           <div className={styles.E8yZTA}>
                             <div>
                               <div className={cx(styles._2UyCZQ, styles.vkN2Cw, styles.Mb8E_A, styles.e1_zQg)} lang="en">
-                                <p className={cx(styles._28USrA, styles.GEC0sA, styles.XN6uKA, styles._4N4NA)} data-eid="calendar/298" style={elStyle(layout["calendar/298"])}>
+                                <p className={cx(styles._28USrA, styles.GEC0sA, styles.XN6uKA, styles._4N4NA)} data-eid="calendar/day-caption-text" style={elStyle(layout["calendar/day-caption-text"])}>
                                   <span className={styles.a_GcMg} data-eid="calendar/299" style={elStyle(layout["calendar/299"])}>
                                     {"February 1, 2026 · Our Wedding Day · 5:00 PM"}
                                   </span>
@@ -1093,13 +1171,18 @@ export default function Calendar() {
                         </div>
                       </div>
                     </div>
-                    <div className={cx(styles.DF_utQ, styles._682gpw, styles._0xkaeQ)} data-eid="calendar/301" style={elStyle(layout["calendar/301"])}>
+  );
+}
+
+function LocationHeading() {
+  return (
+                    <div className={cx(styles.DF_utQ, styles._682gpw, styles._0xkaeQ)} data-eid="calendar/location-heading" style={elStyle(layout["calendar/location-heading"])}>
                       <div className={cx(styles.aF9o6Q, styles._0yZ6Qg)} data-eid="calendar/302" style={elStyle(layout["calendar/302"])}>
                         <div data-eid="calendar/303" style={elStyle(layout["calendar/303"])}>
                           <div className={styles.E8yZTA}>
                             <div>
                               <div className={cx(styles._2UyCZQ, styles.vkN2Cw, styles.Mb8E_A, styles.e1_zQg)} lang="en">
-                                <p className={cx(styles._28USrA, styles.AfeL7g, styles.XN6uKA, styles._4N4NA)} data-eid="calendar/304" style={elStyle(layout["calendar/304"])}>
+                                <p className={cx(styles._28USrA, styles.AfeL7g, styles.XN6uKA, styles._4N4NA)} data-eid="calendar/location-heading-text" style={elStyle(layout["calendar/location-heading-text"])}>
                                   <span className={styles.a_GcMg} data-eid="calendar/305" style={elStyle(layout["calendar/305"])}>
                                     {"Location"}
                                   </span>
@@ -1110,13 +1193,18 @@ export default function Calendar() {
                         </div>
                       </div>
                     </div>
-                    <div className={cx(styles.DF_utQ, styles._682gpw, styles._0xkaeQ)} data-eid="calendar/306" style={elStyle(layout["calendar/306"])}>
+  );
+}
+
+function LocationAddress() {
+  return (
+                    <div className={cx(styles.DF_utQ, styles._682gpw, styles._0xkaeQ)} data-eid="calendar/location-address" style={elStyle(layout["calendar/location-address"])}>
                       <div className={cx(styles.aF9o6Q, styles._0yZ6Qg)} data-eid="calendar/307" style={elStyle(layout["calendar/307"])}>
                         <div data-eid="calendar/308" style={elStyle(layout["calendar/308"])}>
                           <div className={styles.E8yZTA}>
                             <div>
                               <div className={cx(styles._2UyCZQ, styles.vkN2Cw, styles.Mb8E_A, styles.e1_zQg)} lang="en">
-                                <p className={cx(styles._28USrA, styles.AfeL7g, styles.XN6uKA, styles._4N4NA)} data-eid="calendar/309" style={elStyle(layout["calendar/309"])}>
+                                <p className={cx(styles._28USrA, styles.AfeL7g, styles.XN6uKA, styles._4N4NA)} data-eid="calendar/location-address-text" style={elStyle(layout["calendar/location-address-text"])}>
                                   <span className={styles.a_GcMg} data-eid="calendar/310" style={elStyle(layout["calendar/310"])}>
                                     {"Bali Resort, Sunset Road, Bali"}
                                   </span>
@@ -1127,13 +1215,18 @@ export default function Calendar() {
                         </div>
                       </div>
                     </div>
-                    <div className={cx(styles.DF_utQ, styles._682gpw, styles._0xkaeQ)} data-eid="calendar/311" style={elStyle(layout["calendar/311"])}>
+  );
+}
+
+function MapsLink() {
+  return (
+                    <div className={cx(styles.DF_utQ, styles._682gpw, styles._0xkaeQ)} data-eid="calendar/maps-link" style={elStyle(layout["calendar/maps-link"])}>
                       <div className={cx(styles.aF9o6Q, styles._0yZ6Qg)} data-eid="calendar/312" style={elStyle(layout["calendar/312"])}>
                         <div data-eid="calendar/313" style={elStyle(layout["calendar/313"])}>
                           <div className={styles.E8yZTA}>
                             <div>
                               <div className={cx(styles._2UyCZQ, styles.vkN2Cw, styles.Mb8E_A, styles.e1_zQg)} lang="en">
-                                <p className={cx(styles._28USrA, styles.AfeL7g, styles.XN6uKA, styles._4N4NA)} data-eid="calendar/314" style={elStyle(layout["calendar/314"])}>
+                                <p className={cx(styles._28USrA, styles.AfeL7g, styles.XN6uKA, styles._4N4NA)} data-eid="calendar/maps-link-anchor" style={elStyle(layout["calendar/maps-link-anchor"])}>
                                   <a className={styles.a_GcMg} href="https://maps.app.goo.gl/x1GwghLytRLPDMrC6?g_st=com.google.maps.preview.copy" target="_blank" draggable={false} rel="noopener nofollow" data-eid="calendar/315" style={elStyle(layout["calendar/315"])}>
                                     {"Google Maps"}
                                   </a>
@@ -1144,7 +1237,12 @@ export default function Calendar() {
                         </div>
                       </div>
                     </div>
-                    <div className={cx(styles.DF_utQ, styles._682gpw, styles._0xkaeQ)} data-eid="calendar/316" style={elStyle(layout["calendar/316"])}>
+  );
+}
+
+function Countdown() {
+  return (
+                    <div className={cx(styles.DF_utQ, styles._682gpw, styles._0xkaeQ)} data-eid="calendar/countdown" style={elStyle(layout["calendar/countdown"])}>
                       <div data-eid="calendar/317" style={elStyle(layout["calendar/317"])}>
                         <div className={cx(styles.hVT_uA, styles.PgAXEw)}>
                           <div className={styles.Rt1H_w}>
@@ -1163,18 +1261,10 @@ export default function Calendar() {
                         </div>
                         <div className={cx(styles.S3wQqg, styles.lKZixA, styles._8YzbFQ)}>
                           <div className={styles.uqhtBg}>
-                            <iframe src="https://canva-embed.com/api/iframe?url=https%3A%2F%2Fwww.tickcounter.com%2Fcountdown%2F8190116%2Fmy-countdown&key=462812a26b593f2dbfbfcbb14f6d699a" allowFullScreen sandbox="allow-same-origin allow-scripts allow-popups allow-forms" data-eid="calendar/318" style={elStyle(layout["calendar/318"])} />
+                            <iframe src="https://canva-embed.com/api/iframe?url=https%3A%2F%2Fwww.tickcounter.com%2Fcountdown%2F8190116%2Fmy-countdown&key=462812a26b593f2dbfbfcbb14f6d699a" allowFullScreen sandbox="allow-same-origin allow-scripts allow-popups allow-forms" data-eid="calendar/countdown-iframe" style={elStyle(layout["calendar/countdown-iframe"])} />
                           </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                </div>
-              </div>
-              <div className={cx(styles.QhExXw, styles.pKfnlA)} data-eid="calendar/319" style={elStyle(layout["calendar/319"])} />
-            </div>
-          </div>
-        </div>
-      </section>
   );
 }
