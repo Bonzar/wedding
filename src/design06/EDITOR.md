@@ -8,8 +8,10 @@
 ## 1. Где живут стили (Approach A2)
 
 - **База (структура + поведение)** — JSX-разметка секции + утилиты-классы Canva в
-  `<Section>.module.css` (`position:absolute`, flex, `object-fit`, `:hover`, тема,
-  псевдоэлементы, комбинаторы). Это неизменяемый фундамент, даёт 0%.
+  ОДНОМ общем модуле `canva.module.css` (`position:absolute`, flex, `object-fit`,
+  `:hover`, тема, псевдоэлементы, комбинаторы), импортируется всеми секциями.
+  Это неизменяемый фундамент, даёт 0%. Общий модуль → copy/create между секциями
+  ссылаются на одни и те же классы.
 - **Редактируемый слой** — на элемент одна запись `El` в `<Section>.layout.ts`,
   ключ = `data-eid`. Применяется инлайном: `style={elStyle(layout[eid])}`.
 - Тип `El` и сборщик `elStyle` — в [`layout.ts`](./layout.ts):
@@ -88,6 +90,6 @@
 - `layout.ts` — `El` + `elStyle`.
 - `sections/<S>.tsx` — структура + утилиты-классы (база) + применение по `data-eid`.
 - `sections/<S>.layout.ts` — редактируемые записи (источник правды для редактора).
-- `sections/<S>.module.css` — утилиты-классы.
+- `canva.module.css` — общий модуль утилит-классов (один на все секции).
 - `cx.ts` — сборка классов.
 - Генераторы: `tools/design06-{extract,gen-sections,css-modules,layout-data,name-eids,mark-selectable}.mjs`.
