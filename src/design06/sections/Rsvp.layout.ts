@@ -1,0 +1,38 @@
+// design06 Rsvp — редактируемый слой (Approach A2): на элемент одна запись, ключ = data-eid.
+// Единственный источник правды для позиции/размера/поворота/типографики; редактор патчит поля и пишет сюда.
+import type { El } from "../layout";
+
+export const layout: Record<string, El> = {
+  "rsvp/0": { raw: { "backgroundColor": "rgb(255, 255, 255)" } },
+  "rsvp/1": { w: 1776, h: 1122, raw: { "alignItems": "center" } },
+  "rsvp/2": { w: 1776, h: 1122, raw: { "backgroundColor": "rgb(255, 255, 255)" } },
+  "rsvp/3": { w: 1776, h: 1122 },
+  "rsvp/4": { raw: { "background": "rgb(255, 255, 255)" } },
+  "rsvp/5": { w: 5227.9, h: 3829.43, x: -1725.95, y: -218.665, rot: 90 },
+  "rsvp/6": { w: 1551.6, h: 897.6, raw: { "position": "absolute", "top": "112.2px", "left": "112.2px" } },
+  "rsvp/7": { raw: { "clipPath": "polygon(205px 55.1006px, 850.345px 55.1006px, 850.345px 1084.2px, 205px 1084.2px)" } },
+  "rsvp/8": { w: 921.865, h: 1029.1, x: -71.5196, y: 55.1006, raw: { "touchAction": "pan-x pan-y pinch-zoom" } },
+  "rsvp/9": { w: 921.865, h: 1029.1 },
+  "rsvp/10": { w: 921.865, h: 1029.1, x: 0, y: 0, rot: 0 },
+  "rsvp/11": { h: 1029.1, w: 921.865, scale: 1, raw: { "position": "absolute", "top": "0px", "left": "0px", "transformOrigin": "0px 0px", "pointerEvents": "none" } },
+  "rsvp/12": { w: 448.033, h: 228.741, x: 992.223, y: 213.403, raw: { "touchAction": "pan-x pan-y pinch-zoom" } },
+  "rsvp/13": { w: 174.454, h: 89.0667, scale: 2.5682, raw: { "writingMode": "horizontal-tb", "transformOrigin": "0px 0px" } },
+  "rsvp/14": { x: 0, y: -7.46667 },
+  "rsvp/15": { font: "YACkoFu1RUU_0, auto", fontSize: 74.6667, color: "rgb(53, 80, 116)", lineHeight: "104px", letterSpacing: "0em", textTransform: "uppercase", raw: { "--gixK-A": "0", "--kJ5CrQ": "0", "--zPlnxA": "none", "listStyleType": "none" } },
+  "rsvp/16": { color: "rgb(53, 80, 116)", raw: { "fontSize": "1em", "fontWeight": "700", "fontStyle": "normal", "fontKerning": "none", "textDecorationLine": "none", "textDecorationThickness": "initial", "textDecorationStyle": "initial" } },
+  "rsvp/17": { w: 676.829, h: 300.8, x: 877.825, y: 398.733, raw: { "touchAction": "pan-x pan-y pinch-zoom" } },
+  "rsvp/18": { w: 676.829, h: 300.8, raw: { "writingMode": "horizontal-tb" } },
+  "rsvp/19": { x: 0, y: -5.6 },
+  "rsvp/20": { font: "YAFcfgcNhWk_3, auto", fontSize: 56, color: "rgb(53, 80, 116)", lineHeight: "78px", letterSpacing: "0em", textTransform: "none", raw: { "--gixK-A": "0", "--kJ5CrQ": "0", "--zPlnxA": "none", "listStyleType": "none" } },
+  "rsvp/21": { color: "rgb(53, 80, 116)", raw: { "fontSize": "1em", "fontWeight": "300", "fontStyle": "normal", "fontKerning": "normal", "textDecorationLine": "none", "textDecorationThickness": "initial", "textDecorationStyle": "initial" } },
+  "rsvp/22": { w: 402.689, h: 88.7355, x: 1014.9, y: 726.677, raw: { "touchAction": "pan-x pan-y pinch-zoom" } },
+  "rsvp/23": { h: 88.7355, w: 402.689, scale: 1, raw: { "position": "absolute", "top": "0px", "left": "0px", "transformOrigin": "0px 0px" } },
+  "rsvp/24": { w: 402.689, h: 88.7355, raw: { "marginLeft": "0px", "marginTop": "0px" } },
+  "rsvp/25": { w: 1161.75, h: 256, scale: 0.346623, raw: { "clipPath": "url(\"#__id121\")", "background": "rgb(53, 80, 116)", "transformOrigin": "0px 0px" } },
+  "rsvp/26": { w: 440.257, h: 45.2958, x: 996.111, y: 748.012, raw: { "touchAction": "pan-x pan-y pinch-zoom" } },
+  "rsvp/27": { w: 440.257, h: 45.2958, raw: { "writingMode": "horizontal-tb" } },
+  "rsvp/28": { x: 0, y: -3.8521 },
+  "rsvp/29": { font: "YAFcfgcNhWk_3, auto", fontSize: 38.521, color: "rgb(255, 255, 255)", lineHeight: "53px", letterSpacing: "0em", textTransform: "none", raw: { "--gixK-A": "0", "--kJ5CrQ": "0", "--zPlnxA": "none", "listStyleType": "none" } },
+  "rsvp/30": { color: "rgb(255, 255, 255)", raw: { "fontSize": "1em", "fontWeight": "400", "fontStyle": "normal", "fontKerning": "none", "textDecorationLine": "none", "textDecorationThickness": "initial", "textDecorationStyle": "initial" } },
+  "rsvp/31": { w: 1776, h: 1122, raw: { "margin": "0px" } },
+};
