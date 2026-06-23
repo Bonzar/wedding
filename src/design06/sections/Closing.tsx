@@ -22,9 +22,9 @@ function BackdropImage() {
 // Гравюрный blob-орнамент.
 function Engraving() {
   return (
-    <div data-eid="closing/7" style={elStyle(layout["closing/7"])}>
+    <div data-eid="closing/box-1" style={elStyle(layout["closing/box-1"])}>
       <div className={cx(styles.DF_utQ, styles._682gpw, styles._0xkaeQ)} data-eid="closing/engraving" style={elStyle(layout["closing/engraving"])}>
-        <div className={styles.DF_utQ} data-eid="closing/9" style={elStyle(layout["closing/9"])}>
+        <div className={styles.DF_utQ} data-eid="closing/block" style={elStyle(layout["closing/block"])}>
           <div className={styles.Zp7NQw}>
             <div className={styles.a26Xuw}>
               <div className={styles.PcHy7w}>
@@ -35,7 +35,7 @@ function Engraving() {
                 </div>
               </div>
             </div>
-            <div data-eid="closing/11" style={elStyle(layout["closing/11"])} />
+            <div data-eid="closing/box-2" style={elStyle(layout["closing/box-2"])} />
           </div>
         </div>
       </div>
@@ -47,8 +47,8 @@ function Engraving() {
 function BodyText() {
   return (
     <div className={cx(styles.DF_utQ, styles._682gpw, styles._0xkaeQ)} data-eid="closing/bodyText" style={elStyle(layout["closing/bodyText"])}>
-      <div className={cx(styles.aF9o6Q, styles._0yZ6Qg)} data-eid="closing/13" style={elStyle(layout["closing/13"])}>
-        <div data-eid="closing/14" style={elStyle(layout["closing/14"])}>
+      <div className={cx(styles.aF9o6Q, styles._0yZ6Qg)} data-eid="closing/text-1" style={elStyle(layout["closing/text-1"])}>
+        <div data-eid="closing/box-3" style={elStyle(layout["closing/box-3"])}>
           <div className={styles.E8yZTA}>
             <div>
               <div className={cx(styles._2UyCZQ, styles.vkN2Cw, styles.Mb8E_A, styles.e1_zQg)} lang="en">
@@ -78,8 +78,8 @@ function BodyText() {
 function Title() {
   return (
     <div className={cx(styles.DF_utQ, styles._682gpw, styles._0xkaeQ)} data-eid="closing/title" style={elStyle(layout["closing/title"])}>
-      <div className={cx(styles.aF9o6Q, styles._0yZ6Qg)} data-eid="closing/18" style={elStyle(layout["closing/18"])}>
-        <div data-eid="closing/19" style={elStyle(layout["closing/19"])}>
+      <div className={cx(styles.aF9o6Q, styles._0yZ6Qg)} data-eid="closing/text-2" style={elStyle(layout["closing/text-2"])}>
+        <div data-eid="closing/box-4" style={elStyle(layout["closing/box-4"])}>
           <div className={styles.E8yZTA}>
             <div>
               <div className={cx(styles._2UyCZQ, styles.vkN2Cw, styles.Mb8E_A, styles.e1_zQg)} lang="en">
@@ -106,11 +106,11 @@ export default function Closing() {
   return (
       <section className={"rGeu6w"} id="PB9GyzXqcqH056Yr" data-scroll-ready="true" data-eid="closing/root" style={elStyle(layout["closing/root"])}>
         <div>
-          <div className={styles.onhyOQ} data-eid="closing/1" style={elStyle(layout["closing/1"])}>
+          <div className={styles.onhyOQ} data-eid="closing/frame" style={elStyle(layout["closing/frame"])}>
             <div className={styles.twbtjQ}>
-              <div className={styles.GDnEHQ} data-eid="closing/2" style={elStyle(layout["closing/2"])}>
+              <div className={styles.GDnEHQ} data-eid="closing/canvas" style={elStyle(layout["closing/canvas"])}>
                 <div className={styles.o2Yl2g}>
-                  <div className={styles._mXnjA} lang="en" data-eid="closing/3" style={elStyle(layout["closing/3"])}>
+                  <div className={styles._mXnjA} lang="en" data-eid="closing/content" style={elStyle(layout["closing/content"])}>
                     <div className={styles._6t4CHA}>
                       <div className={styles.a26Xuw}>
                         <Backdrop />
@@ -121,7 +121,7 @@ export default function Closing() {
                         </div>
                       </div>
                     </div>
-                    <div data-eid="closing/6" style={elStyle(layout["closing/6"])} />
+                    <div data-eid="closing/box-5" style={elStyle(layout["closing/box-5"])} />
                     <Engraving />
                     <BodyText />
                     <Title />

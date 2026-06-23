@@ -8,7 +8,7 @@ import { layout } from "./Details.layout";
 function BackgroundPhoto() {
   return (
     <div className={styles.a26Xuw}>
-      <div className={styles.fbzKiw} data-eid="details/4" style={elStyle(layout["details/4"])} />
+      <div className={styles.fbzKiw} data-eid="details/fill" style={elStyle(layout["details/fill"])} />
       <div className={styles.PcHy7w}>
         <div className={cx(styles.uk_25A, styles.Ty61NA)}>
           <div className={styles.Izwocg} data-eid="details/bg-photo" style={elStyle(layout["details/bg-photo"])}>
@@ -23,13 +23,13 @@ function BackgroundPhoto() {
 function Title() {
   return (
     <div className={cx(styles.DF_utQ, styles._682gpw, styles._0xkaeQ)} data-eid="details/title" style={elStyle(layout["details/title"])}>
-      <div className={cx(styles.aF9o6Q, styles._0yZ6Qg)} data-eid="details/8" style={elStyle(layout["details/8"])}>
-        <div data-eid="details/9" style={elStyle(layout["details/9"])}>
+      <div className={cx(styles.aF9o6Q, styles._0yZ6Qg)} data-eid="details/text-1" style={elStyle(layout["details/text-1"])}>
+        <div data-eid="details/box-1" style={elStyle(layout["details/box-1"])}>
           <div className={styles.E8yZTA}>
             <div>
               <div className={cx(styles._2UyCZQ, styles.vkN2Cw, styles.Mb8E_A, styles.e1_zQg)} lang="en">
                 <p className={cx(styles._28USrA, styles.AfeL7g, styles.XN6uKA, styles._4N4NA)} data-eid="details/title-text" style={elStyle(layout["details/title-text"])}>
-                  <span className={styles.a_GcMg} data-eid="details/11" style={elStyle(layout["details/11"])}>
+                  <span className={styles.a_GcMg} data-eid="details/span-1" style={elStyle(layout["details/span-1"])}>
                     {"Wedding Details"}
                   </span>
                 </p>
@@ -45,16 +45,16 @@ function Title() {
 function AccommodationHeading() {
   return (
     <div className={cx(styles.DF_utQ, styles._682gpw, styles._0xkaeQ)} data-eid="details/accommodation-heading" style={elStyle(layout["details/accommodation-heading"])}>
-      <div className={cx(styles.aF9o6Q, styles._0yZ6Qg)} data-eid="details/13" style={elStyle(layout["details/13"])}>
-        <div data-eid="details/14" style={elStyle(layout["details/14"])}>
+      <div className={cx(styles.aF9o6Q, styles._0yZ6Qg)} data-eid="details/text-2" style={elStyle(layout["details/text-2"])}>
+        <div data-eid="details/box-2" style={elStyle(layout["details/box-2"])}>
           <div className={styles.E8yZTA}>
             <div>
               <div className={cx(styles._2UyCZQ, styles.vkN2Cw, styles.Mb8E_A, styles.e1_zQg)} lang="en">
                 <p className={cx(styles._28USrA, styles._2ENCSQ, styles.XN6uKA, styles._4N4NA)} data-eid="details/accommodation-heading-text" style={elStyle(layout["details/accommodation-heading-text"])}>
-                  <span className={styles.a_GcMg} data-eid="details/16" style={elStyle(layout["details/16"])}>
+                  <span className={styles.a_GcMg} data-eid="details/span-2" style={elStyle(layout["details/span-2"])}>
                     {"Accommodation"}
                   </span>
-                  <span className={cx(styles.a_GcMg, styles.zYq_BQ)} data-eid="details/17" style={elStyle(layout["details/17"])}>
+                  <span className={cx(styles.a_GcMg, styles.zYq_BQ)} data-eid="details/span-3" style={elStyle(layout["details/span-3"])}>
                     {" "}
                   </span>
                 </p>
@@ -70,13 +70,13 @@ function AccommodationHeading() {
 function AccommodationParagraph() {
   return (
     <div className={cx(styles.DF_utQ, styles._682gpw, styles._0xkaeQ)} data-eid="details/accommodation-paragraph" style={elStyle(layout["details/accommodation-paragraph"])}>
-      <div className={cx(styles.aF9o6Q, styles._0yZ6Qg)} data-eid="details/19" style={elStyle(layout["details/19"])}>
-        <div data-eid="details/20" style={elStyle(layout["details/20"])}>
+      <div className={cx(styles.aF9o6Q, styles._0yZ6Qg)} data-eid="details/text-3" style={elStyle(layout["details/text-3"])}>
+        <div data-eid="details/box-3" style={elStyle(layout["details/box-3"])}>
           <div className={styles.E8yZTA}>
             <div>
               <div className={cx(styles._2UyCZQ, styles.vkN2Cw, styles.e1_zQg)} lang="en">
                 <p className={cx(styles._28USrA, styles._2ENCSQ, styles.XN6uKA, styles._4N4NA)} data-eid="details/accommodation-paragraph-text" style={elStyle(layout["details/accommodation-paragraph-text"])}>
-                  <span className={styles.a_GcMg} data-eid="details/22" style={elStyle(layout["details/22"])}>
+                  <span className={styles.a_GcMg} data-eid="details/span-4" style={elStyle(layout["details/span-4"])}>
                     {"For your convenience, rooms have been reserved at Bali Resort with special wedding rates. Please mention “Felix & Angel Wedding” when booking to receive the discounted rate."}
                   </span>
                 </p>
@@ -92,16 +92,16 @@ function AccommodationParagraph() {
 function TransportationHeading() {
   return (
     <div className={cx(styles.DF_utQ, styles._682gpw, styles._0xkaeQ)} data-eid="details/transportation-heading" style={elStyle(layout["details/transportation-heading"])}>
-      <div className={cx(styles.aF9o6Q, styles._0yZ6Qg)} data-eid="details/24" style={elStyle(layout["details/24"])}>
-        <div data-eid="details/25" style={elStyle(layout["details/25"])}>
+      <div className={cx(styles.aF9o6Q, styles._0yZ6Qg)} data-eid="details/text-4" style={elStyle(layout["details/text-4"])}>
+        <div data-eid="details/box-4" style={elStyle(layout["details/box-4"])}>
           <div className={styles.E8yZTA}>
             <div>
               <div className={cx(styles._2UyCZQ, styles.vkN2Cw, styles.Mb8E_A, styles.e1_zQg)} lang="en">
                 <p className={cx(styles._28USrA, styles._2ENCSQ, styles.XN6uKA, styles._4N4NA)} data-eid="details/transportation-heading-text" style={elStyle(layout["details/transportation-heading-text"])}>
-                  <span className={styles.a_GcMg} data-eid="details/27" style={elStyle(layout["details/27"])}>
+                  <span className={styles.a_GcMg} data-eid="details/span-5" style={elStyle(layout["details/span-5"])}>
                     {"Transportation"}
                   </span>
-                  <span className={cx(styles.a_GcMg, styles.zYq_BQ)} data-eid="details/28" style={elStyle(layout["details/28"])}>
+                  <span className={cx(styles.a_GcMg, styles.zYq_BQ)} data-eid="details/span-6" style={elStyle(layout["details/span-6"])}>
                     {" "}
                   </span>
                 </p>
@@ -117,13 +117,13 @@ function TransportationHeading() {
 function TransportationParagraph() {
   return (
     <div className={cx(styles.DF_utQ, styles._682gpw, styles._0xkaeQ)} data-eid="details/transportation-paragraph" style={elStyle(layout["details/transportation-paragraph"])}>
-      <div className={cx(styles.aF9o6Q, styles._0yZ6Qg)} data-eid="details/30" style={elStyle(layout["details/30"])}>
-        <div data-eid="details/31" style={elStyle(layout["details/31"])}>
+      <div className={cx(styles.aF9o6Q, styles._0yZ6Qg)} data-eid="details/text-5" style={elStyle(layout["details/text-5"])}>
+        <div data-eid="details/box-5" style={elStyle(layout["details/box-5"])}>
           <div className={styles.E8yZTA}>
             <div>
               <div className={cx(styles._2UyCZQ, styles.vkN2Cw, styles.e1_zQg)} lang="en">
                 <p className={cx(styles._28USrA, styles._2ENCSQ, styles.XN6uKA, styles._4N4NA)} data-eid="details/transportation-paragraph-text" style={elStyle(layout["details/transportation-paragraph-text"])}>
-                  <span className={styles.a_GcMg} data-eid="details/33" style={elStyle(layout["details/33"])}>
+                  <span className={styles.a_GcMg} data-eid="details/span-7" style={elStyle(layout["details/span-7"])}>
                     {"For your convenience, the venue is about 30 minutes from the airport or train station by taxi or rideshare. A complimentary shuttle service will be available for guests staying at Bali Resort, and ample on-site parking is provided for those who prefer to drive."}
                   </span>
                 </p>
@@ -149,7 +149,7 @@ function EngravingPhoto() {
             </div>
           </div>
         </div>
-        <div data-eid="details/36" style={elStyle(layout["details/36"])} />
+        <div data-eid="details/box-6" style={elStyle(layout["details/box-6"])} />
       </div>
     </div>
   );
@@ -157,11 +157,11 @@ function EngravingPhoto() {
 
 function Canvas() {
   return (
-    <div className={styles._mXnjA} lang="en" data-eid="details/3" style={elStyle(layout["details/3"])}>
+    <div className={styles._mXnjA} lang="en" data-eid="details/content" style={elStyle(layout["details/content"])}>
       <div className={styles._6t4CHA}>
         <BackgroundPhoto />
       </div>
-      <div data-eid="details/6" style={elStyle(layout["details/6"])} />
+      <div data-eid="details/box-7" style={elStyle(layout["details/box-7"])} />
       <Title />
       <AccommodationHeading />
       <AccommodationParagraph />
@@ -174,16 +174,16 @@ function Canvas() {
 
 export default function Details() {
   return (
-      <section className={"rGeu6w"} id="PBsHbr4J9zLLY08q" data-scroll-ready="true" data-eid="details/0" style={elStyle(layout["details/0"])}>
+      <section className={"rGeu6w"} id="PBsHbr4J9zLLY08q" data-scroll-ready="true" data-eid="details/sectionbox" style={elStyle(layout["details/sectionbox"])}>
         <div>
-          <div className={styles.onhyOQ} data-eid="details/1" style={elStyle(layout["details/1"])}>
+          <div className={styles.onhyOQ} data-eid="details/frame" style={elStyle(layout["details/frame"])}>
             <div className={styles.twbtjQ}>
-              <div className={styles.GDnEHQ} data-eid="details/2" style={elStyle(layout["details/2"])}>
+              <div className={styles.GDnEHQ} data-eid="details/canvas" style={elStyle(layout["details/canvas"])}>
                 <div className={styles.o2Yl2g}>
                   <Canvas />
                 </div>
               </div>
-              <div className={cx(styles.QhExXw, styles.pKfnlA)} data-eid="details/37" style={elStyle(layout["details/37"])} />
+              <div className={cx(styles.QhExXw, styles.pKfnlA)} data-eid="details/overlay" style={elStyle(layout["details/overlay"])} />
             </div>
           </div>
         </div>

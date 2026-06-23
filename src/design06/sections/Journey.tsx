@@ -8,7 +8,7 @@ import { layout } from "./Journey.layout";
 // Полноэкранное фоновое фото (повёрнуто на 90°), лежит под всем коллажем.
 function BackdropPhoto() {
   return (
-    <div className={styles.fbzKiw} data-eid="journey/4" style={elStyle(layout["journey/4"])} />
+    <div className={styles.fbzKiw} data-eid="journey/fill" style={elStyle(layout["journey/fill"])} />
   );
 }
 
@@ -28,61 +28,61 @@ function BackdropPhotoImage() {
 function PhotoCollage() {
   return (
     <div className={cx(styles.DF_utQ, styles._682gpw, styles._0xkaeQ)} data-eid="journey/collage" style={elStyle(layout["journey/collage"])}>
-      <div data-eid="journey/8" style={elStyle(layout["journey/8"])}>
-        <div className={cx(styles.DF_utQ, styles._682gpw, styles._0xkaeQ)} data-eid="journey/9" style={elStyle(layout["journey/9"])}>
+      <div data-eid="journey/box-1" style={elStyle(layout["journey/box-1"])}>
+        <div className={cx(styles.DF_utQ, styles._682gpw, styles._0xkaeQ)} data-eid="journey/block-1" style={elStyle(layout["journey/block-1"])}>
           <div className={styles.Zp7NQw}>
             <div className={styles.a26Xuw}>
               <div className={styles.PcHy7w}>
                 <div className={cx(styles.uk_25A, styles.Ty61NA)}>
-                  <div className={styles.Izwocg} data-eid="journey/10" style={elStyle(layout["journey/10"])}>
+                  <div className={styles.Izwocg} data-eid="journey/imgwrap-1" style={elStyle(layout["journey/imgwrap-1"])}>
                     <img className={styles._7_i_XA} crossOrigin="anonymous" draggable={false} src="/design06-exact/_assets/media/8f94b2f41e88f4e3d559602828209c41.jpg" />
                   </div>
                 </div>
               </div>
             </div>
-            <div data-eid="journey/11" style={elStyle(layout["journey/11"])} />
+            <div data-eid="journey/box-2" style={elStyle(layout["journey/box-2"])} />
           </div>
         </div>
-        <div className={cx(styles.DF_utQ, styles._682gpw, styles._0xkaeQ)} data-eid="journey/12" style={elStyle(layout["journey/12"])}>
+        <div className={cx(styles.DF_utQ, styles._682gpw, styles._0xkaeQ)} data-eid="journey/block-2" style={elStyle(layout["journey/block-2"])}>
           <div className={styles.Zp7NQw}>
             <div className={styles.a26Xuw}>
               <div className={styles.PcHy7w}>
                 <div className={cx(styles.uk_25A, styles.Ty61NA)}>
-                  <div className={styles.Izwocg} data-eid="journey/13" style={elStyle(layout["journey/13"])}>
+                  <div className={styles.Izwocg} data-eid="journey/imgwrap-2" style={elStyle(layout["journey/imgwrap-2"])}>
                     <img className={styles._7_i_XA} crossOrigin="anonymous" draggable={false} src="/design06-exact/_assets/media/66f9b7c653e52ed2f5be1385fc549f24.jpg" />
                   </div>
                 </div>
               </div>
             </div>
-            <div data-eid="journey/14" style={elStyle(layout["journey/14"])} />
+            <div data-eid="journey/box-3" style={elStyle(layout["journey/box-3"])} />
           </div>
         </div>
-        <div className={cx(styles.DF_utQ, styles._682gpw, styles._0xkaeQ)} data-eid="journey/15" style={elStyle(layout["journey/15"])}>
+        <div className={cx(styles.DF_utQ, styles._682gpw, styles._0xkaeQ)} data-eid="journey/block-3" style={elStyle(layout["journey/block-3"])}>
           <div className={styles.Zp7NQw}>
             <div className={styles.a26Xuw}>
               <div className={styles.PcHy7w}>
                 <div className={cx(styles.uk_25A, styles.Ty61NA)}>
-                  <div className={styles.Izwocg} data-eid="journey/16" style={elStyle(layout["journey/16"])}>
+                  <div className={styles.Izwocg} data-eid="journey/imgwrap-3" style={elStyle(layout["journey/imgwrap-3"])}>
                     <img className={styles._7_i_XA} crossOrigin="anonymous" draggable={false} src="/design06-exact/_assets/media/97e2b95c785edc865b0d971d64e4c6af.jpg" />
                   </div>
                 </div>
               </div>
             </div>
-            <div data-eid="journey/17" style={elStyle(layout["journey/17"])} />
+            <div data-eid="journey/box-4" style={elStyle(layout["journey/box-4"])} />
           </div>
         </div>
-        <div className={cx(styles.DF_utQ, styles._682gpw, styles._0xkaeQ)} data-eid="journey/18" style={elStyle(layout["journey/18"])}>
+        <div className={cx(styles.DF_utQ, styles._682gpw, styles._0xkaeQ)} data-eid="journey/block-4" style={elStyle(layout["journey/block-4"])}>
           <div className={styles.Zp7NQw}>
             <div className={styles.a26Xuw}>
               <div className={styles.PcHy7w}>
                 <div className={cx(styles.uk_25A, styles.Ty61NA)}>
-                  <div className={styles.Izwocg} data-eid="journey/19" style={elStyle(layout["journey/19"])}>
+                  <div className={styles.Izwocg} data-eid="journey/imgwrap-4" style={elStyle(layout["journey/imgwrap-4"])}>
                     <img className={styles._7_i_XA} crossOrigin="anonymous" draggable={false} src="/design06-exact/_assets/media/dbc843d96c23400e5f29e7db7208f29f.jpg" />
                   </div>
                 </div>
               </div>
             </div>
-            <div data-eid="journey/20" style={elStyle(layout["journey/20"])} />
+            <div data-eid="journey/box-5" style={elStyle(layout["journey/box-5"])} />
           </div>
         </div>
       </div>
@@ -98,13 +98,13 @@ function Engraving1() {
         <div className={styles.a26Xuw}>
           <div className={styles.PcHy7w}>
             <div className={cx(styles.uk_25A, styles.Ty61NA)}>
-              <div className={styles.Izwocg} data-eid="journey/22" style={elStyle(layout["journey/22"])}>
+              <div className={styles.Izwocg} data-eid="journey/imgwrap-5" style={elStyle(layout["journey/imgwrap-5"])}>
                 <img className={styles.dMHlHA} crossOrigin="anonymous" draggable={false} src="/design06-exact/_assets/blobs/PBYbv3X7MfRLX7B4_0.png" />
               </div>
             </div>
           </div>
         </div>
-        <div data-eid="journey/23" style={elStyle(layout["journey/23"])} />
+        <div data-eid="journey/box-6" style={elStyle(layout["journey/box-6"])} />
       </div>
     </div>
   );
@@ -117,13 +117,13 @@ function Engraving2() {
         <div className={styles.a26Xuw}>
           <div className={styles.PcHy7w}>
             <div className={cx(styles.uk_25A, styles.Ty61NA)}>
-              <div className={styles.Izwocg} data-eid="journey/25" style={elStyle(layout["journey/25"])}>
+              <div className={styles.Izwocg} data-eid="journey/imgwrap-6" style={elStyle(layout["journey/imgwrap-6"])}>
                 <img className={styles.dMHlHA} crossOrigin="anonymous" draggable={false} src="/design06-exact/_assets/blobs/PBYbv3X7MfRLX7B4_1.png" />
               </div>
             </div>
           </div>
         </div>
-        <div data-eid="journey/26" style={elStyle(layout["journey/26"])} />
+        <div data-eid="journey/box-7" style={elStyle(layout["journey/box-7"])} />
       </div>
     </div>
   );
@@ -136,13 +136,13 @@ function Engraving3() {
         <div className={styles.a26Xuw}>
           <div className={styles.PcHy7w}>
             <div className={cx(styles.uk_25A, styles.Ty61NA)}>
-              <div className={styles.Izwocg} data-eid="journey/28" style={elStyle(layout["journey/28"])}>
+              <div className={styles.Izwocg} data-eid="journey/imgwrap-7" style={elStyle(layout["journey/imgwrap-7"])}>
                 <img className={styles.dMHlHA} crossOrigin="anonymous" draggable={false} src="/design06-exact/_assets/blobs/PBYbv3X7MfRLX7B4_2.png" />
               </div>
             </div>
           </div>
         </div>
-        <div data-eid="journey/29" style={elStyle(layout["journey/29"])} />
+        <div data-eid="journey/box-8" style={elStyle(layout["journey/box-8"])} />
       </div>
     </div>
   );
@@ -155,13 +155,13 @@ function Engraving4() {
         <div className={styles.a26Xuw}>
           <div className={styles.PcHy7w}>
             <div className={cx(styles.uk_25A, styles.Ty61NA)}>
-              <div className={styles.Izwocg} data-eid="journey/31" style={elStyle(layout["journey/31"])}>
+              <div className={styles.Izwocg} data-eid="journey/imgwrap-8" style={elStyle(layout["journey/imgwrap-8"])}>
                 <img className={styles.dMHlHA} crossOrigin="anonymous" draggable={false} src="/design06-exact/_assets/blobs/PBYbv3X7MfRLX7B4_3.png" />
               </div>
             </div>
           </div>
         </div>
-        <div data-eid="journey/32" style={elStyle(layout["journey/32"])} />
+        <div data-eid="journey/box-9" style={elStyle(layout["journey/box-9"])} />
       </div>
     </div>
   );
@@ -174,13 +174,13 @@ function Engraving5() {
         <div className={styles.a26Xuw}>
           <div className={styles.PcHy7w}>
             <div className={cx(styles.uk_25A, styles.Ty61NA)}>
-              <div className={styles.Izwocg} data-eid="journey/34" style={elStyle(layout["journey/34"])}>
+              <div className={styles.Izwocg} data-eid="journey/imgwrap-9" style={elStyle(layout["journey/imgwrap-9"])}>
                 <img className={styles.dMHlHA} crossOrigin="anonymous" draggable={false} src="/design06-exact/_assets/blobs/PBYbv3X7MfRLX7B4_4.png" />
               </div>
             </div>
           </div>
         </div>
-        <div data-eid="journey/35" style={elStyle(layout["journey/35"])} />
+        <div data-eid="journey/box-10" style={elStyle(layout["journey/box-10"])} />
       </div>
     </div>
   );
@@ -192,14 +192,14 @@ function Engraving6() {
       <div className={styles.Zp7NQw}>
         <div className={styles.a26Xuw}>
           <div className={styles.PcHy7w}>
-            <div className={cx(styles.uk_25A, styles.Ty61NA)} data-eid="journey/37" style={elStyle(layout["journey/37"])}>
-              <div className={styles.Izwocg} data-eid="journey/38" style={elStyle(layout["journey/38"])}>
+            <div className={cx(styles.uk_25A, styles.Ty61NA)} data-eid="journey/imgbox" style={elStyle(layout["journey/imgbox"])}>
+              <div className={styles.Izwocg} data-eid="journey/imgwrap-10" style={elStyle(layout["journey/imgwrap-10"])}>
                 <img className={styles.dMHlHA} crossOrigin="anonymous" draggable={false} src="/design06-exact/_assets/blobs/PBYbv3X7MfRLX7B4_5.png" />
               </div>
             </div>
           </div>
         </div>
-        <div data-eid="journey/39" style={elStyle(layout["journey/39"])} />
+        <div data-eid="journey/box-11" style={elStyle(layout["journey/box-11"])} />
       </div>
     </div>
   );
@@ -209,8 +209,8 @@ function Engraving6() {
 function CirclePhoto1() {
   return (
     <div className={cx(styles.DF_utQ, styles._682gpw, styles._0xkaeQ)} data-eid="journey/circle-photo-1" style={elStyle(layout["journey/circle-photo-1"])}>
-      <div data-eid="journey/41" style={elStyle(layout["journey/41"])}>
-        <div className={styles.hWv4NA} data-eid="journey/42" style={elStyle(layout["journey/42"])}>
+      <div data-eid="journey/box-12" style={elStyle(layout["journey/box-12"])}>
+        <div className={styles.hWv4NA} data-eid="journey/mask-1" style={elStyle(layout["journey/mask-1"])}>
           <svg className={styles._7KaXww}>
             <defs>
               <clipPath id="__id106">
@@ -218,8 +218,8 @@ function CirclePhoto1() {
               </clipPath>
             </defs>
           </svg>
-          <div className={styles.bFnJ2A} data-eid="journey/43" style={elStyle(layout["journey/43"])}>
-            <div className={cx(styles._4c2rDg, styles.GxUsfw)} data-eid="journey/44" style={elStyle(layout["journey/44"])}>
+          <div className={styles.bFnJ2A} data-eid="journey/clip-1" style={elStyle(layout["journey/clip-1"])}>
+            <div className={cx(styles._4c2rDg, styles.GxUsfw)} data-eid="journey/cliptf-1" style={elStyle(layout["journey/cliptf-1"])}>
               <div className={styles.qhHTGg} data-eid="journey/circle-photo-1-img" style={elStyle(layout["journey/circle-photo-1-img"])}>
                 <img className={styles._7_i_XA} crossOrigin="anonymous" draggable={false} src="/design06-exact/_assets/media/ab56760e8e783687bdda2bcbc1ffd2d9.jpg" />
               </div>
@@ -235,8 +235,8 @@ function CirclePhoto1() {
 function CirclePhoto2() {
   return (
     <div className={cx(styles.DF_utQ, styles._682gpw, styles._0xkaeQ)} data-eid="journey/circle-photo-2" style={elStyle(layout["journey/circle-photo-2"])}>
-      <div data-eid="journey/47" style={elStyle(layout["journey/47"])}>
-        <div className={styles.hWv4NA} data-eid="journey/48" style={elStyle(layout["journey/48"])}>
+      <div data-eid="journey/box-13" style={elStyle(layout["journey/box-13"])}>
+        <div className={styles.hWv4NA} data-eid="journey/mask-2" style={elStyle(layout["journey/mask-2"])}>
           <svg className={styles._7KaXww}>
             <defs>
               <clipPath id="__id107">
@@ -244,8 +244,8 @@ function CirclePhoto2() {
               </clipPath>
             </defs>
           </svg>
-          <div className={styles.bFnJ2A} data-eid="journey/49" style={elStyle(layout["journey/49"])}>
-            <div className={cx(styles._4c2rDg, styles.GxUsfw)} data-eid="journey/50" style={elStyle(layout["journey/50"])}>
+          <div className={styles.bFnJ2A} data-eid="journey/clip-2" style={elStyle(layout["journey/clip-2"])}>
+            <div className={cx(styles._4c2rDg, styles.GxUsfw)} data-eid="journey/cliptf-2" style={elStyle(layout["journey/cliptf-2"])}>
               <div className={styles.qhHTGg} data-eid="journey/circle-photo-2-img" style={elStyle(layout["journey/circle-photo-2-img"])}>
                 <img className={styles._7_i_XA} crossOrigin="anonymous" draggable={false} src="/design06-exact/_assets/media/c710cbd2553d9c393b8b202ef062eef1.jpg" />
               </div>
@@ -261,8 +261,8 @@ function CirclePhoto2() {
 function CirclePhoto3() {
   return (
     <div className={cx(styles.DF_utQ, styles._682gpw, styles._0xkaeQ)} data-eid="journey/circle-photo-3" style={elStyle(layout["journey/circle-photo-3"])}>
-      <div data-eid="journey/53" style={elStyle(layout["journey/53"])}>
-        <div className={styles.hWv4NA} data-eid="journey/54" style={elStyle(layout["journey/54"])}>
+      <div data-eid="journey/box-14" style={elStyle(layout["journey/box-14"])}>
+        <div className={styles.hWv4NA} data-eid="journey/mask-3" style={elStyle(layout["journey/mask-3"])}>
           <svg className={styles._7KaXww}>
             <defs>
               <clipPath id="__id108">
@@ -270,8 +270,8 @@ function CirclePhoto3() {
               </clipPath>
             </defs>
           </svg>
-          <div className={styles.bFnJ2A} data-eid="journey/55" style={elStyle(layout["journey/55"])}>
-            <div className={cx(styles._4c2rDg, styles.GxUsfw)} data-eid="journey/56" style={elStyle(layout["journey/56"])}>
+          <div className={styles.bFnJ2A} data-eid="journey/clip-3" style={elStyle(layout["journey/clip-3"])}>
+            <div className={cx(styles._4c2rDg, styles.GxUsfw)} data-eid="journey/cliptf-3" style={elStyle(layout["journey/cliptf-3"])}>
               <div className={styles.qhHTGg} data-eid="journey/circle-photo-3-img" style={elStyle(layout["journey/circle-photo-3-img"])}>
                 <img className={styles._7_i_XA} crossOrigin="anonymous" draggable={false} src="/design06-exact/_assets/media/c38a1de946f746cf2b687741bcbe0585.jpg" />
               </div>
@@ -292,13 +292,13 @@ function Engraving7() {
         <div className={styles.a26Xuw}>
           <div className={styles.PcHy7w}>
             <div className={cx(styles.uk_25A, styles.Ty61NA)}>
-              <div className={styles.Izwocg} data-eid="journey/59" style={elStyle(layout["journey/59"])}>
+              <div className={styles.Izwocg} data-eid="journey/imgwrap-11" style={elStyle(layout["journey/imgwrap-11"])}>
                 <img className={styles.dMHlHA} crossOrigin="anonymous" draggable={false} src="/design06-exact/_assets/blobs/PBYbv3X7MfRLX7B4_6.png" />
               </div>
             </div>
           </div>
         </div>
-        <div data-eid="journey/60" style={elStyle(layout["journey/60"])} />
+        <div data-eid="journey/box-15" style={elStyle(layout["journey/box-15"])} />
       </div>
     </div>
   );
@@ -311,13 +311,13 @@ function Engraving8() {
         <div className={styles.a26Xuw}>
           <div className={styles.PcHy7w}>
             <div className={cx(styles.uk_25A, styles.Ty61NA)}>
-              <div className={styles.Izwocg} data-eid="journey/62" style={elStyle(layout["journey/62"])}>
+              <div className={styles.Izwocg} data-eid="journey/imgwrap-12" style={elStyle(layout["journey/imgwrap-12"])}>
                 <img className={styles.dMHlHA} crossOrigin="anonymous" draggable={false} src="/design06-exact/_assets/blobs/PBYbv3X7MfRLX7B4_7.png" />
               </div>
             </div>
           </div>
         </div>
-        <div data-eid="journey/63" style={elStyle(layout["journey/63"])} />
+        <div data-eid="journey/box-16" style={elStyle(layout["journey/box-16"])} />
       </div>
     </div>
   );
@@ -330,13 +330,13 @@ function Engraving9() {
         <div className={styles.a26Xuw}>
           <div className={styles.PcHy7w}>
             <div className={cx(styles.uk_25A, styles.Ty61NA)}>
-              <div className={styles.Izwocg} data-eid="journey/65" style={elStyle(layout["journey/65"])}>
+              <div className={styles.Izwocg} data-eid="journey/imgwrap-13" style={elStyle(layout["journey/imgwrap-13"])}>
                 <img className={styles.dMHlHA} crossOrigin="anonymous" draggable={false} src="/design06-exact/_assets/blobs/PBYbv3X7MfRLX7B4_8.png" />
               </div>
             </div>
           </div>
         </div>
-        <div data-eid="journey/66" style={elStyle(layout["journey/66"])} />
+        <div data-eid="journey/box-17" style={elStyle(layout["journey/box-17"])} />
       </div>
     </div>
   );
@@ -346,12 +346,12 @@ function Engraving9() {
 function Title() {
   return (
     <div className={cx(styles.DF_utQ, styles._682gpw, styles._0xkaeQ)} data-eid="journey/title" style={elStyle(layout["journey/title"])}>
-      <div className={cx(styles.aF9o6Q, styles._0yZ6Qg)} data-eid="journey/68" style={elStyle(layout["journey/68"])}>
-        <div data-eid="journey/69" style={elStyle(layout["journey/69"])}>
+      <div className={cx(styles.aF9o6Q, styles._0yZ6Qg)} data-eid="journey/text-1" style={elStyle(layout["journey/text-1"])}>
+        <div data-eid="journey/box-18" style={elStyle(layout["journey/box-18"])}>
           <div className={styles.E8yZTA}>
             <div>
               <div className={cx(styles._2UyCZQ, styles.vkN2Cw, styles.Mb8E_A, styles.e1_zQg)} lang="en">
-                <p className={cx(styles._28USrA, styles.AfeL7g, styles.XN6uKA, styles._4N4NA)} data-eid="journey/70" style={elStyle(layout["journey/70"])}>
+                <p className={cx(styles._28USrA, styles.AfeL7g, styles.XN6uKA, styles._4N4NA)} data-eid="journey/para-1" style={elStyle(layout["journey/para-1"])}>
                   <span className={styles.a_GcMg} data-eid="journey/title-text" style={elStyle(layout["journey/title-text"])}>
                     {"A journey of love"}
                   </span>
@@ -369,12 +369,12 @@ function Title() {
 function Caption1() {
   return (
     <div className={cx(styles.DF_utQ, styles._682gpw, styles._0xkaeQ)} data-eid="journey/caption-1" style={elStyle(layout["journey/caption-1"])}>
-      <div className={cx(styles.aF9o6Q, styles._0yZ6Qg)} data-eid="journey/73" style={elStyle(layout["journey/73"])}>
-        <div data-eid="journey/74" style={elStyle(layout["journey/74"])}>
+      <div className={cx(styles.aF9o6Q, styles._0yZ6Qg)} data-eid="journey/text-2" style={elStyle(layout["journey/text-2"])}>
+        <div data-eid="journey/box-19" style={elStyle(layout["journey/box-19"])}>
           <div className={styles.E8yZTA}>
             <div>
               <div className={cx(styles._2UyCZQ, styles.vkN2Cw, styles.Mb8E_A, styles.e1_zQg)} lang="en">
-                <p className={cx(styles._28USrA, styles.AfeL7g, styles.XN6uKA, styles._4N4NA)} data-eid="journey/75" style={elStyle(layout["journey/75"])}>
+                <p className={cx(styles._28USrA, styles.AfeL7g, styles.XN6uKA, styles._4N4NA)} data-eid="journey/para-2" style={elStyle(layout["journey/para-2"])}>
                   <span className={styles.a_GcMg} data-eid="journey/caption-1-text" style={elStyle(layout["journey/caption-1-text"])}>
                     {"we first met and little did we"}
                     <br />
@@ -396,12 +396,12 @@ function Caption1() {
 function Caption2() {
   return (
     <div className={cx(styles.DF_utQ, styles._682gpw, styles._0xkaeQ)} data-eid="journey/caption-2" style={elStyle(layout["journey/caption-2"])}>
-      <div className={cx(styles.aF9o6Q, styles._0yZ6Qg)} data-eid="journey/78" style={elStyle(layout["journey/78"])}>
-        <div data-eid="journey/79" style={elStyle(layout["journey/79"])}>
+      <div className={cx(styles.aF9o6Q, styles._0yZ6Qg)} data-eid="journey/text-3" style={elStyle(layout["journey/text-3"])}>
+        <div data-eid="journey/box-20" style={elStyle(layout["journey/box-20"])}>
           <div className={styles.E8yZTA}>
             <div>
               <div className={cx(styles._2UyCZQ, styles.vkN2Cw, styles.Mb8E_A, styles.e1_zQg)} lang="en">
-                <p className={cx(styles._28USrA, styles.AfeL7g, styles.XN6uKA, styles._4N4NA)} data-eid="journey/80" style={elStyle(layout["journey/80"])}>
+                <p className={cx(styles._28USrA, styles.AfeL7g, styles.XN6uKA, styles._4N4NA)} data-eid="journey/para-3" style={elStyle(layout["journey/para-3"])}>
                   <span className={styles.a_GcMg} data-eid="journey/caption-2-text" style={elStyle(layout["journey/caption-2-text"])}>
                     {"we started our journey together,"}
                     <br />
@@ -423,12 +423,12 @@ function Caption2() {
 function Caption3() {
   return (
     <div className={cx(styles.DF_utQ, styles._682gpw, styles._0xkaeQ)} data-eid="journey/caption-3" style={elStyle(layout["journey/caption-3"])}>
-      <div className={cx(styles.aF9o6Q, styles._0yZ6Qg)} data-eid="journey/83" style={elStyle(layout["journey/83"])}>
-        <div data-eid="journey/84" style={elStyle(layout["journey/84"])}>
+      <div className={cx(styles.aF9o6Q, styles._0yZ6Qg)} data-eid="journey/text-4" style={elStyle(layout["journey/text-4"])}>
+        <div data-eid="journey/box-21" style={elStyle(layout["journey/box-21"])}>
           <div className={styles.E8yZTA}>
             <div>
               <div className={cx(styles._2UyCZQ, styles.vkN2Cw, styles.Mb8E_A, styles.e1_zQg)} lang="en">
-                <p className={cx(styles._28USrA, styles.AfeL7g, styles.XN6uKA, styles._4N4NA)} data-eid="journey/85" style={elStyle(layout["journey/85"])}>
+                <p className={cx(styles._28USrA, styles.AfeL7g, styles.XN6uKA, styles._4N4NA)} data-eid="journey/para-4" style={elStyle(layout["journey/para-4"])}>
                   <span className={styles.a_GcMg} data-eid="journey/caption-3-text" style={elStyle(layout["journey/caption-3-text"])}>
                     {"a heartfelt proposal sealed our"}
                     <br />
@@ -436,7 +436,7 @@ function Caption3() {
                     <br />
                     {"for a lifetime."}
                   </span>
-                  <span className={cx(styles.a_GcMg, styles.zYq_BQ)} data-eid="journey/87" style={elStyle(layout["journey/87"])}>
+                  <span className={cx(styles.a_GcMg, styles.zYq_BQ)} data-eid="journey/span" style={elStyle(layout["journey/span"])}>
                     {" "}
                   </span>
                 </p>
@@ -458,20 +458,20 @@ function Overlay() {
 
 export default function Journey() {
   return (
-      <section className={"rGeu6w"} id="PBYbv3X7MfRLX7B4" data-scroll-ready="true" data-eid="journey/0" style={elStyle(layout["journey/0"])}>
+      <section className={"rGeu6w"} id="PBYbv3X7MfRLX7B4" data-scroll-ready="true" data-eid="journey/sectionbox" style={elStyle(layout["journey/sectionbox"])}>
         <div>
-          <div className={styles.onhyOQ} data-eid="journey/1" style={elStyle(layout["journey/1"])}>
+          <div className={styles.onhyOQ} data-eid="journey/frame" style={elStyle(layout["journey/frame"])}>
             <div className={styles.twbtjQ}>
-              <div className={styles.GDnEHQ} data-eid="journey/2" style={elStyle(layout["journey/2"])}>
+              <div className={styles.GDnEHQ} data-eid="journey/canvas" style={elStyle(layout["journey/canvas"])}>
                 <div className={styles.o2Yl2g}>
-                  <div className={styles._mXnjA} lang="en" data-eid="journey/3" style={elStyle(layout["journey/3"])}>
+                  <div className={styles._mXnjA} lang="en" data-eid="journey/content" style={elStyle(layout["journey/content"])}>
                     <div className={styles._6t4CHA}>
                       <div className={styles.a26Xuw}>
                         <BackdropPhoto />
                         <BackdropPhotoImage />
                       </div>
                     </div>
-                    <div data-eid="journey/6" style={elStyle(layout["journey/6"])} />
+                    <div data-eid="journey/box-22" style={elStyle(layout["journey/box-22"])} />
                     <PhotoCollage />
                     <Engraving1 />
                     <Engraving2 />

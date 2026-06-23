@@ -10,10 +10,10 @@ function Backdrop() {
   return (
     <div className={styles.GDnEHQ} data-eid="gift/backdrop" style={elStyle(layout["gift/backdrop"])}>
       <div className={styles.o2Yl2g}>
-        <div className={styles._mXnjA} lang="en" data-eid="gift/3" style={elStyle(layout["gift/3"])}>
+        <div className={styles._mXnjA} lang="en" data-eid="gift/content" style={elStyle(layout["gift/content"])}>
           <div className={styles._6t4CHA}>
             <div className={styles.a26Xuw}>
-              <div className={styles.fbzKiw} data-eid="gift/4" style={elStyle(layout["gift/4"])} />
+              <div className={styles.fbzKiw} data-eid="gift/fill" style={elStyle(layout["gift/fill"])} />
               <div className={styles.PcHy7w}>
                 <div className={cx(styles.uk_25A, styles.Ty61NA)}>
                   <div className={styles.Izwocg} data-eid="gift/backdrop-image" style={elStyle(layout["gift/backdrop-image"])}>
@@ -23,7 +23,7 @@ function Backdrop() {
               </div>
             </div>
           </div>
-          <div data-eid="gift/6" style={elStyle(layout["gift/6"])} />
+          <div data-eid="gift/box-1" style={elStyle(layout["gift/box-1"])} />
           <Illustration />
           <Sparkle />
           <ButtonPill />
@@ -50,7 +50,7 @@ function Illustration() {
             </div>
           </div>
         </div>
-        <div data-eid="gift/9" style={elStyle(layout["gift/9"])} />
+        <div data-eid="gift/box-2" style={elStyle(layout["gift/box-2"])} />
       </div>
     </div>
   );
@@ -70,7 +70,7 @@ function Sparkle() {
             </div>
           </div>
         </div>
-        <div data-eid="gift/12" style={elStyle(layout["gift/12"])} />
+        <div data-eid="gift/box-3" style={elStyle(layout["gift/box-3"])} />
       </div>
     </div>
   );
@@ -80,8 +80,8 @@ function Sparkle() {
 function ButtonPill() {
   return (
     <div className={cx(styles.DF_utQ, styles._682gpw, styles._0xkaeQ)} data-eid="gift/button-pill" style={elStyle(layout["gift/button-pill"])}>
-      <div data-eid="gift/14" style={elStyle(layout["gift/14"])}>
-        <div className={styles.hWv4NA} data-eid="gift/15" style={elStyle(layout["gift/15"])}>
+      <div data-eid="gift/box-4" style={elStyle(layout["gift/box-4"])}>
+        <div className={styles.hWv4NA} data-eid="gift/mask" style={elStyle(layout["gift/mask"])}>
           <svg className={styles._7KaXww}>
             <defs>
               <clipPath id="__id75">
@@ -101,12 +101,12 @@ function Title() {
   return (
     <div className={cx(styles.DF_utQ, styles._682gpw, styles._0xkaeQ)} data-eid="gift/title" style={elStyle(layout["gift/title"])}>
       <div className={cx(styles.aF9o6Q, styles._0yZ6Qg)} data-eid="gift/title-box" style={elStyle(layout["gift/title-box"])}>
-        <div data-eid="gift/19" style={elStyle(layout["gift/19"])}>
+        <div data-eid="gift/box-5" style={elStyle(layout["gift/box-5"])}>
           <div className={styles.E8yZTA}>
             <div>
               <div className={cx(styles._2UyCZQ, styles.vkN2Cw, styles.Mb8E_A, styles.e1_zQg)} lang="en">
                 <p className={cx(styles._28USrA, styles.AfeL7g, styles.XN6uKA, styles._4N4NA)} data-eid="gift/title-text" style={elStyle(layout["gift/title-text"])}>
-                  <span className={styles.a_GcMg} data-eid="gift/21" style={elStyle(layout["gift/21"])}>
+                  <span className={styles.a_GcMg} data-eid="gift/span-1" style={elStyle(layout["gift/span-1"])}>
                     {"Wedding Gift"}
                   </span>
                 </p>
@@ -124,12 +124,12 @@ function Paragraph() {
   return (
     <div className={cx(styles.DF_utQ, styles._682gpw, styles._0xkaeQ)} data-eid="gift/paragraph" style={elStyle(layout["gift/paragraph"])}>
       <div className={cx(styles.aF9o6Q, styles._0yZ6Qg)} data-eid="gift/paragraph-box" style={elStyle(layout["gift/paragraph-box"])}>
-        <div data-eid="gift/24" style={elStyle(layout["gift/24"])}>
+        <div data-eid="gift/box-6" style={elStyle(layout["gift/box-6"])}>
           <div className={styles.E8yZTA}>
             <div>
               <div className={cx(styles._2UyCZQ, styles.vkN2Cw, styles.Mb8E_A, styles.e1_zQg)} lang="en">
                 <p className={cx(styles._28USrA, styles.AfeL7g, styles.XN6uKA, styles._4N4NA)} data-eid="gift/paragraph-text" style={elStyle(layout["gift/paragraph-text"])}>
-                  <span className={styles.a_GcMg} data-eid="gift/26" style={elStyle(layout["gift/26"])}>
+                  <span className={styles.a_GcMg} data-eid="gift/span-2" style={elStyle(layout["gift/span-2"])}>
                     {"Your presence is the greatest gift of all,"}
                     <br />
                     {"and it is something we truly look forward"}
@@ -155,12 +155,12 @@ function ButtonLabel() {
   return (
     <div className={cx(styles.DF_utQ, styles._682gpw, styles._0xkaeQ)} data-eid="gift/button" style={elStyle(layout["gift/button"])}>
       <div className={cx(styles.aF9o6Q, styles._0yZ6Qg)} data-eid="gift/button-box" style={elStyle(layout["gift/button-box"])}>
-        <div data-eid="gift/29" style={elStyle(layout["gift/29"])}>
+        <div data-eid="gift/box-7" style={elStyle(layout["gift/box-7"])}>
           <div className={styles.E8yZTA}>
             <div>
               <div className={cx(styles._2UyCZQ, styles.vkN2Cw, styles.Mb8E_A, styles.e1_zQg)} lang="en">
                 <p className={cx(styles._28USrA, styles.AfeL7g, styles.XN6uKA, styles._4N4NA)} data-eid="gift/button-text" style={elStyle(layout["gift/button-text"])}>
-                  <span className={styles.a_GcMg} data-eid="gift/31" style={elStyle(layout["gift/31"])}>
+                  <span className={styles.a_GcMg} data-eid="gift/span-3" style={elStyle(layout["gift/span-3"])}>
                     {"Send Gift"}
                   </span>
                 </p>
@@ -175,12 +175,12 @@ function ButtonLabel() {
 
 export default function Gift() {
   return (
-      <section className={"rGeu6w"} id="PB09PH75zdFrcMmz" data-scroll-ready="true" data-eid="gift/0" style={elStyle(layout["gift/0"])}>
+      <section className={"rGeu6w"} id="PB09PH75zdFrcMmz" data-scroll-ready="true" data-eid="gift/sectionbox" style={elStyle(layout["gift/sectionbox"])}>
         <div>
-          <div className={styles.onhyOQ} data-eid="gift/1" style={elStyle(layout["gift/1"])}>
+          <div className={styles.onhyOQ} data-eid="gift/frame" style={elStyle(layout["gift/frame"])}>
             <div className={styles.twbtjQ}>
               <Backdrop />
-              <div className={cx(styles.QhExXw, styles.pKfnlA)} data-eid="gift/32" style={elStyle(layout["gift/32"])} />
+              <div className={cx(styles.QhExXw, styles.pKfnlA)} data-eid="gift/overlay" style={elStyle(layout["gift/overlay"])} />
             </div>
           </div>
         </div>
