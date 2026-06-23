@@ -2,7 +2,7 @@
 // Редактируемые стили вынесены в Timeline.layout.ts и применяются по data-eid (Approach A2).
 import { cx } from "../cx";
 import { elStyle } from "../layout";
-import styles from "./Timeline.module.css";
+import styles from "../canva.module.css";
 import { layout } from "./Timeline.layout";
 
 // Полноэкранное повёрнутое фоновое фото (гравюра) за всем контентом.

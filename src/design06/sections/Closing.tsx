@@ -2,7 +2,7 @@
 // Редактируемые стили вынесены в Closing.layout.ts и применяются по data-eid (Approach A2).
 import { cx } from "../cx";
 import { elStyle } from "../layout";
-import styles from "./Closing.module.css";
+import styles from "../canva.module.css";
 import { layout } from "./Closing.layout";
 
 // Однотонная белая подложка под текстурой.

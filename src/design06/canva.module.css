@@ -1,3 +1,5 @@
+/* design06 — общий модуль утилит Canva (union по всем секциям). Единый источник
+   для всех секций и шаблонов редактора. Генерится tools/design06-shared-css.mjs. */
 ._2UyCZQ {
   --H97cbQ: 16px;
   --Xm-_8w: 0;
@@ -40,6 +42,22 @@
   white-space: pre-wrap;
 }
 
+.dkWypw {
+  align-items: center;
+  box-sizing: border-box;
+  display: inline-flex;
+  pointer-events: none;
+}
+
+.NA_Img {
+  height: calc(var(----lgQg, .1rem)*8*3);
+  width: calc(var(----lgQg, .1rem)*8*3);
+}
+
+._6ti9_A {
+  animation: _vsOSw .5s linear infinite;
+}
+
 ._682gpw {
   -webkit-touch-callout: none;
   -webkit-user-drag: none;
@@ -54,6 +72,67 @@
 
 ._0xkaeQ {
   pointer-events: auto;
+}
+
+.IwXXkw {
+  background: var(--VcZbvQ);
+  opacity: var(--Xj4qXA);
+}
+
+._qImYg {
+  animation: _5bz7wQ 1.4s infinite;
+}
+
+._CObZw {
+  height: 100%;
+  width: 100%;
+}
+
+.JbJFjg {
+  border-radius: 0;
+}
+
+.Rt1H_w {
+  background-color: hsla(0,0%,71%,.22);
+  height: 100%;
+  left: 0;
+  top: 0;
+  width: 100%;
+}
+
+._5sVuA {
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%,-50%);
+}
+
+.S3wQqg {
+  height: 100%;
+  opacity: 0;
+  width: 100%;
+}
+
+.lKZixA {
+  transition: opacity .15s ease-in-out;
+}
+
+._8YzbFQ {
+  opacity: 1;
+}
+
+.uqhtBg {
+  height: inherit;
+  width: inherit;
+}
+
+.hVT_uA {
+  opacity: 1;
+  transition: opacity .15s ease-in-out;
+}
+
+.PgAXEw {
+  opacity: 0;
+  pointer-events: none;
 }
 
 .bFnJ2A {
@@ -164,6 +243,18 @@
   position: relative;
 }
 
+.V7MmMA {
+  transform-origin: 0 0;
+}
+
+.Fe_H_Q {
+  display: block;
+  min-height: 1px;
+  min-width: 1px;
+  overflow: visible;
+  position: absolute;
+}
+
 ._0yZ6Qg {
   text-rendering: geometricPrecision;
 }
@@ -186,6 +277,43 @@
 .hWv4NA {
   position: relative;
   transform-origin: top left;
+}
+
+._DyBwg {
+  direction: ltr;
+}
+
+.hbcXuA {
+  contain: layout;
+  position: relative;
+}
+
+.csGvXg {
+  border-spacing: 0;
+  pointer-events: none;
+}
+
+._5RL20Q {
+  display: block;
+  left: 0;
+  overflow-wrap: break-word;
+  pointer-events: auto;
+  position: absolute;
+  top: 0;
+}
+
+.xam_ew {
+  height: 100%;
+  overflow: hidden;
+  width: 100%;
+}
+
+.iRGCPA {
+  display: flex;
+  flex-direction: column;
+  height: calc(100%/var(--H-KugQ, 1));
+  transform: scale(var(--H-KugQ,1));
+  width: calc(100%/var(--H-KugQ, 1));
 }
 
 :global(.rGeu6w) {
@@ -420,8 +548,39 @@
   counter-reset: none;
 }
 
+.dkWypw:before {
+  content: "\00200B";
+  line-height: 1;
+  width: 0;
+}
+
+.dkWypw>svg {
+  display: block;
+  height: 100%;
+  width: 100%;
+}
+
 .DF_utQ:hover {
   cursor: unset;
+}
+
+.KOdbkg,._CObZw {
+  border-radius: 8px;
+}
+
+.Rt1H_w,._5sVuA {
+  position: absolute;
+}
+
+.S3wQqg iframe {
+  border: none;
+  color-scheme: none;
+}
+
+.hVT_uA,.iJd_7g {
+  height: 100%;
+  position: absolute;
+  width: 100%;
 }
 
 ._7KaXww,.bFnJ2A {
@@ -453,6 +612,11 @@
   transform: translateZ(0);
 }
 
+.Fe_H_Q,.V7MmMA {
+  height: 100%;
+  width: 100%;
+}
+
 .Pr6LEA,.qY_pAA {
   height: 100%;
   left: 0;
@@ -460,6 +624,25 @@
   position: absolute;
   top: 0;
   width: 100%;
+}
+
+._5RL20Q,.xam_ew {
+  box-sizing: border-box;
+}
+
+.aXBSSA,.nrDMmw {
+  left: 0;
+  pointer-events: none;
+  position: absolute;
+  top: 0;
+}
+
+._DyBwg .iRGCPA {
+  transform-origin: 0 0;
+}
+
+._dTYUw .iRGCPA {
+  transform-origin: 100% 0;
 }
 
 :global(.rGeu6w)~:global(.rGeu6w) {

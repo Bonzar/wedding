@@ -2,7 +2,7 @@
 // Редактируемые стили вынесены в Attire.layout.ts и применяются по data-eid (Approach A2).
 import { cx } from "../cx";
 import { elStyle } from "../layout";
-import styles from "./Attire.module.css";
+import styles from "../canva.module.css";
 import { layout } from "./Attire.layout";
 
 // Сплошная белая подложка секции.

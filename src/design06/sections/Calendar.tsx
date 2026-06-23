@@ -2,7 +2,7 @@
 // Редактируемые стили вынесены в Calendar.layout.ts и применяются по data-eid (Approach A2).
 import { cx } from "../cx";
 import { elStyle } from "../layout";
-import styles from "./Calendar.module.css";
+import styles from "../canva.module.css";
 import { layout } from "./Calendar.layout";
 
 export default function Calendar() {

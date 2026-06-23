@@ -2,7 +2,7 @@
 // Редактируемые стили вынесены в Hero.layout.ts и применяются по data-eid (Approach A2).
 import { cx } from "../cx";
 import { elStyle } from "../layout";
-import styles from "./Hero.module.css";
+import styles from "../canva.module.css";
 import { layout } from "./Hero.layout";
 
 // Textured backdrop: full-bleed photo rotated behind the cover content.

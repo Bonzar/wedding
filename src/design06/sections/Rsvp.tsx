@@ -2,7 +2,7 @@
 // Редактируемые стили вынесены в Rsvp.layout.ts и применяются по data-eid (Approach A2).
 import { cx } from "../cx";
 import { elStyle } from "../layout";
-import styles from "./Rsvp.module.css";
+import styles from "../canva.module.css";
 import { layout } from "./Rsvp.layout";
 
 // Фоновое фото секции (большой повёрнутый jpg).
