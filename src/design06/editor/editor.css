@@ -16,6 +16,22 @@
 .d06e-toolsave:not(:disabled):hover { background: #1d4fd0; }
 .d06e-bardirty { color: #ffd479; font-size: 12px; }
 
+/* palette picker (toolbar button + swatch popover) */
+.d06e-pal { position: relative; display: inline-flex; }
+.d06e-pal-btn { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; background: #1c3055; color: #cfe0ff; border: 1px solid #34507a; border-radius: 6px; cursor: pointer; }
+.d06e-pal-btn:hover { background: #25416f; }
+.d06e-pal-dot { width: 14px; height: 14px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.5); flex: 0 0 auto; }
+.d06e-pal-mark { color: #ffd479; font-style: normal; font-size: 11px; }
+.d06e-pal-caret { color: #8fa6cc; font-size: 10px; }
+.d06e-pal-pop { position: absolute; top: calc(100% + 6px); left: 0; background: #fff; border: 1px solid #d8e0ec; border-radius: 10px; padding: 10px; box-shadow: 0 10px 30px rgba(17,32,58,0.22); z-index: 10; }
+.d06e-pal-grid { display: grid; grid-template-columns: repeat(7, 22px); gap: 6px; }
+.d06e-sw { width: 22px; height: 22px; border-radius: 5px; border: 1px solid rgba(17,32,58,0.18); cursor: pointer; padding: 0; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.15); }
+.d06e-sw:hover { transform: scale(1.12); }
+.d06e-sw-on { outline: 2px solid #2563eb; outline-offset: 1px; }
+/* «чернила/база» — белый чип с диагональю */
+.d06e-sw-none { background: #fff linear-gradient(135deg, transparent 44%, #b4232a 44%, #b4232a 56%, transparent 56%); }
+.d06e-pal-cur { margin-top: 8px; font-size: 12px; color: #5b7099; text-align: center; }
+
 /* per-selection actions (copy / layer order / delete) */
 .d06e-actions { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 10px; }
 .d06e-act { padding: 4px 8px; border: 1px solid #cdd7e6; background: #fff; border-radius: 6px; cursor: pointer; font-size: 13px; line-height: 1.2; }

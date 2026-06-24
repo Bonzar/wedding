@@ -17,6 +17,8 @@ import { applyEl, imgUnder, nodeFor, resetEl, setImgSrc, setText, textOf } from 
 import { BASE, hasGeometry, hasTypography, isField, isObject, isSection } from "./registry";
 import { addStore } from "./additionsStore";
 import { Panel, type FieldKey } from "./Panel";
+import { PalettePicker } from "./PalettePicker";
+import { activePalette, applyPalette } from "../palette";
 import "./editor.css";
 
 const isAdd = (eid: string | null | undefined) => addStore.isAdd(eid);
@@ -77,6 +79,15 @@ export default function Editor({ scale }: { scale: number }) {
   const [saving, setSaving] = useState(false);
   const [tick, setTick] = useState(0);
   const dragRef = useRef<Drag>(null);
+
+  // Палитра (акцентный цвет всего макета). Стартуем с сохранённого (paletteState.ts);
+  // выбор свотча применяется мгновенно, сохраняется общей кнопкой «Сохранить».
+  const [palette, setPalette] = useState<string | null>(activePalette);
+  const paletteSaved = useRef<string | null>(activePalette);
+  const onPickPalette = useCallback((color: string | null) => {
+    setPalette(color);
+    applyPalette(color);
+  }, []);
 
   const merged = useCallback((eid: string): El => draftsRef.current[eid] ?? BASE[eid] ?? {}, []);
 
@@ -300,7 +311,9 @@ export default function Editor({ scale }: { scale: number }) {
     const lr = layer.getBoundingClientRect(), r = node.getBoundingClientRect();
     const x = (r.left - lr.left) / scale + 24, y = (r.top - lr.top) / scale + 24, w = r.width / scale, h = r.height / scale;
     const id = newId(); const img = node.querySelector("img");
-    if (img) addStore.add({ id, kind: "image", x, y, w, h, src: img.getAttribute("src") ?? undefined });
+    // src без cache-bust ?v=… (живёт в DOM у только что заменённого, ещё не сохранённого фото) —
+    // иначе копия грузит «битый» URL и выходит пустой
+    if (img) addStore.add({ id, kind: "image", x, y, w, h, src: (img.getAttribute("src") ?? "").split("?")[0] || undefined });
     else {
       const pe = node.querySelector("p")?.getAttribute("data-eid"); const pr = pe ? merged(pe) : {};
       addStore.add({ id, kind: "text", x, y, w, h, text: (node.textContent ?? "").trim() || "Текст", font: pr.font, fontSize: pr.fontSize, color: pr.color, lineHeight: pr.lineHeight, letterSpacing: pr.letterSpacing });
@@ -559,7 +572,8 @@ export default function Editor({ scale }: { scale: number }) {
   // ---- save / reset ------------------------------------------------------------------
   const dirty = Object.keys(drafts);
   const dirtyContent = Object.keys(content);
-  const totalDirty = dirty.length + dirtyContent.length + (addStore.dirty() ? 1 : 0);
+  const paletteDirty = palette !== paletteSaved.current;
+  const totalDirty = dirty.length + dirtyContent.length + (addStore.dirty() ? 1 : 0) + (paletteDirty ? 1 : 0);
   const onReset = () => {
     for (const eid of dirty) resetEl(eid, BASE[eid] ?? {});
     for (const eid of dirtyContent) {
@@ -568,6 +582,8 @@ export default function Editor({ scale }: { scale: number }) {
       if (o.src != null) { setImgSrc(eid, o.src); const img = imgUnder(eid); if (img) img.style.objectFit = ""; } // вернуть class-овый fill
     }
     addStore.reset();
+    applyPalette(paletteSaved.current); // вернуть сохранённый цвет палитры
+    setPalette(paletteSaved.current);
     setSelected(null);
     setDrafts({});
     setContent({});
@@ -585,11 +601,13 @@ export default function Editor({ scale }: { scale: number }) {
           changes: dirty.map((eid) => ({ eid, record: drafts[eid] })),
           content: dirtyContent.map((eid) => ({ eid, ...content[eid] })),
           additions: addStore.list(),
+          ...(paletteDirty ? { palette } : {}), // null = вернуть базовые чернила
         }),
       });
       const json = await res.json();
       if (!res.ok || !json.ok) throw new Error(json.error || res.statusText);
       addStore.markSaved();
+      paletteSaved.current = palette;
       setDrafts({});
       setContent({});
       origContentRef.current = {};
@@ -617,6 +635,7 @@ export default function Editor({ scale }: { scale: number }) {
         <button className="d06e-tool" onClick={() => fileRef.current?.click()}>+ Картинка</button>
         <input ref={fileRef} type="file" accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml" hidden
           onChange={(e) => { const f = e.target.files?.[0]; if (f) addImageFile(f); e.target.value = ""; }} />
+        <PalettePicker value={palette} dirty={paletteDirty} onPick={onPickPalette} />
         <span className="d06e-hint">тащить — двигать · углы — размер · Option — растянуть · ⌘D — копия · Del — удалить</span>
         <span className="d06e-bardirty" style={{ marginLeft: "auto" }}>{totalDirty > 0 ? `● ${totalDirty}` : ""}</span>
         <button className="d06e-tool" disabled={totalDirty === 0} onClick={onReset}>Сбросить</button>
