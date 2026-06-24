@@ -30,6 +30,19 @@ export function resetEl(eid: string, base: El): void {
   applyEl(eid, base);
 }
 
+// ---- content (text string / image src) live preview --------------------------------
+export const textOf = (eid: string): string => nodeFor(eid)?.textContent ?? "";
+export function setText(eid: string, text: string): void {
+  const n = nodeFor(eid);
+  if (n) n.textContent = text;
+}
+
+export const imgUnder = (objEid: string): HTMLImageElement | null => nodeFor(objEid)?.querySelector("img") ?? null;
+export function setImgSrc(eid: string, src: string): void {
+  const img = imgUnder(eid);
+  if (img) img.src = src;
+}
+
 function camelToKebab(k: string): string {
   return k.replace(/[A-Z]/g, (m) => "-" + m.toLowerCase());
 }

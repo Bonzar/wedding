@@ -1,14 +1,19 @@
-// Dev-only endpoint for the design06 editor: POST /__d06/save patches edited El records
-// back into src/design06/sections/<Section>.layout.ts. The editor sends full merged
-// records (base + edits) keyed by data-eid; we replace each record literal in place by
-// key, so untouched records stay byte-identical and git is the revert mechanism (the
-// committed layout.ts is the 0% base, not an enforced golden master). Runs only in dev.
+// Dev-only endpoints for the design06 editor (run only in `vite serve`):
+//   POST /__d06/save   — persist edits. STYLE (`changes`) → patched into the El record by
+//                        key in <Section>.layout.ts; CONTENT (`content`) → text string and
+//                        <img> src patched by data-eid in <Section>.tsx. Style lives in
+//                        layout.ts, content lives in the .tsx — git is the revert path.
+//   POST /__d06/upload — save an uploaded image into public assets, return its served path.
+// Untouched code stays byte-identical; the committed files are the 0% base, not a master.
 import type { Plugin } from "vite";
 import { readFile, writeFile } from "node:fs/promises";
+import { Buffer } from "node:buffer";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const SECT = join(dirname(fileURLToPath(import.meta.url)), "..", "src", "design06", "sections");
+const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
+const SECT = join(ROOT, "src", "design06", "sections");
+const MEDIA = join(ROOT, "public", "design06-exact", "_assets", "media");
 
 const FIELD_ORDER = [
   "x", "y", "w", "h", "rot", "scale",
@@ -16,6 +21,7 @@ const FIELD_ORDER = [
 ];
 
 const lit = (v: unknown) => (typeof v === "number" ? String(v) : JSON.stringify(v));
+const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
 function serialize(rec: Record<string, unknown>): string {
   const parts: string[] = [];
@@ -50,51 +56,125 @@ function findRecord(src: string, eid: string): { start: number; end: number } | 
   return null;
 }
 
-const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+// Index just past the `>` that ends the opening tag containing `from` (brace/quote-aware).
+function tagEnd(src: string, from: number): number {
+  let inStr = false, q = "", depth = 0;
+  for (let i = from; i < src.length; i++) {
+    const c = src[i];
+    if (inStr) { if (c === q) inStr = false; continue; }
+    if (c === '"' || c === "'" || c === "`") { inStr = true; q = c; continue; }
+    if (c === "{") depth++;
+    else if (c === "}") depth--;
+    else if (c === ">" && depth === 0) return i + 1;
+  }
+  return -1;
+}
+
+// Replace the single `{…}` text-expression child of the element carrying data-eid=<eid>.
+function patchText(src: string, eid: string, text: string): string | null {
+  const ki = src.indexOf(`data-eid="${eid}"`);
+  if (ki === -1) return null;
+  const te = tagEnd(src, ki);
+  if (te === -1) return null;
+  let i = te;
+  while (i < src.length && /\s/.test(src[i])) i++;
+  if (src[i] !== "{") return null;
+  let depth = 0, inStr = false, q = "", j = i;
+  for (; j < src.length; j++) {
+    const c = src[j];
+    if (inStr) { if (c === "\\") { j++; continue; } if (c === q) inStr = false; continue; }
+    if (c === '"' || c === "'" || c === "`") { inStr = true; q = c; continue; }
+    if (c === "{") depth++;
+    else if (c === "}" && --depth === 0) { j++; break; }
+  }
+  return src.slice(0, i) + `{${JSON.stringify(text)}}` + src.slice(j);
+}
+
+// Replace the first `src="…"` after data-eid=<eid> (the <img> nested in that wrapper).
+function patchSrc(src: string, eid: string, value: string): string | null {
+  const ki = src.indexOf(`data-eid="${eid}"`);
+  if (ki === -1) return null;
+  const m = /src="([^"]*)"/.exec(src.slice(ki));
+  if (!m) return null;
+  const at = ki + m.index;
+  return src.slice(0, at) + `src=${JSON.stringify(value)}` + src.slice(at + m[0].length);
+}
+
+type StyleChange = { eid: string; record: Record<string, unknown> };
+type ContentChange = { eid: string; text?: string; src?: string };
+
+const readBody = (req: import("node:http").IncomingMessage): Promise<string> =>
+  new Promise((resolve) => { let b = ""; req.on("data", (c) => (b += c)); req.on("end", () => resolve(b)); });
 
 export function d06Save(): Plugin {
   return {
     name: "d06-save",
     apply: "serve",
     configureServer(server) {
-      server.middlewares.use("/__d06/save", (req, res) => {
-        if (req.method !== "POST") { res.statusCode = 405; res.end("POST only"); return; }
-        let body = "";
-        req.on("data", (c) => (body += c));
-        req.on("end", async () => {
-          const send = (code: number, obj: unknown) => {
-            res.statusCode = code;
-            res.setHeader("content-type", "application/json");
-            res.end(JSON.stringify(obj));
+      const json = (res: import("node:http").ServerResponse, code: number, obj: unknown) => {
+        res.statusCode = code;
+        res.setHeader("content-type", "application/json");
+        res.end(JSON.stringify(obj));
+      };
+
+      server.middlewares.use("/__d06/save", async (req, res) => {
+        if (req.method !== "POST") return json(res, 405, { ok: false, error: "POST only" });
+        try {
+          const { changes = [], content = [] } = JSON.parse(await readBody(req)) as {
+            changes?: StyleChange[]; content?: ContentChange[];
           };
-          try {
-            const { changes } = JSON.parse(body) as { changes: { eid: string; record: Record<string, unknown> }[] };
-            if (!Array.isArray(changes) || !changes.length) return send(400, { ok: false, error: "no changes" });
+          if (!changes.length && !content.length) return json(res, 400, { ok: false, error: "nothing to save" });
 
-            // group eids by owning section file
-            const byFile = new Map<string, { eid: string; record: Record<string, unknown> }[]>();
-            for (const ch of changes) {
-              const slug = ch.eid.split("/")[0];
-              const file = join(SECT, `${cap(slug)}.layout.ts`);
-              (byFile.get(file) ?? byFile.set(file, []).get(file)!).push(ch);
-            }
-
-            const written: string[] = [];
-            for (const [file, list] of byFile) {
-              let src = await readFile(file, "utf8");
-              for (const { eid, record } of list) {
-                const span = findRecord(src, eid);
-                if (!span) return send(422, { ok: false, error: `record not found: ${eid}` });
-                src = src.slice(0, span.start) + serialize(record) + src.slice(span.end);
-              }
-              await writeFile(file, src);
-              written.push(file);
-            }
-            send(200, { ok: true, written: written.length, eids: changes.map((c) => c.eid) });
-          } catch (e) {
-            send(500, { ok: false, error: (e as Error).message });
+          // STYLE → <Section>.layout.ts (record patched by key)
+          const byLayout = new Map<string, StyleChange[]>();
+          for (const ch of changes) {
+            const file = join(SECT, `${cap(ch.eid.split("/")[0])}.layout.ts`);
+            (byLayout.get(file) ?? byLayout.set(file, []).get(file)!).push(ch);
           }
-        });
+          for (const [file, list] of byLayout) {
+            let src = await readFile(file, "utf8");
+            for (const { eid, record } of list) {
+              const span = findRecord(src, eid);
+              if (!span) return json(res, 422, { ok: false, error: `record not found: ${eid}` });
+              src = src.slice(0, span.start) + serialize(record) + src.slice(span.end);
+            }
+            await writeFile(file, src);
+          }
+
+          // CONTENT → <Section>.tsx (text expression / img src patched by data-eid)
+          for (const c of content) {
+            const file = join(SECT, `${cap(c.eid.split("/")[0])}.tsx`);
+            let src = await readFile(file, "utf8");
+            if (c.text != null) {
+              const n = patchText(src, c.eid, c.text);
+              if (n == null) return json(res, 422, { ok: false, error: `text not found: ${c.eid}` });
+              src = n;
+            }
+            if (c.src != null) {
+              const n = patchSrc(src, c.eid, c.src);
+              if (n == null) return json(res, 422, { ok: false, error: `img not found: ${c.eid}` });
+              src = n;
+            }
+            await writeFile(file, src);
+          }
+
+          json(res, 200, { ok: true, style: changes.length, content: content.length });
+        } catch (e) {
+          json(res, 500, { ok: false, error: (e as Error).message });
+        }
+      });
+
+      server.middlewares.use("/__d06/upload", async (req, res) => {
+        if (req.method !== "POST") return json(res, 405, { ok: false, error: "POST only" });
+        try {
+          const { name, data } = JSON.parse(await readBody(req)) as { name: string; data: string };
+          if (!name || !data) return json(res, 400, { ok: false, error: "name and data required" });
+          const safe = name.replace(/[^a-zA-Z0-9._-]/g, "_");
+          await writeFile(join(MEDIA, safe), Buffer.from(data, "base64"));
+          json(res, 200, { ok: true, path: `/design06-exact/_assets/media/${safe}` });
+        } catch (e) {
+          json(res, 500, { ok: false, error: (e as Error).message });
+        }
       });
     },
   };

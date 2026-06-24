@@ -9,7 +9,7 @@
 // edges resize the crop frame, corners also scale the inner image.
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { El } from "../layout";
-import { applyEl, nodeFor, resetEl } from "./apply";
+import { applyEl, imgUnder, nodeFor, resetEl, setImgSrc, setText, textOf } from "./apply";
 import { BASE, hasGeometry, hasTypography, isField, isObject, isSection } from "./registry";
 import { Panel, type FieldKey } from "./Panel";
 import "./editor.css";
@@ -33,6 +33,11 @@ export default function Editor({ scale }: { scale: number }) {
   const [drafts, setDrafts] = useState<Record<string, El>>({});
   const draftsRef = useRef(drafts);
   draftsRef.current = drafts;
+
+  // content edits (text strings / image src) live separately from style drafts — they
+  // patch the .tsx, not layout.ts. origContent keeps pre-edit values for reset.
+  const [content, setContent] = useState<Record<string, { text?: string; src?: string }>>({});
+  const origContentRef = useRef<Record<string, { text?: string; src?: string }>>({});
 
   const [selected, setSelected] = useState<string | null>(null);
   const selectedRef = useRef(selected);
@@ -93,6 +98,57 @@ export default function Editor({ scale }: { scale: number }) {
       if (isField(BASE[id])) return id;
     }
     return null;
+  }, []);
+
+  // primary text span inside a text object (the one carrying the actual words)
+  const contentSpanOf = useCallback((eid: string): string | null => {
+    const node = nodeFor(eid);
+    if (!node) return null;
+    let best: string | null = null, bestLen = 0;
+    for (const s of Array.from(node.querySelectorAll<HTMLElement>("span[data-eid]"))) {
+      const len = (s.textContent ?? "").trim().length;
+      if (len > bestLen) { bestLen = len; best = s.getAttribute("data-eid"); }
+    }
+    return best;
+  }, []);
+
+  // data-eid wrapper that directly holds the <img> (key for src patch / live preview)
+  const imgWrapOf = useCallback((eid: string): string | null => {
+    const img = nodeFor(eid)?.querySelector("img");
+    return img?.closest("[data-eid]")?.getAttribute("data-eid") ?? null;
+  }, []);
+
+  const onText = useCallback((spanEid: string, text: string) => {
+    if (origContentRef.current[spanEid]?.text == null)
+      origContentRef.current[spanEid] = { ...origContentRef.current[spanEid], text: textOf(spanEid) };
+    setContent((c) => ({ ...c, [spanEid]: { ...c[spanEid], text } }));
+    setText(spanEid, text);
+    setTick((t) => t + 1);
+  }, []);
+
+  const onReplaceImage = useCallback(async (wrapEid: string, file: File) => {
+    const dataUrl: string = await new Promise((res) => {
+      const r = new FileReader();
+      r.onload = () => res(String(r.result));
+      r.readAsDataURL(file);
+    });
+    const base64 = dataUrl.split(",")[1];
+    try {
+      const up = await fetch("/__d06/upload", {
+        method: "POST", headers: { "content-type": "application/json" },
+        body: JSON.stringify({ name: file.name, data: base64 }),
+      });
+      const uj = await up.json();
+      if (!up.ok || !uj.ok) throw new Error(uj.error || up.statusText);
+      if (origContentRef.current[wrapEid]?.src == null)
+        origContentRef.current[wrapEid] = { ...origContentRef.current[wrapEid], src: imgUnder(wrapEid)?.getAttribute("src") ?? "" };
+      setContent((c) => ({ ...c, [wrapEid]: { ...c[wrapEid], src: uj.path } }));
+      setImgSrc(wrapEid, uj.path);
+      setTick((t) => t + 1);
+    } catch (err) {
+      // eslint-disable-next-line no-alert
+      alert("Загрузка не удалась: " + (err as Error).message);
+    }
   }, []);
 
   // ---- live edit -> draft + DOM ------------------------------------------------------
@@ -265,24 +321,37 @@ export default function Editor({ scale }: { scale: number }) {
 
   // ---- save / reset ------------------------------------------------------------------
   const dirty = Object.keys(drafts);
+  const dirtyContent = Object.keys(content);
+  const totalDirty = dirty.length + dirtyContent.length;
   const onReset = () => {
     for (const eid of dirty) resetEl(eid, BASE[eid] ?? {});
+    for (const eid of dirtyContent) {
+      const o = origContentRef.current[eid] ?? {};
+      if (o.text != null) setText(eid, o.text);
+      if (o.src != null) setImgSrc(eid, o.src);
+    }
     setDrafts({});
+    setContent({});
+    origContentRef.current = {};
     setTick((t) => t + 1);
   };
   const onSave = async () => {
-    if (!dirty.length) return;
+    if (!totalDirty) return;
     setSaving(true);
     try {
-      const changes = dirty.map((eid) => ({ eid, record: drafts[eid] }));
       const res = await fetch("/__d06/save", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ changes }),
+        body: JSON.stringify({
+          changes: dirty.map((eid) => ({ eid, record: drafts[eid] })),
+          content: dirtyContent.map((eid) => ({ eid, ...content[eid] })),
+        }),
       });
       const json = await res.json();
       if (!res.ok || !json.ok) throw new Error(json.error || res.statusText);
       setDrafts({});
+      setContent({});
+      origContentRef.current = {};
     } catch (err) {
       // eslint-disable-next-line no-alert
       alert("Не удалось сохранить: " + (err as Error).message);
@@ -293,6 +362,8 @@ export default function Editor({ scale }: { scale: number }) {
 
   const textEid = selected ? textEidOf(selected) : null;
   const fieldEid = selected ? fieldEidOf(selected) : null;
+  const textSpanEid = selected ? contentSpanOf(selected) : null;
+  const imgWrapEid = selected ? imgWrapOf(selected) : null;
 
   return (
     <div className="d06e-chrome">
@@ -325,10 +396,15 @@ export default function Editor({ scale }: { scale: number }) {
           fieldDraft={fieldEid ? merged(fieldEid) : null}
           textEid={textEid}
           textDraft={textEid ? merged(textEid) : null}
-          dirtyCount={dirty.length}
+          textSpanEid={textSpanEid}
+          textValue={textSpanEid ? (content[textSpanEid]?.text ?? textOf(textSpanEid)) : ""}
+          imgWrapEid={imgWrapEid}
+          dirtyCount={totalDirty}
           saving={saving}
           onSelect={setSelected}
           onField={onField}
+          onText={onText}
+          onReplaceImage={onReplaceImage}
           onSave={onSave}
           onReset={onReset}
         />

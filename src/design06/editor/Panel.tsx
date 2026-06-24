@@ -17,10 +17,15 @@ type Props = {
   fieldDraft: El | null;
   textEid: string | null;
   textDraft: El | null;
+  textSpanEid: string | null; // primary text span — editing its words (content, not style)
+  textValue: string;
+  imgWrapEid: string | null; // wrapper holding the <img>, for file replacement
   dirtyCount: number;
   saving: boolean;
   onSelect: (eid: string) => void;
   onField: (eid: string, key: FieldKey, value: string | number | undefined) => void;
+  onText: (spanEid: string, text: string) => void;
+  onReplaceImage: (wrapEid: string, file: File) => void;
   onSave: () => void;
   onReset: () => void;
 };
@@ -97,6 +102,17 @@ export function Panel(p: Props) {
           <section className="d06e-grp">
             <h4>Текст <em>{p.textEid.split("/")[1]}</em></h4>
             <div className="d06e-grid d06e-grid1">
+              {p.textSpanEid && (
+                <label className="d06e-f">
+                  <span>Содержимое</span>
+                  <textarea
+                    className="d06e-ta"
+                    rows={2}
+                    value={p.textValue}
+                    onChange={(e) => p.onText(p.textSpanEid!, e.target.value)}
+                  />
+                </label>
+              )}
               <label className="d06e-f">
                 <span>Шрифт</span>
                 <input
@@ -132,6 +148,26 @@ export function Panel(p: Props) {
                 </span>
               </label>
             </div>
+          </section>
+        )}
+
+        {p.imgWrapEid && (
+          <section className="d06e-grp">
+            <h4>Картинка <em>{p.imgWrapEid.split("/")[1]}</em></h4>
+            <label className="d06e-btn d06e-file">
+              Заменить файл…
+              <input
+                type="file"
+                accept="image/*"
+                hidden
+                onChange={(e) => {
+                  const f = e.target.files?.[0];
+                  if (f) p.onReplaceImage(p.imgWrapEid!, f);
+                  e.target.value = "";
+                }}
+              />
+            </label>
+            <p className="d06e-note">Двойной клик по фото — пан/зум внутри обрезки.</p>
           </section>
         )}
       </div>
