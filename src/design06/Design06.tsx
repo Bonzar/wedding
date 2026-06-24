@@ -8,11 +8,15 @@
 //
 // Mounted behind ?d06 (see App.tsx) so the Canva global CSS never touches the app.
 
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import "./canva-base.css"; // Canva :root/тема-переменные + @keyframes (грузится только на ?d06)
 import overrideCss from "./_generated/override.css?raw";
 import headLinksRaw from "./_generated/head-links.json?raw";
 import { DESIGN06_SECTIONS } from "./sections";
+
+// Визуальный редактор — только dev и только по ?d06&edit. Отдельный чанк (lazy), в прод
+// не грузится. Когда не смонтирован — рендер = база 0% (правок DOM нет). См. editor/.
+const Editor = lazy(() => import("./editor/Editor"));
 
 // Из Canva-стайлшитов линком оставляем ТОЛЬКО шрифты (design-fonts.css). Утилиты-классы —
 // в canva.module.css, переменные/keyframes — в canva-base.css. Остальные Canva-<link> убраны.
@@ -26,16 +30,23 @@ const REF_WIDTH = 1776;
 const MAX_WIDTH = 880;
 
 export default function Design06() {
-  const noScale = typeof window !== "undefined" && new URLSearchParams(window.location.search).has("noscale");
+  const params = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : new URLSearchParams();
+  const noScale = params.has("noscale");
+  const editMode = import.meta.env.DEV && params.has("edit");
   const [scale, setScale] = useState(1);
 
   useEffect(() => {
     if (noScale) return;
-    const calc = () => setScale(Math.min(document.documentElement.clientWidth, MAX_WIDTH) / REF_WIDTH);
+    // В режиме редактора — подгоняем под всю ширину окна (макс. место под правку),
+    // иначе обычная логика: ≤880 под ширину, >880 фикс 880.
+    const calc = () => {
+      const w = document.documentElement.clientWidth;
+      setScale((editMode ? w : Math.min(w, MAX_WIDTH)) / REF_WIDTH);
+    };
     calc();
     window.addEventListener("resize", calc);
     return () => window.removeEventListener("resize", calc);
-  }, [noScale]);
+  }, [noScale, editMode]);
 
   const page = (
     <div className="yIDCqA">
@@ -71,6 +82,11 @@ export default function Design06() {
         <div style={{ display: "flex", justifyContent: "center", width: "100%", overflow: "hidden" }}>
           <div style={{ width: REF_WIDTH, zoom: scale }}>{page}</div>
         </div>
+      )}
+      {editMode && (
+        <Suspense fallback={null}>
+          <Editor scale={scale} />
+        </Suspense>
       )}
     </>
   );

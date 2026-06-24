@@ -1,6 +1,7 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { fileURLToPath, URL } from "node:url";
+import { d06Save } from "./vite-plugins/d06-save";
 
 // Боевая функция-прокси (читает/пишет Craft). В dev фронт ходит на /rsvp-api
 // (см. src/rsvp/api.ts), а ЭТОТ прокси форвардит запрос server-side — поэтому
@@ -13,7 +14,7 @@ const RSVP_FN = "https://functions.yandexcloud.net/d4ej3htfmmdbnvbfsvkq";
 // path-роутинга нет, поэтому относительные пути безопасны.
 export default defineConfig({
   base: "./",
-  plugins: [react()],
+  plugins: [react(), d06Save()],
   resolve: {
     alias: {
       "@": fileURLToPath(new URL("./src", import.meta.url)),

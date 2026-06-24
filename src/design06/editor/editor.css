@@ -1,0 +1,59 @@
+/* design06 editor chrome — overlays the baseline; only present on ?d06&edit. */
+.d06e-chrome { position: fixed; inset: 0; z-index: 2147483000; pointer-events: none; font: 13px/1.4 -apple-system, system-ui, sans-serif; color: #1a2233; }
+.d06e-chrome button, .d06e-chrome input, .d06e-chrome a { font: inherit; pointer-events: auto; }
+
+/* top bar */
+.d06e-bar { position: fixed; top: 0; left: 0; right: 0; height: 36px; display: flex; align-items: center; gap: 14px; padding: 0 14px; background: #11203a; color: #fff; pointer-events: auto; }
+.d06e-bar strong { font-weight: 600; }
+.d06e-hint { color: #9fb4d6; font-size: 12px; }
+.d06e-exit { margin-left: auto; color: #cfe0ff; text-decoration: none; padding: 4px 10px; border: 1px solid #34507a; border-radius: 6px; }
+.d06e-exit:hover { background: #1c3055; }
+
+/* hover + selection boxes (screen-space, fixed) */
+.d06e-hov { position: fixed; outline: 1.5px dashed #3b82f6; outline-offset: -1px; pointer-events: none; }
+.d06e-sel { position: fixed; outline: 2px solid #2563eb; outline-offset: -1px; pointer-events: auto; cursor: move; box-shadow: 0 0 0 100vmax rgba(17,32,58,0.04); }
+
+/* resize handles */
+.d06e-h { position: absolute; width: 11px; height: 11px; background: #fff; border: 2px solid #2563eb; border-radius: 2px; pointer-events: auto; box-sizing: border-box; }
+.d06e-h-nw { left: -6px; top: -6px; cursor: nwse-resize; }
+.d06e-h-n  { left: 50%; top: -6px; margin-left: -6px; cursor: ns-resize; }
+.d06e-h-ne { right: -6px; top: -6px; cursor: nesw-resize; }
+.d06e-h-e  { right: -6px; top: 50%; margin-top: -6px; cursor: ew-resize; }
+.d06e-h-se { right: -6px; bottom: -6px; cursor: nwse-resize; }
+.d06e-h-s  { left: 50%; bottom: -6px; margin-left: -6px; cursor: ns-resize; }
+.d06e-h-sw { left: -6px; bottom: -6px; cursor: nesw-resize; }
+.d06e-h-w  { left: -6px; top: 50%; margin-top: -6px; cursor: ew-resize; }
+
+/* inspector panel */
+.d06e-panel { position: fixed; top: 36px; right: 0; bottom: 0; width: 280px; background: #f7f9fc; border-left: 1px solid #d8e0ec; display: flex; flex-direction: column; pointer-events: auto; box-shadow: -4px 0 18px rgba(17,32,58,0.08); }
+.d06e-head { padding: 12px 14px; border-bottom: 1px solid #e4eaf3; }
+.d06e-crumbs { display: flex; flex-wrap: wrap; align-items: center; gap: 2px; margin-bottom: 6px; }
+.d06e-crumb { background: none; border: 0; color: #5b7099; cursor: pointer; padding: 2px 4px; border-radius: 4px; max-width: 110px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.d06e-crumb:hover { background: #e8eef8; }
+.d06e-crumbs .d06e-crumb::after { content: "›"; margin-left: 6px; color: #b6c2d6; }
+.d06e-crumbs .d06e-cur::after { content: ""; }
+.d06e-cur { color: #11203a; font-weight: 600; cursor: default; }
+.d06e-eid { font-family: ui-monospace, Menlo, monospace; font-size: 11px; color: #7a8aa6; word-break: break-all; }
+
+.d06e-body { flex: 1; min-width: 0; overflow: auto; padding: 6px 14px 14px; }
+.d06e-grp { margin-top: 12px; min-width: 0; }
+.d06e-grp h4 { margin: 0 0 8px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; color: #5b7099; }
+.d06e-grp h4 em { color: #9aa8c0; font-style: normal; text-transform: none; letter-spacing: 0; }
+.d06e-note { margin: 0; color: #8a97ad; font-size: 12px; }
+
+.d06e-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; }
+.d06e-grid1 { grid-template-columns: minmax(0, 1fr); }
+.d06e-f { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.d06e-f > span { font-size: 11px; color: #7a8aa6; }
+.d06e-f input { width: 100%; box-sizing: border-box; padding: 5px 7px; border: 1px solid #cdd7e6; border-radius: 6px; background: #fff; min-width: 0; }
+.d06e-f input:focus { outline: 2px solid #93b4ef; border-color: #93b4ef; }
+.d06e-colorrow { display: flex; gap: 6px; }
+.d06e-colorrow input[type="color"] { width: 34px; padding: 2px; flex: 0 0 auto; }
+.d06e-colorrow input[type="text"] { flex: 1; }
+
+.d06e-foot { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-top: 1px solid #e4eaf3; }
+.d06e-dirty { flex: 1; font-size: 12px; color: #6b7c98; }
+.d06e-btn { padding: 6px 12px; border: 1px solid #c6d2e3; background: #fff; border-radius: 7px; cursor: pointer; }
+.d06e-btn:disabled { opacity: 0.5; cursor: default; }
+.d06e-primary { background: #2563eb; border-color: #2563eb; color: #fff; }
+.d06e-primary:not(:disabled):hover { background: #1d4fd0; }
