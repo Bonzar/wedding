@@ -111,6 +111,45 @@ function ensureFilter(color: string): void {
   (mat as Element).setAttribute("values", inkMatrix(color));
 }
 
+// ── Динамический favicon «BO!» ──────────────────────────────────────────────
+// Тот же каллиграфический контур, что в public/favicon.svg, но цвет подставляется
+// из активной палитры. color управляет и обводкой букв (currentColor), и точкой «!».
+const FAVICON_VIEWBOX = "0 0 64 64";
+
+/** SVG favicon «BO!» как строка с заменяемым цветом (контур — path, не <text>). */
+function faviconSvg(color: string): string {
+  return `<svg xmlns="${SVG_NS}" viewBox="${FAVICON_VIEWBOX}" width="32" height="32" color="${color}">` +
+    `<g fill="none" stroke="currentColor" stroke-width="5.2" stroke-linecap="round" stroke-linejoin="round">` +
+    `<path d="M16 11 C 14.5 25 13.5 39 11 53"/>` +
+    `<path d="M16 11 C 28 8 33 18.5 25 24.5 C 22 26.8 18 26 13.6 30.5"/>` +
+    `<path d="M14.4 30 C 30 26 37 36 28.5 45 C 24.5 50 16 51 11 53"/>` +
+    `<path d="M46 16.5 C 34.5 14.5 31.5 31 36.5 43.5 C 41 54 51.5 51.5 52.5 39 C 53.4 28 51 16.8 43.5 18"/>` +
+    `<path d="M58.5 14 C 58.2 25 57.2 33 56 41"/>` +
+    `</g>` +
+    `<circle cx="55" cy="49.5" r="3" fill="currentColor"/>` +
+    `</svg>`;
+}
+
+/** Обновить favicon в DOM blob-URL'ом с заданным цветом. Создаёт <link rel="icon">,
+ *  если его нет (паттерн ensureFilter). Предыдущий blob-URL освобождаем. */
+function updateFavicon(color: string): void {
+  if (typeof document === "undefined") return;
+  const svg = faviconSvg(color);
+  const blob = new Blob([svg], { type: "image/svg+xml" });
+  const url = URL.createObjectURL(blob);
+
+  let link = document.querySelector<HTMLLinkElement>('link[rel="icon"]');
+  if (!link) {
+    link = document.createElement("link");
+    link.rel = "icon";
+    link.type = "image/svg+xml";
+    document.head.appendChild(link);
+  }
+
+  if (link.href.startsWith("blob:")) URL.revokeObjectURL(link.href);
+  link.href = url;
+}
+
 const setFilter = (img: HTMLImageElement, on: boolean): void => {
   const f = on ? `url(#${FILTER_ID})` : "";
   if (img.style.filter !== f) img.style.filter = f;
@@ -198,6 +237,7 @@ export function applyPalette(color: string | null): void {
     de.style.removeProperty("--d06-ink");
     de.style.removeProperty("--ink");
   }
+  updateFavicon(color ?? INK); // favicon в цвет палитры (или базовые чернила при сбросе)
   sweep(r, color != null);
   if (color != null) connectObserver(r);
 }
@@ -214,4 +254,5 @@ export function teardownPalette(): void {
   de.style.removeProperty("--d06-ink");
   de.style.removeProperty("--ink");
   document.getElementById(`${FILTER_ID}-svg`)?.remove(); // деф-фильтр из body
+  updateFavicon(INK); // вернуть favicon к базовым чернилам
 }

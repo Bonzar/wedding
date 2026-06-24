@@ -114,19 +114,6 @@ export const additions: Addition[] = [
     "scale": 1.750432710384121
   },
   {
-    "id": "mqs3ludf4",
-    "kind": "image",
-    "x": 703.5694214230398,
-    "y": 2785.158801264459,
-    "w": 420,
-    "h": 433,
-    "src": "/design06-exact/_assets/media/_________1_0.5x.png",
-    "raw": {
-      "touchAction": "pan-x pan-y pinch-zoom"
-    },
-    "scale": 2.2691934278780206
-  },
-  {
     "id": "mqs3ob4y0",
     "kind": "image",
     "x": 167.38285987145738,
@@ -406,5 +393,34 @@ export const additions: Addition[] = [
       "touchAction": "pan-x pan-y pinch-zoom"
     },
     "scale": 1.0867121217498892
+  },
+  {
+    "id": "mqs741qe0",
+    "kind": "text",
+    "x": 1005.1517686047,
+    "y": 2265.4078405333976,
+    "w": 400,
+    "h": 60,
+    "fontSize": 70,
+    "color": "rgb(53, 80, 116)",
+    "lineHeight": "1.25",
+    "text": "Наш праздник",
+    "raw": {
+      "touchAction": "pan-x pan-y pinch-zoom"
+    },
+    "font": "\"Nicoletta Script SHA\", cursive"
+  },
+  {
+    "id": "mqs7729b0",
+    "kind": "image",
+    "x": 682.0003971398037,
+    "y": 2799.632508475825,
+    "w": 420,
+    "h": 420,
+    "src": "/design06-exact/_assets/media/tile_1_1-4.png",
+    "raw": {
+      "touchAction": "pan-x pan-y pinch-zoom"
+    },
+    "scale": 1.7975356521506485
   }
 ];

@@ -394,12 +394,6 @@ function CalendarGrid() {
           data-eid="calendar/heart-line"
           style={elStyle(layout["calendar/heart-line"])}
         />
-        <div
-          data-eid="calendar/holiday-label"
-          style={elStyle(layout["calendar/holiday-label"])}
-        >
-          {"Наш праздник"}
-        </div>
         <svg
           className={styles.nrDMmw}
           role="presentation"
