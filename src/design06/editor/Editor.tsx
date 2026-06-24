@@ -19,7 +19,14 @@ import { addStore } from "./additionsStore";
 import { Panel, type FieldKey } from "./Panel";
 import { PalettePicker } from "./PalettePicker";
 import { activePalette, applyPalette } from "../palette";
+import { loadGuides, saveGuides, type Guide } from "./guides";
 import "./editor.css";
+
+const REF_WIDTH = 1776; // ширина канвы (как в Design06) — для привязки к центру/краям листа
+const SNAP_EDGE = 7; // порог привязки края к краю, экранных px
+const SNAP_CENTER = 14; // центр-к-центру липнет в более широкой зоне (центр/центр редко совпадает точно)
+type Cand = { pos: number; center: boolean }; // кандидат привязки (канва-коорд + это центр?)
+type SnapLine = { axis: "x" | "y"; pos: number; center: boolean }; // канва-координаты
 
 const isAdd = (eid: string | null | undefined) => addStore.isAdd(eid);
 const idOf = (eid: string) => addStore.idOf(eid);
@@ -29,7 +36,13 @@ type OBox = { cx: number; cy: number; vw: number; vh: number; rot: number } | nu
 type Mode = "image" | "text" | "scale" | "wh" | "photo";
 type RotBox = { rot: number; w0: number; h0: number; cParent: { x: number; y: number }; cScreen: { x: number; y: number } };
 type Drag =
-  | { kind: "move"; eid: string; cx: number; cy: number; start: El; moved: boolean; clipBox: string | null; clipDone: boolean }
+  | {
+      kind: "move"; eids: string[]; starts: El[]; cx: number; cy: number; moved: boolean;
+      clipBoxes: string[]; clipDone: boolean;
+      group: { minX: number; minY: number; maxX: number; maxY: number };
+      candX: Cand[]; candY: Cand[];
+    }
+  | { kind: "guide"; id: string; axis: "x" | "y" }
   | { kind: "field"; eid: string; dir: string; w0: number; h0: number; k: number; cx: number; cy: number; start: El; scale0: number; handle0: { x: number; y: number }; cScreen: { x: number; y: number }; pEid: string | null; wrapDone: boolean }
   | ({ kind: "wh"; eid: string; dir: string; start: El } & RotBox)
   | ({
@@ -72,10 +85,22 @@ export default function Editor({ scale }: { scale: number }) {
   const [content, setContent] = useState<Record<string, { text?: string; src?: string }>>({});
   const origContentRef = useRef<Record<string, { text?: string; src?: string }>>({});
 
-  const [selected, setSelected] = useState<string | null>(null);
-  const selectedRef = useRef(selected);
-  selectedRef.current = selected;
+  // Выбор — НАБОР eid (мультивыбор для группового переноса). `selected` = примари (sel[0]) —
+  // для него панель/ресайз/хэндлы. setSelected(eid) сохранено для одиночных вызовов.
+  const [sel, setSel] = useState<string[]>([]);
+  const selRef = useRef(sel);
+  selRef.current = sel;
+  const selected = sel[0] ?? null;
+  const setSelected = useCallback((eid: string | null) => setSel(eid ? [eid] : []), []);
   const [hover, setHover] = useState<string | null>(null);
+
+  // Направляющие: ручные (guides, localStorage) + транзитные линии привязки (snapLines).
+  const [guides, setGuides] = useState<Guide[]>(() => loadGuides());
+  const guidesRef = useRef(guides);
+  guidesRef.current = guides;
+  const [snapLines, setSnapLines] = useState<SnapLine[]>([]);
+  const [marquee, setMarquee] = useState<{ x0: number; y0: number; x1: number; y1: number } | null>(null);
+  const marqueeRef = useRef<{ x0: number; y0: number; x1: number; y1: number; sectionObj: string | null; moved: boolean } | null>(null);
   const [saving, setSaving] = useState(false);
   const [tick, setTick] = useState(0);
   const dragRef = useRef<Drag>(null);
@@ -298,39 +323,45 @@ export default function Editor({ scale }: { scale: number }) {
     setSelected(`add/${id}`); setTick((t) => t + 1);
   }, [uploadFile, canvasPoint]);
 
-  const copySelected = useCallback(() => {
-    const sel = selectedRef.current; if (!sel) return;
-    if (isAdd(sel)) {
-      const a = addStore.get(idOf(sel)); if (!a) return;
-      const id = newId(); addStore.add({ ...a, id, x: (a.x ?? 0) + 24, y: (a.y ?? 0) + 24 });
-      setSelected(`add/${id}`); setTick((t) => t + 1); return;
+  // копия одного объекта как свободный addition (в тех же экранных координатах); возвращает add-eid
+  const copyOne = useCallback((eid: string): string | null => {
+    if (isAdd(eid)) {
+      const a = addStore.get(idOf(eid)); if (!a) return null;
+      const id = newId(); addStore.add({ ...a, id, x: (a.x ?? 0) + 24, y: (a.y ?? 0) + 24 }); return `add/${id}`;
     }
-    if (isSection(sel)) return;
-    // Canva-объект → копия как свободный addition в тех же экранных координатах
-    const node = nodeFor(sel); const layer = document.querySelector(".d06-add-layer"); if (!node || !layer) return;
+    if (isSection(eid)) return null;
+    const node = nodeFor(eid); const layer = document.querySelector(".d06-add-layer"); if (!node || !layer) return null;
     const lr = layer.getBoundingClientRect(), r = node.getBoundingClientRect();
     const x = (r.left - lr.left) / scale + 24, y = (r.top - lr.top) / scale + 24, w = r.width / scale, h = r.height / scale;
     const id = newId(); const img = node.querySelector("img");
-    // src без cache-bust ?v=… (живёт в DOM у только что заменённого, ещё не сохранённого фото) —
-    // иначе копия грузит «битый» URL и выходит пустой
+    // src без cache-bust ?v=… (иначе копия грузит «битый» URL и выходит пустой)
     if (img) addStore.add({ id, kind: "image", x, y, w, h, src: (img.getAttribute("src") ?? "").split("?")[0] || undefined });
     else {
       const pe = node.querySelector("p")?.getAttribute("data-eid"); const pr = pe ? merged(pe) : {};
       addStore.add({ id, kind: "text", x, y, w, h, text: (node.textContent ?? "").trim() || "Текст", font: pr.font, fontSize: pr.fontSize, color: pr.color, lineHeight: pr.lineHeight, letterSpacing: pr.letterSpacing });
     }
-    setSelected(`add/${id}`); setTick((t) => t + 1);
+    return `add/${id}`;
   }, [scale, merged]);
 
+  const copySelected = useCallback(() => {
+    const ids = selRef.current; if (!ids.length) return;
+    const news = ids.map((e) => copyOne(e)).filter((x): x is string => !!x);
+    if (news.length) setSel(news);
+    setTick((t) => t + 1);
+  }, [copyOne]);
+
   const deleteSelected = useCallback(() => {
-    const sel = selectedRef.current; if (!sel || isSection(sel)) return;
-    if (isAdd(sel)) { addStore.remove(idOf(sel)); setSelected(null); setTick((t) => t + 1); return; }
-    const rec = merged(sel); // Canva-объект не вырезать из .tsx → прячем (display:none)
-    writeDraft(sel, { ...rec, raw: { ...(rec.raw ?? {}), display: "none" } });
-    setSelected(null);
+    const ids = selRef.current; if (!ids.length) return;
+    for (const eid of ids) {
+      if (isSection(eid)) continue;
+      if (isAdd(eid)) { addStore.remove(idOf(eid)); continue; }
+      const rec = merged(eid); writeDraft(eid, { ...rec, raw: { ...(rec.raw ?? {}), display: "none" } }); // Canva → прячем
+    }
+    setSel([]); setTick((t) => t + 1);
   }, [merged, writeDraft]);
 
   const reorder = useCallback((where: "front" | "back" | "fwd" | "bwd") => {
-    const sel = selectedRef.current; if (!sel || isSection(sel)) return;
+    const sel = selRef.current[0]; if (!sel || isSection(sel)) return;
     if (isAdd(sel)) {
       const list = addStore.list(); const i = list.findIndex((a) => `add/${a.id}` === sel); if (i < 0) return;
       const copy = [...list]; const [it] = copy.splice(i, 1);
@@ -341,6 +372,15 @@ export default function Editor({ scale }: { scale: number }) {
     const z = where === "front" ? 9999 : where === "back" ? -1 : where === "fwd" ? cur + 1 : cur - 1;
     writeDraft(sel, { ...rec, raw: { ...(rec.raw ?? {}), zIndex: z } });
   }, [merged, writeDraft]);
+
+  // ---- ручные направляющие (редактор-онли, localStorage) ----
+  const addGuide = useCallback((axis: "x" | "y") => {
+    const lr = (document.querySelector(".d06-add-layer") ?? document.querySelector(".KYQZFA"))?.getBoundingClientRect();
+    const pos = Math.round(axis === "x" ? (window.innerWidth / 2 - (lr?.left ?? 0)) / scale : (window.innerHeight / 2 - (lr?.top ?? 0)) / scale);
+    setGuides((g) => { const n = [...g, { id: newId(), axis, pos }]; saveGuides(n); return n; });
+  }, [scale]);
+  const removeGuide = useCallback((id: string) => setGuides((g) => { const n = g.filter((x) => x.id !== id); saveGuides(n); return n; }), []);
+  const startGuideDrag = useCallback((e: React.PointerEvent, g: Guide) => { e.stopPropagation(); dragRef.current = { kind: "guide", id: g.id, axis: g.axis }; }, []);
 
   // клавиши: Delete — удалить/скрыть, Cmd/Ctrl+D — дублировать
   useEffect(() => {
@@ -357,6 +397,7 @@ export default function Editor({ scale }: { scale: number }) {
   // ---- global pointer wiring: hover, select, drag ------------------------------------
   useEffect(() => {
     const inChrome = (t: EventTarget | null) => t instanceof Element && t.closest(".d06e-chrome");
+    const layerRect = () => (document.querySelector(".d06-add-layer") ?? document.querySelector(".KYQZFA"))?.getBoundingClientRect();
 
     // rotation-aware resize keeping the opposite edge/corner pinned (parent coords).
     const whCompute = (d: RotBox & { dir: string }, e: PointerEvent) => {
@@ -381,18 +422,51 @@ export default function Editor({ scale }: { scale: number }) {
 
     const onMove = (e: PointerEvent) => {
       const drag = dragRef.current;
+      // рамка выделения (marquee) по пустому фону
+      if (marqueeRef.current) {
+        const m = marqueeRef.current; m.x1 = e.clientX; m.y1 = e.clientY;
+        if (!m.moved && Math.hypot(e.clientX - m.x0, e.clientY - m.y0) < 4) return;
+        m.moved = true;
+        setMarquee({ x0: m.x0, y0: m.y0, x1: e.clientX, y1: e.clientY });
+        return;
+      }
+      // перетаскивание ручной направляющей
+      if (drag?.kind === "guide") {
+        const r = layerRect();
+        const pos = Math.round(drag.axis === "x" ? (e.clientX - (r?.left ?? 0)) / scale : (e.clientY - (r?.top ?? 0)) / scale);
+        setGuides((g) => { const n = g.map((x) => (x.id === drag.id ? { ...x, pos } : x)); saveGuides(n); return n; });
+        return;
+      }
       if (drag?.kind === "move") {
         const sdx = e.clientX - drag.cx, sdy = e.clientY - drag.cy;
         if (!drag.moved && Math.hypot(sdx, sdy) < 3) return; // порог: клик ≠ перетаскивание
         drag.moved = true;
-        // освобождаем от обрезки родителя-клиппера, чтобы объект можно было двигать свободно
-        if (drag.clipBox && !drag.clipDone) {
+        if (!drag.clipDone) { // освобождаем каждый перемещаемый объект от клиппера (один раз)
           drag.clipDone = true;
-          const cb = merged(drag.clipBox);
-          writeDraft(drag.clipBox, { ...cb, raw: { ...(cb.raw ?? {}), clipPath: "none" } });
+          for (const cb of drag.clipBoxes) { const c = merged(cb); writeDraft(cb, { ...c, raw: { ...(c.raw ?? {}), clipPath: "none" } }); }
         }
-        const s = drag.start;
-        writeDraft(drag.eid, { ...s, x: (s.x ?? 0) + sdx / scale, y: (s.y ?? 0) + sdy / scale });
+        let dx = sdx / scale, dy = sdy / scale;
+        const lines: SnapLine[] = [];
+        if (!e.altKey) { // привязка к краям/центрам соседей + центру листа + ручным гидам (Option — выкл)
+          const g = drag.group;
+          // края группы: min/max — НЕ центр, середина — центр (центр-к-центру липнет шире)
+          const edges = (lo: number, hi: number) => [{ p: lo, c: false }, { p: (lo + hi) / 2, c: true }, { p: hi, c: false }];
+          const pick = (es: { p: number; c: boolean }[], cands: Cand[], d: number): { pos: number; center: boolean; adj: number } | null => {
+            let best: { pos: number; center: boolean; adj: number } | null = null, bestAbs = Infinity;
+            for (const me of es) for (const cd of cands) {
+              const t = (me.c && cd.center ? SNAP_CENTER : SNAP_EDGE) / scale;
+              const a = cd.pos - (me.p + d);
+              if (Math.abs(a) <= t && Math.abs(a) < bestAbs) { bestAbs = Math.abs(a); best = { pos: cd.pos, center: cd.center, adj: a }; }
+            }
+            return best;
+          };
+          const bx = pick(edges(g.minX, g.maxX), drag.candX, dx);
+          if (bx) { dx += bx.adj; lines.push({ axis: "x", pos: bx.pos, center: bx.center }); }
+          const by = pick(edges(g.minY, g.maxY), drag.candY, dy);
+          if (by) { dy += by.adj; lines.push({ axis: "y", pos: by.pos, center: by.center }); }
+        }
+        drag.eids.forEach((eid, i) => { const s = drag.starts[i]; writeDraft(eid, { ...s, x: (s.x ?? 0) + dx, y: (s.y ?? 0) + dy }); });
+        setSnapLines(lines);
         return;
       }
       if (drag?.kind === "field") {
@@ -452,33 +526,54 @@ export default function Editor({ scale }: { scale: number }) {
       setHover(resolveObject(e.target as Element));
     };
 
-    const armMove = (eid: string, e: PointerEvent) => {
-      // fields don't move (no x/y translate) — reposition via the parent object instead
-      if (!hasGeometry(BASE[eid]) || isField(BASE[eid])) return;
-      // проваленный слой (фото) панится ВНУТРИ обрезки → клип-предка НЕ снимаем (это и есть кадр)
-      const inner = !isObject(BASE[eid]) && !isSection(eid);
-      dragRef.current = { kind: "move", eid, cx: e.clientX, cy: e.clientY, start: merged(eid), moved: false, clipBox: inner ? null : clipAncestorOf(eid), clipDone: false };
+    const armMoveGroup = (eids: string[], e: PointerEvent) => {
+      const movable = eids.filter((id) => hasGeometry(BASE[id]) && !isField(BASE[id]));
+      if (!movable.length) return;
+      const lr = layerRect();
+      const starts = movable.map((id) => merged(id));
+      // клип-предки снимаем только у объектов/секций (проваленный слой панится ВНУТРИ кадра)
+      const clipBoxes = movable.filter((id) => isObject(BASE[id]) || isSection(id)).map((id) => clipAncestorOf(id)).filter((x): x is string => !!x);
+      let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+      for (const id of movable) { const n = nodeFor(id); if (!n) continue; const r = n.getBoundingClientRect(); const l = (r.left - (lr?.left ?? 0)) / scale, t = (r.top - (lr?.top ?? 0)) / scale; minX = Math.min(minX, l); minY = Math.min(minY, t); maxX = Math.max(maxX, l + r.width / scale); maxY = Math.max(maxY, t + r.height / scale); }
+      // кандидаты привязки: центр/края листа + ручные гиды + края/центры видимых соседей
+      const moving = new Set(movable);
+      const cxs: Cand[] = [{ pos: 0, center: false }, { pos: REF_WIDTH / 2, center: true }, { pos: REF_WIDTH, center: false }];
+      const cys: Cand[] = [];
+      for (const g of guidesRef.current) (g.axis === "x" ? cxs : cys).push({ pos: g.pos, center: false });
+      for (const n of Array.from(document.querySelectorAll<HTMLElement>("[data-eid]"))) {
+        const id = n.getAttribute("data-eid"); if (!id || moving.has(id) || !isObject(BASE[id]) || isSection(id)) continue;
+        const r = n.getBoundingClientRect(); if (r.width === 0 || r.bottom < 0 || r.top > window.innerHeight) continue;
+        const l = (r.left - (lr?.left ?? 0)) / scale, t = (r.top - (lr?.top ?? 0)) / scale, w = r.width / scale, h = r.height / scale;
+        cxs.push({ pos: l, center: false }, { pos: l + w / 2, center: true }, { pos: l + w, center: false });
+        cys.push({ pos: t, center: false }, { pos: t + h / 2, center: true }, { pos: t + h, center: false });
+      }
+      dragRef.current = { kind: "move", eids: movable, starts, cx: e.clientX, cy: e.clientY, moved: false, clipBoxes, clipDone: false, group: { minX, minY, maxX, maxY }, candX: cxs, candY: cys };
     };
 
     const onDown = (e: PointerEvent) => {
-      if (inChrome(e.target)) return; // панель/ручки обрабатывают себя сами
-      const cur = selectedRef.current;
-      const curNode = cur ? nodeFor(cur) : null;
-      if (cur && curNode) {
-        const inDom = e.target instanceof Node && curNode.contains(e.target);
-        // для проваленного слоя (фото/поле) хит-тест ГЕОМЕТРИЧЕСКИЙ: перекрывающие сверху
-        // соседи (текст/гравюра) не должны перехватывать перетаскивание внутри обрезки
-        let inBox = false;
-        if (!inDom && !isObject(BASE[cur]) && !isSection(cur)) {
-          const r = curNode.getBoundingClientRect();
-          inBox = e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom;
-        }
-        if (inDom || inBox) { armMove(cur, e); return; }
-      }
+      if (inChrome(e.target)) return; // панель/ручки/гиды обрабатывают себя сами
       const obj = resolveObject(e.target as Element);
-      setSelected(obj);
-      setHover(null);
-      if (obj) armMove(obj, e);
+      const curSel = selRef.current, cur0 = curSel[0];
+      // Shift+клик по объекту — тогл в мультивыборе
+      if (e.shiftKey && obj && isObject(BASE[obj]) && !isSection(obj)) {
+        setSel((prev) => (prev.includes(obj) ? prev.filter((x) => x !== obj) : [...prev, obj]));
+        setHover(null); return;
+      }
+      // нажатие внутри одиночного проваленного слоя (фото/поле) — двигаем его (геом. хит-тест,
+      // т.к. сверху перекрывают соседи)
+      if (curSel.length === 1 && cur0 && !isObject(BASE[cur0]) && !isSection(cur0)) {
+        const n = nodeFor(cur0);
+        if (n) {
+          const r = n.getBoundingClientRect(); const inDom = e.target instanceof Node && n.contains(e.target);
+          if (inDom || (e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom)) { armMoveGroup([cur0], e); return; }
+        }
+      }
+      // нажатие по объекту из текущего выделения — двигаем всю группу
+      if (obj && curSel.includes(obj)) { armMoveGroup(curSel, e); return; }
+      // по объекту — одиночный выбор + arm
+      if (obj && isObject(BASE[obj]) && !isSection(obj)) { setSel([obj]); setHover(null); armMoveGroup([obj], e); return; }
+      // по секции/фону — marquee (если потянут) или выбор секции / сброс (если клик)
+      marqueeRef.current = { x0: e.clientX, y0: e.clientY, x1: e.clientX, y1: e.clientY, sectionObj: obj && isSection(obj) ? obj : null, moved: false };
     };
 
     // двойной клик — провалиться внутрь объекта: к самому фото (пан/зум в обрезке)
@@ -490,7 +585,24 @@ export default function Editor({ scale }: { scale: number }) {
       if (inner) { setSelected(inner); dragRef.current = null; }
     };
 
-    const onUp = () => { dragRef.current = null; };
+    const onUp = () => {
+      const m = marqueeRef.current;
+      if (m) {
+        if (m.moved) {
+          const rx0 = Math.min(m.x0, m.x1), ry0 = Math.min(m.y0, m.y1), rx1 = Math.max(m.x0, m.x1), ry1 = Math.max(m.y0, m.y1);
+          const hits: string[] = [];
+          for (const n of Array.from(document.querySelectorAll<HTMLElement>("[data-eid]"))) {
+            const id = n.getAttribute("data-eid"); if (!id || !isObject(BASE[id]) || isSection(id)) continue;
+            const r = n.getBoundingClientRect(); if (r.width === 0) continue;
+            if (r.left < rx1 && r.right > rx0 && r.top < ry1 && r.bottom > ry0) hits.push(id); // пересечение
+          }
+          setSel(hits);
+        } else setSel(m.sectionObj ? [m.sectionObj] : []); // клик по секции — выбрать; по пустоте — сброс
+        marqueeRef.current = null; setMarquee(null);
+      }
+      dragRef.current = null;
+      setSnapLines([]);
+    };
 
     document.addEventListener("pointermove", onMove, true);
     document.addEventListener("pointerdown", onDown, true);
@@ -534,11 +646,11 @@ export default function Editor({ scale }: { scale: number }) {
     };
   }, [scale]);
 
-  const [selBox, setSelBox] = useState<OBox>(null);
+  const [selBoxes, setSelBoxes] = useState<{ eid: string; box: NonNullable<OBox> }[]>([]);
   const [hovBox, setHovBox] = useState<OBox>(null);
   useLayoutEffect(() => {
-    setSelBox(orientedFor(selected ? editTargetOf(selected).boxEid : null));
-  }, [selected, tick, orientedFor, editTargetOf]);
+    setSelBoxes(sel.map((eid) => ({ eid, box: orientedFor(editTargetOf(eid).boxEid) })).filter((b): b is { eid: string; box: NonNullable<OBox> } => !!b.box));
+  }, [sel, tick, orientedFor, editTargetOf]);
   useLayoutEffect(() => { setHovBox(orientedFor(hover)); }, [hover, tick, orientedFor]);
 
   const startResize = (e: React.PointerEvent, dir: string) => {
@@ -627,6 +739,12 @@ export default function Editor({ scale }: { scale: number }) {
   const imgWrapEid = !selected ? null : selKind === "image" ? selected : isAdd(selected) ? null : imgWrapOf(selected);
   const textValue = !textSpanEid ? "" : isAdd(textSpanEid) ? (addStore.get(idOf(textSpanEid))?.text ?? "") : (content[textSpanEid]?.text ?? textOf(textSpanEid));
 
+  // канва→экран для рендера гидов и линий привязки (tick форсит пересчёт при скролле/драге)
+  const lr = (typeof document !== "undefined" ? (document.querySelector(".d06-add-layer") ?? document.querySelector(".KYQZFA")) : null)?.getBoundingClientRect();
+  const gx = (pos: number) => (lr?.left ?? 0) + pos * scale;
+  const gy = (pos: number) => (lr?.top ?? 0) + pos * scale;
+  const single = sel.length === 1;
+
   return (
     <div className="d06e-chrome">
       <div className="d06e-bar">
@@ -635,25 +753,48 @@ export default function Editor({ scale }: { scale: number }) {
         <button className="d06e-tool" onClick={() => fileRef.current?.click()}>+ Картинка</button>
         <input ref={fileRef} type="file" accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml" hidden
           onChange={(e) => { const f = e.target.files?.[0]; if (f) addImageFile(f); e.target.value = ""; }} />
+        <button className="d06e-tool" title="Вертикальная направляющая" onClick={() => addGuide("x")}>Гид |</button>
+        <button className="d06e-tool" title="Горизонтальная направляющая" onClick={() => addGuide("y")}>Гид —</button>
         <PalettePicker value={palette} dirty={paletteDirty} onPick={onPickPalette} />
-        <span className="d06e-hint">тащить — двигать · углы — размер · Option — растянуть · ⌘D — копия · Del — удалить</span>
+        <span className="d06e-hint">Shift — мультивыбор · рамкой по фону · 2× по гиду — убрать · Option — без привязки</span>
+        {sel.length > 1 && <span className="d06e-bardirty">◆ {sel.length} выбрано</span>}
         <span className="d06e-bardirty" style={{ marginLeft: "auto" }}>{totalDirty > 0 ? `● ${totalDirty}` : ""}</span>
         <button className="d06e-tool" disabled={totalDirty === 0} onClick={onReset}>Сбросить</button>
         <button className="d06e-tool d06e-toolsave" disabled={totalDirty === 0 || saving} onClick={onSave}>{saving ? "Сохраняю…" : "Сохранить"}</button>
         <a className="d06e-exit" href={withoutEdit()}>Выйти</a>
       </div>
 
-      {hovBox && hover !== selected && (
+      {hovBox && hover !== selected && !sel.length && (
         <div className="d06e-hov" style={obStyle(hovBox)} />
       )}
 
-      {selBox && selected && (
-        <div className={`d06e-sel${isObject(BASE[selected]) || isSection(selected) ? "" : " d06e-inner"}`} style={obStyle(selBox)}>
-          {hasGeometry(BASE[selected]) &&
+      {/* рамки выделения: ручки только если выбран ровно один объект */}
+      {selBoxes.map(({ eid, box }) => (
+        <div key={eid} className={`d06e-sel${isObject(BASE[eid]) || isSection(eid) ? "" : " d06e-inner"}`} style={obStyle(box)}>
+          {single && hasGeometry(BASE[eid]) &&
             HANDLES.map((dir) => (
               <span key={dir} className={`d06e-h d06e-h-${dir}`} onPointerDown={(e) => startResize(e, dir)} />
             ))}
         </div>
+      ))}
+
+      {/* линии привязки (smart guides) */}
+      {snapLines.map((l, i) =>
+        l.axis === "x"
+          ? <div key={`s${i}`} className="d06e-snap" style={{ left: gx(l.pos), top: 0, width: 1, height: "100vh" }} />
+          : <div key={`s${i}`} className="d06e-snap" style={{ top: gy(l.pos), left: 0, height: 1, width: "100vw" }} />,
+      )}
+
+      {/* ручные направляющие (drag — двигать, 2× — убрать) */}
+      {guides.map((g) =>
+        g.axis === "x"
+          ? <div key={g.id} className="d06e-guide d06e-guide-v" style={{ left: gx(g.pos), top: 0, height: "100vh" }} onPointerDown={(e) => startGuideDrag(e, g)} onDoubleClick={() => removeGuide(g.id)} />
+          : <div key={g.id} className="d06e-guide d06e-guide-h" style={{ top: gy(g.pos), left: 0, width: "100vw" }} onPointerDown={(e) => startGuideDrag(e, g)} onDoubleClick={() => removeGuide(g.id)} />,
+      )}
+
+      {/* marquee */}
+      {marquee && (
+        <div className="d06e-marquee" style={{ left: Math.min(marquee.x0, marquee.x1), top: Math.min(marquee.y0, marquee.y1), width: Math.abs(marquee.x1 - marquee.x0), height: Math.abs(marquee.y1 - marquee.y0) }} />
       )}
 
       {selected && (

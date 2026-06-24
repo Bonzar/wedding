@@ -43,6 +43,15 @@
 .d06-add-text { white-space: pre-wrap; word-break: break-word; }
 .d06-add-img { line-height: 0; }
 
+/* smart-guide линии привязки (транзитные при перетаскивании) */
+.d06e-snap { position: fixed; background: #e0457b; pointer-events: none; z-index: 5; }
+/* ручные направляющие: 7px зона захвата, 1px бирюзовая линия по центру */
+.d06e-guide { position: fixed; z-index: 6; pointer-events: auto; }
+.d06e-guide-v { width: 7px; margin-left: -3px; cursor: ew-resize; background: linear-gradient(90deg, transparent 3px, #14b8b8 3px, #14b8b8 4px, transparent 4px); }
+.d06e-guide-h { height: 7px; margin-top: -3px; cursor: ns-resize; background: linear-gradient(180deg, transparent 3px, #14b8b8 3px, #14b8b8 4px, transparent 4px); }
+/* рамка выбора (marquee) */
+.d06e-marquee { position: fixed; border: 1px solid #2563eb; background: rgba(37,99,235,0.10); pointer-events: none; z-index: 4; }
+
 /* hover + selection boxes (screen-space, fixed) */
 .d06e-hov { position: fixed; outline: 1.5px dashed #3b82f6; outline-offset: -1px; pointer-events: none; }
 /* selection box doesn't eat clicks — only its handles do — so other elements stay selectable */
