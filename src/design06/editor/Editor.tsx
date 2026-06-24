@@ -3,10 +3,14 @@
 // records; Save persists them back into the matching <Section>.layout.ts via a dev
 // endpoint (vite-plugins/d06-save.ts). With the editor unmounted, render is the 0% base.
 //
-// Selection targets Canva *objects* (the top-level crop frame / line / text block — marked
-// by touch-action; see registry.isObject), never the inner image layer. The selection box
-// is oriented to the object's rotation, so resize handles act in the object's local axes:
-// edges resize the crop frame, corners also scale the inner image.
+// Resize is TYPE-AWARE, because a Canva object's own w/h box is usually inert — the visible
+// thing is a nested element (text → writing-mode field; image → inner photo; button → a
+// scaled+clipped pill fill). editTargetOf() routes each object to what actually changes:
+//   image  → proportional scale of frame+photo (hold Option/Alt for free aspect = crop)
+//   text   → the field's w/h (text reflow); глифы/шрифт — в сайдбаре
+//   button → uniform scale of the object
+//   line/generic → rotation-aware w/h
+//   drilled photo → proportional zoom of the photo inside its crop
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { El } from "../layout";
 import { applyEl, imgUnder, nodeFor, resetEl, setImgSrc, setText, textOf } from "./apply";
@@ -15,19 +19,22 @@ import { Panel, type FieldKey } from "./Panel";
 import "./editor.css";
 
 type OBox = { cx: number; cy: number; vw: number; vh: number; rot: number } | null;
+type Mode = "image" | "text" | "scale" | "wh" | "photo";
+type RotBox = { rot: number; w0: number; h0: number; cParent: { x: number; y: number }; cScreen: { x: number; y: number } };
 type Drag =
   | { kind: "move"; eid: string; cx: number; cy: number; start: El; moved: boolean }
-  | {
-      kind: "resize"; eid: string; dir: string;
-      rot: number; w0: number; h0: number;
-      cParent: { x: number; y: number }; cScreen: { x: number; y: number };
-      start: El; innerImg: string | null; innerBase: El | null;
-    }
   | { kind: "field"; eid: string; dir: string; w0: number; h0: number; k: number; cx: number; cy: number; start: El }
+  | ({ kind: "wh"; eid: string; dir: string; start: El } & RotBox)
+  | ({
+      kind: "prop"; eid: string; dir: string; target: "framePhoto" | "scale" | "photo";
+      scale0: number; pw0: number; ph0: number; photoEid: string | null; photoStart: El | null;
+      handle0: { x: number; y: number }; start: El;
+    } & RotBox)
   | null;
 
 const HANDLES = ["nw", "n", "ne", "e", "se", "s", "sw", "w"] as const;
 const RAD = Math.PI / 180;
+const dist = (ax: number, ay: number, bx: number, by: number) => Math.hypot(ax - bx, ay - by);
 
 // Probe whether the browser can actually decode+load a URL as an image.
 const probeImage = (url: string): Promise<boolean> =>
@@ -120,6 +127,32 @@ export default function Editor({ scale }: { scale: number }) {
     return null;
   }, []);
 
+  // a button-like object: its visible shape is a scaled+clipped fill child (pill), so the
+  // object's own w/h is inert — resize must scale the whole object instead.
+  const hasClippedFill = useCallback((eid: string): boolean => {
+    const node = nodeFor(eid);
+    if (!node) return false;
+    for (const d of Array.from(node.querySelectorAll<HTMLElement>("[data-eid]"))) {
+      const r = BASE[d.getAttribute("data-eid")!];
+      if (r?.raw && (r.raw as Record<string, unknown>).clipPath != null && r.scale != null) return true;
+    }
+    return false;
+  }, []);
+
+  // What a selection's handles actually resize, and which element the box wraps.
+  const editTargetOf = useCallback((eid: string): { mode: Mode; boxEid: string; resizeEid: string; photoEid: string | null } => {
+    if (!isObject(BASE[eid]) && !isSection(eid)) {
+      // drilled inner layer
+      if (isField(BASE[eid])) return { mode: "text", boxEid: eid, resizeEid: eid, photoEid: null };
+      return { mode: "photo", boxEid: eid, resizeEid: eid, photoEid: null };
+    }
+    if (nodeFor(eid)?.querySelector("img")) return { mode: "image", boxEid: eid, resizeEid: eid, photoEid: innerImgEidOf(eid) };
+    const field = fieldEidOf(eid);
+    if (field) return { mode: "text", boxEid: field, resizeEid: field, photoEid: null };
+    if (hasClippedFill(eid)) return { mode: "scale", boxEid: eid, resizeEid: eid, photoEid: null };
+    return { mode: "wh", boxEid: eid, resizeEid: eid, photoEid: null };
+  }, [innerImgEidOf, fieldEidOf, hasClippedFill]);
+
   // primary text span inside a text object (the one carrying the actual words)
   const contentSpanOf = useCallback((eid: string): string | null => {
     const node = nodeFor(eid);
@@ -200,6 +233,27 @@ export default function Editor({ scale }: { scale: number }) {
   useEffect(() => {
     const inChrome = (t: EventTarget | null) => t instanceof Element && t.closest(".d06e-chrome");
 
+    // rotation-aware resize keeping the opposite edge/corner pinned (parent coords).
+    const whCompute = (d: RotBox & { dir: string }, e: PointerEvent) => {
+      const px = d.cParent.x + (e.clientX - d.cScreen.x) / scale;
+      const py = d.cParent.y + (e.clientY - d.cScreen.y) / scale;
+      const ux = { x: Math.cos(d.rot), y: Math.sin(d.rot) };
+      const uy = { x: -Math.sin(d.rot), y: Math.cos(d.rot) };
+      const horiz = d.dir.includes("e") ? 1 : d.dir.includes("w") ? -1 : 0;
+      const vert = d.dir.includes("s") ? 1 : d.dir.includes("n") ? -1 : 0;
+      const anchor = {
+        x: d.cParent.x - horiz * (d.w0 / 2) * ux.x - vert * (d.h0 / 2) * uy.x,
+        y: d.cParent.y - horiz * (d.w0 / 2) * ux.y - vert * (d.h0 / 2) * uy.y,
+      };
+      const relx = (px - anchor.x) * ux.x + (py - anchor.y) * ux.y;
+      const rely = (px - anchor.x) * uy.x + (py - anchor.y) * uy.y;
+      const w = horiz ? Math.max(1, horiz * relx) : d.w0;
+      const h = vert ? Math.max(1, vert * rely) : d.h0;
+      const cx = anchor.x + horiz * (w / 2) * ux.x + vert * (h / 2) * uy.x;
+      const cy = anchor.y + horiz * (w / 2) * ux.y + vert * (h / 2) * uy.y;
+      return { w, h, x: cx - w / 2, y: cy - h / 2 };
+    };
+
     const onMove = (e: PointerEvent) => {
       const drag = dragRef.current;
       if (drag?.kind === "move") {
@@ -217,32 +271,31 @@ export default function Editor({ scale }: { scale: number }) {
         writeDraft(drag.eid, { ...drag.start, w: Math.max(1, drag.w0 + dw), h: Math.max(1, drag.h0 + dh) });
         return;
       }
-      if (drag?.kind === "resize") {
-        // screen pointer -> parent(canvas) coords via the start-time center mapping
-        const px = drag.cParent.x + (e.clientX - drag.cScreen.x) / scale;
-        const py = drag.cParent.y + (e.clientY - drag.cScreen.y) / scale;
-        const ux = { x: Math.cos(drag.rot), y: Math.sin(drag.rot) };
-        const uy = { x: -Math.sin(drag.rot), y: Math.cos(drag.rot) };
-        const horiz = drag.dir.includes("e") ? 1 : drag.dir.includes("w") ? -1 : 0;
-        const vert = drag.dir.includes("s") ? 1 : drag.dir.includes("n") ? -1 : 0;
-        // fixed anchor = opposite edge/corner (keeps it pinned while dragging)
-        const ax = -horiz, ay = -vert;
-        const anchor = {
-          x: drag.cParent.x + ax * (drag.w0 / 2) * ux.x + ay * (drag.h0 / 2) * uy.x,
-          y: drag.cParent.y + ax * (drag.w0 / 2) * ux.y + ay * (drag.h0 / 2) * uy.y,
-        };
-        const relx = (px - anchor.x) * ux.x + (py - anchor.y) * ux.y;
-        const rely = (px - anchor.x) * uy.x + (py - anchor.y) * uy.y;
-        const newW = horiz ? Math.max(1, horiz * relx) : drag.w0;
-        const newH = vert ? Math.max(1, vert * rely) : drag.h0;
-        const cx = anchor.x + horiz * (newW / 2) * ux.x + vert * (newH / 2) * uy.x;
-        const cy = anchor.y + horiz * (newW / 2) * ux.y + vert * (newH / 2) * uy.y;
-        writeDraft(drag.eid, { ...drag.start, w: newW, h: newH, x: cx - newW / 2, y: cy - newH / 2 });
-        // corner drag also scales the inner image layer (crop + photo together)
-        if (drag.innerImg && drag.innerBase && horiz && vert) {
-          const ib = drag.innerBase;
-          writeDraft(drag.innerImg, { ...ib, w: (ib.w ?? 0) * (newW / drag.w0), h: (ib.h ?? 0) * (newH / drag.h0) });
+      if (drag?.kind === "wh") {
+        writeDraft(drag.eid, { ...drag.start, ...whCompute(drag, e) });
+        return;
+      }
+      if (drag?.kind === "prop") {
+        // free aspect (Option/Alt) on an image → resize the crop frame only (no photo)
+        if (drag.target === "framePhoto" && e.altKey) {
+          writeDraft(drag.eid, { ...drag.start, ...whCompute(drag, e) });
+          return;
         }
+        const d0 = dist(drag.handle0.x, drag.handle0.y, drag.cScreen.x, drag.cScreen.y) || 1;
+        const k = Math.max(0.05, dist(e.clientX, e.clientY, drag.cScreen.x, drag.cScreen.y) / d0);
+        if (drag.target === "scale") {
+          writeDraft(drag.eid, { ...drag.start, scale: drag.scale0 * k }); // uniform, about center
+          return;
+        }
+        const nw = drag.w0 * k, nh = drag.h0 * k;
+        if (drag.target === "photo") {
+          // zoom the photo about its own centre inside the fixed crop
+          writeDraft(drag.eid, { ...drag.start, w: nw, h: nh, x: (drag.start.x ?? 0) + (drag.w0 - nw) / 2, y: (drag.start.y ?? 0) + (drag.h0 - nh) / 2 });
+          return;
+        }
+        // framePhoto: scale frame + photo together about centre (proportional)
+        writeDraft(drag.eid, { ...drag.start, w: nw, h: nh, x: drag.cParent.x - nw / 2, y: drag.cParent.y - nh / 2 });
+        if (drag.photoEid && drag.photoStart) writeDraft(drag.photoEid, { ...drag.photoStart, w: drag.pw0 * k, h: drag.ph0 * k });
         return;
       }
       if (inChrome(e.target)) return;
@@ -256,7 +309,6 @@ export default function Editor({ scale }: { scale: number }) {
 
     const onDown = (e: PointerEvent) => {
       if (inChrome(e.target)) return; // панель/ручки обрабатывают себя сами
-      // нажатие внутри уже выбранного (в т.ч. вложенной картинки) — двигаем именно его
       const cur = selectedRef.current;
       const curNode = cur ? nodeFor(cur) : null;
       if (cur && curNode && e.target instanceof Node && curNode.contains(e.target)) {
@@ -302,17 +354,20 @@ export default function Editor({ scale }: { scale: number }) {
     };
   }, []);
 
-  // ---- oriented selection / hover boxes ----------------------------------------------
+  // ---- selection / hover boxes -------------------------------------------------------
+  // objects → oriented by their own rotation; inner layers (photo/field) → AABB, which
+  // matches their on-screen extent even when a parent rotates/scales them.
   const orientedFor = useCallback((eid: string | null): OBox => {
     if (!eid) return null;
     const node = nodeFor(eid);
     const rec = draftsRef.current[eid] ?? BASE[eid];
     if (!node || !rec) return null;
     const r = node.getBoundingClientRect();
-    const el = rec.scale ?? 1; // элемент со своим scale (поле текста) — учитываем в габаритах рамки
+    const center = { cx: r.left + r.width / 2, cy: r.top + r.height / 2 };
+    if (!isObject(rec)) return { ...center, vw: r.width, vh: r.height, rot: 0 };
+    const el = rec.scale ?? 1;
     return {
-      cx: r.left + r.width / 2,
-      cy: r.top + r.height / 2,
+      ...center,
       vw: (rec.w != null ? rec.w * el : r.width / scale) * scale,
       vh: (rec.h != null ? rec.h * el : r.height / scale) * scale,
       rot: rec.rot ?? 0,
@@ -321,29 +376,38 @@ export default function Editor({ scale }: { scale: number }) {
 
   const [selBox, setSelBox] = useState<OBox>(null);
   const [hovBox, setHovBox] = useState<OBox>(null);
-  useLayoutEffect(() => { setSelBox(orientedFor(selected)); }, [selected, tick, orientedFor]);
+  useLayoutEffect(() => {
+    setSelBox(orientedFor(selected ? editTargetOf(selected).boxEid : null));
+  }, [selected, tick, orientedFor, editTargetOf]);
   useLayoutEffect(() => { setHovBox(orientedFor(hover)); }, [hover, tick, orientedFor]);
 
   const startResize = (e: React.PointerEvent, dir: string) => {
     if (!selected) return;
     e.stopPropagation();
-    const rec = merged(selected);
-    if (isField(BASE[selected])) {
-      // px-per-local-unit = zoom × элементный scale; ресайз только w/h, без поворота/x-y
-      dragRef.current = { kind: "field", eid: selected, dir, w0: rec.w ?? 0, h0: rec.h ?? 0, k: (rec.scale ?? 1) * scale, cx: e.clientX, cy: e.clientY, start: rec };
-      return;
-    }
-    const node = nodeFor(selected);
-    if (!node) return;
-    const r = node.getBoundingClientRect();
-    const innerImg = innerImgEidOf(selected);
-    dragRef.current = {
-      kind: "resize", eid: selected, dir,
+    const t = editTargetOf(selected);
+    const rec = merged(t.resizeEid);
+    const node = nodeFor(t.resizeEid);
+    const r = node?.getBoundingClientRect();
+    const hr = (e.currentTarget as HTMLElement).getBoundingClientRect();
+    const handle0 = { x: hr.left + hr.width / 2, y: hr.top + hr.height / 2 };
+    const cScreen = r ? { x: r.left + r.width / 2, y: r.top + r.height / 2 } : handle0;
+    const rotBox: RotBox = {
       rot: (rec.rot ?? 0) * RAD, w0: rec.w ?? 0, h0: rec.h ?? 0,
-      cParent: { x: (rec.x ?? 0) + (rec.w ?? 0) / 2, y: (rec.y ?? 0) + (rec.h ?? 0) / 2 },
-      cScreen: { x: r.left + r.width / 2, y: r.top + r.height / 2 },
-      start: rec, innerImg, innerBase: innerImg ? merged(innerImg) : null,
+      cParent: { x: (rec.x ?? 0) + (rec.w ?? 0) / 2, y: (rec.y ?? 0) + (rec.h ?? 0) / 2 }, cScreen,
     };
+    if (t.mode === "text") {
+      dragRef.current = { kind: "field", eid: t.resizeEid, dir, w0: rec.w ?? 0, h0: rec.h ?? 0, k: (rec.scale ?? 1) * scale, cx: e.clientX, cy: e.clientY, start: rec };
+    } else if (t.mode === "wh") {
+      dragRef.current = { kind: "wh", eid: t.resizeEid, dir, start: rec, ...rotBox };
+    } else {
+      const photoStart = t.photoEid ? merged(t.photoEid) : null;
+      dragRef.current = {
+        kind: "prop", eid: t.resizeEid, dir,
+        target: t.mode === "image" ? "framePhoto" : t.mode === "scale" ? "scale" : "photo",
+        scale0: rec.scale ?? 1, pw0: photoStart?.w ?? 0, ph0: photoStart?.h ?? 0,
+        photoEid: t.photoEid, photoStart, handle0, start: rec, ...rotBox,
+      };
+    }
   };
 
   // ---- save / reset ------------------------------------------------------------------
@@ -396,7 +460,7 @@ export default function Editor({ scale }: { scale: number }) {
     <div className="d06e-chrome">
       <div className="d06e-bar">
         <strong>design06 · редактор</strong>
-        <span className="d06e-hint">клик — объект · 2× клик — фото/поле текста · тащить — двигать · грани/углы — размер</span>
+        <span className="d06e-hint">клик — объект · 2× — внутрь (фото/поле) · тащить — двигать · углы — размер · Option — свободные пропорции</span>
         <a className="d06e-exit" href={withoutEdit()}>Выйти</a>
       </div>
 
