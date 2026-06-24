@@ -11,8 +11,8 @@ export const COUPLE = {
   brideShort: "Ольга",
 } as const;
 
-/** Целевой момент свадьбы (МСК, UTC+3) — для обратного отсчёта. */
-export const WEDDING_DATE_ISO = "2026-09-26T16:00:00+03:00";
+/** Целевой момент свадьбы (МСК, UTC+3) — для обратного отсчёта. Совпадает с началом церемонии (см. TIMELINE) и подписью в секции календаря. */
+export const WEDDING_DATE_ISO = "2026-09-26T17:00:00+03:00";
 
 export const EVENT = {
   dateHuman: "26 сентября 2026",

@@ -1,47 +1,13 @@
-import { ThemeBar } from "@/components/ThemeBar";
-import {
-  Hero,
-  WeddingOf,
-  Countdown,
-  Calendar,
-  Location,
-  Timeline,
-  Details,
-  Attire,
-  Gift,
-  Journey,
-  Collage,
-  RsvpIntro,
-  Survey,
-  Closing,
-} from "@/sections";
-import { RsvpModal } from "@/rsvp/components/RsvpModal";
+import Design06 from "@/design06/Design06";
 
 /**
- * Корневой компонент: плавающий переключатель темы + лист-приглашение.
- * Порядок секций соответствует исходному лендингу (build_index.py ORDER).
+ * Корневой компонент приложения. Единственный дизайн — design06: пиксель-точный
+ * лист-приглашение со своим скейлером, палитрой и анкетой RSVP (раздел Survey).
+ *
+ * Раньше design06 жил за `?d06` и грузился лениво; теперь это основной (и единственный)
+ * рендер, поэтому импортируется напрямую — без Suspense-водопада index→Design06.
+ * Поведенческие флаги (`?noscale`, `?baseline`, dev-only `?edit`) читаются внутри Design06.
  */
 export function App() {
-  return (
-    <>
-      <ThemeBar />
-      <main className="sheet">
-        <Hero />
-        <WeddingOf />
-        <Countdown />
-        <Calendar />
-        <Location />
-        <Timeline />
-        <Details />
-        <Attire />
-        <Gift />
-        <Journey />
-        <Collage />
-        <RsvpIntro />
-        <Survey />
-        <Closing />
-      </main>
-      <RsvpModal />
-    </>
-  );
+  return <Design06 />;
 }
