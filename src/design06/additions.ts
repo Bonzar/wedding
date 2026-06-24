@@ -15,64 +15,52 @@ export const additions: Addition[] = [
   {
     "id": "mqs351n64",
     "kind": "text",
-    "x": 110.54013169879534,
-    "y": 12336.647685670145,
-    "w": 1667.096080960325,
+    "x": -18.976639653408377,
+    "y": 12417.39833732172,
+    "w": 2008.617684082028,
     "h": 182.86680192100755,
-    "fontSize": 240,
+    "fontSize": 400,
     "color": "rgb(53, 80, 116)",
-    "lineHeight": "1.25",
+    "lineHeight": "0.5",
     "text": "История любви",
     "raw": {
       "touchAction": "pan-x pan-y pinch-zoom"
     },
-    "font": "\"Jellyka Love and Passion\", cursive",
+    "font": "\"Nicoletta Script SHA\", cursive",
     "rot": -8
-  },
-  {
-    "id": "mqs28ojc0",
-    "kind": "image",
-    "x": -58.89284211141202,
-    "y": 15923.377230217118,
-    "w": 490.3999761101658,
-    "h": 547.4447785359949,
-    "src": "/design06-exact/_assets/blobs/PBJyC0fbP0ThXKGC_0.png",
-    "raw": {
-      "touchAction": "pan-x pan-y pinch-zoom"
-    }
   },
   {
     "id": "mqs33llv1",
     "kind": "text",
-    "x": -16.713914615945733,
-    "y": 12038.457508877316,
-    "w": 1667.096080960325,
+    "x": -153.69485144569035,
+    "y": 12129.404326389551,
+    "w": 2037.081364652494,
     "h": 182.86680192100755,
-    "fontSize": 240,
+    "fontSize": 400,
     "color": "rgb(53, 80, 116)",
-    "lineHeight": "1.25",
+    "lineHeight": "0.5",
     "text": "История любви",
     "raw": {
       "touchAction": "pan-x pan-y pinch-zoom"
     },
-    "font": "\"Jellyka Love and Passion\", cursive",
+    "font": "\"Nicoletta Script SHA\", cursive",
     "rot": -8
   },
   {
     "id": "mqs35vkd6",
     "kind": "text",
-    "x": 252.04922034421367,
-    "y": 12634.623656785681,
+    "x": 151.78516019266903,
+    "y": 12738.821727877325,
     "w": 1667.096080960325,
     "h": 182.86680192100755,
-    "fontSize": 240,
+    "fontSize": 400,
     "color": "rgb(53, 80, 116)",
-    "lineHeight": "1.25",
+    "lineHeight": "0.5",
     "text": "История любви",
     "raw": {
       "touchAction": "pan-x pan-y pinch-zoom"
     },
-    "font": "\"Jellyka Love and Passion\", cursive",
+    "font": "\"Nicoletta Script SHA\", cursive",
     "rot": -8
   },
   {
@@ -114,19 +102,6 @@ export const additions: Addition[] = [
     "scale": 1.750432710384121
   },
   {
-    "id": "mqs3ludf4",
-    "kind": "image",
-    "x": 703.5694214230398,
-    "y": 2785.158801264459,
-    "w": 420,
-    "h": 433,
-    "src": "/design06-exact/_assets/media/_________1_0.5x.png",
-    "raw": {
-      "touchAction": "pan-x pan-y pinch-zoom"
-    },
-    "scale": 2.2691934278780206
-  },
-  {
     "id": "mqs3ob4y0",
     "kind": "image",
     "x": 167.38285987145738,
@@ -139,19 +114,6 @@ export const additions: Addition[] = [
     },
     "scale": 0.4956996550435194,
     "rot": -9
-  },
-  {
-    "id": "mqs49sy90",
-    "kind": "image",
-    "x": 1350.2064755679635,
-    "y": 3870.1881681102914,
-    "w": 420,
-    "h": 420,
-    "src": "/design06-exact/_assets/media/tile_1_1-7.png",
-    "raw": {
-      "touchAction": "pan-x pan-y pinch-zoom"
-    },
-    "scale": 1.322328336145525
   },
   {
     "id": "mqs4hj8i0",
@@ -170,8 +132,8 @@ export const additions: Addition[] = [
   {
     "id": "mqs4jg7j0",
     "kind": "image",
-    "x": 1352.8604084787194,
-    "y": 4543.086276001725,
+    "x": 1345.7910534574507,
+    "y": 4542.078404276237,
     "w": 420,
     "h": 420,
     "src": "/design06-exact/_assets/media/tile_1_3-6.png",
@@ -180,22 +142,10 @@ export const additions: Addition[] = [
     }
   },
   {
-    "id": "mqs4ltue1",
-    "kind": "image",
-    "x": 100.85495879752496,
-    "y": 4366.091287250168,
-    "w": 420,
-    "h": 420,
-    "src": "/design06-exact/_assets/media/tile_2_2-4.png",
-    "raw": {
-      "touchAction": "pan-x pan-y pinch-zoom"
-    }
-  },
-  {
     "id": "mqs4mrdz2",
     "kind": "image",
-    "x": 100.85496399300222,
-    "y": 5117.556264678394,
+    "x": 46.93480821845124,
+    "y": 5106.277421865472,
     "w": 420,
     "h": 420,
     "src": "/design06-exact/_assets/media/tile_2_2.png",
@@ -204,10 +154,24 @@ export const additions: Addition[] = [
     }
   },
   {
+    "id": "mqsehxhu0",
+    "kind": "image",
+    "x": 19.999987579099134,
+    "y": 4374.482500842318,
+    "w": 420,
+    "h": 392,
+    "src": "/design06-exact/_assets/media/tile_1_1-11.png",
+    "raw": {
+      "touchAction": "pan-x pan-y pinch-zoom"
+    },
+    "rot": 82,
+    "scale": 1.8117436629909436
+  },
+  {
     "id": "mqs5g3181",
     "kind": "text",
-    "x": 781.8360421584428,
-    "y": 5719.922214250623,
+    "x": 781.8359691136736,
+    "y": 5636.279525571378,
     "w": 212.33107041435005,
     "h": 60,
     "fontSize": 55,
@@ -223,8 +187,8 @@ export const additions: Addition[] = [
   {
     "id": "mqs63zuk0",
     "kind": "image",
-    "x": 1331.7687243128116,
-    "y": 6692.498776301284,
+    "x": 1355.999920384714,
+    "y": 6231.6973106678615,
     "w": 420,
     "h": 420,
     "src": "/design06-exact/_assets/media/tile_1_2.png",
@@ -256,7 +220,7 @@ export const additions: Addition[] = [
     "y": 5879.094634448091,
     "w": 1312.4004984662577,
     "h": 300.79169861963186,
-    "text": "Для вашего удобства для остановки выбирайте места проживания в центральном районе города Сочи. \nМы советуем остановиться неподалеку от ЖД вокзала, так вам будет комфортно во время поездки, и все будет в пешой доступности.",
+    "text": "Для вашего удобства для остановки выбирайте места проживания в центральном районе города Сочи. \nМы советуем остановиться неподалеку от ЖД вокзала или Морского порта. Так вам будет комфортно во время поездки, и все будет в пешой доступности.",
     "font": "\"Jost\", system-ui, sans-serif",
     "fontSize": 56,
     "color": "rgb(53, 80, 116)",
@@ -271,7 +235,7 @@ export const additions: Addition[] = [
     "id": "mqs6dl1h2",
     "kind": "text",
     "x": 228.23358079407114,
-    "y": 6303.1738861645645,
+    "y": 6462.8813069866665,
     "w": 363.9953029141104,
     "h": 66.78939800613496,
     "text": "Как добраться",
@@ -287,8 +251,8 @@ export const additions: Addition[] = [
   {
     "id": "mqs6dl1h3",
     "kind": "text",
-    "x": 229.36592467138377,
-    "y": 6386.461127345546,
+    "x": 228.99999883880503,
+    "y": 6557.065659016705,
     "w": 1312.4004984662577,
     "h": 378.7960122699386,
     "text": "Если вы никогда не были в Сочи, то спешим вас предупредить, аэропорт находится в отдалении от центрального района. Проще всего добраться до него будет на электричке прямо от Аэропорта, или на такси, однако в час пик могут быть большие пробки.",
@@ -347,8 +311,8 @@ export const additions: Addition[] = [
   {
     "id": "mqs6gm0n2",
     "kind": "image",
-    "x": 243.16113768033503,
-    "y": 8229.55157208589,
+    "x": 242.4689837085422,
+    "y": 8195.85514351446,
     "w": 1353.8885041219323,
     "h": 1282.75228713334,
     "src": "/design06-exact/_assets/media/589e28d0c5849c11c2508c33b5eaf489.svg",
@@ -397,8 +361,8 @@ export const additions: Addition[] = [
   {
     "id": "mqs6ku2q5",
     "kind": "image",
-    "x": 677.9993057719032,
-    "y": 8432.719739668208,
+    "x": 1372.5940867889497,
+    "y": 9145.637855823868,
     "w": 420,
     "h": 420,
     "src": "/design06-exact/_assets/media/tile_2_3.png",
@@ -406,5 +370,72 @@ export const additions: Addition[] = [
       "touchAction": "pan-x pan-y pinch-zoom"
     },
     "scale": 1.0867121217498892
+  },
+  {
+    "id": "mqs741qe0",
+    "kind": "text",
+    "x": 1005.1517686047,
+    "y": 2265.4078405333976,
+    "w": 400,
+    "h": 60,
+    "fontSize": 70,
+    "color": "rgb(53, 80, 116)",
+    "lineHeight": "1.25",
+    "text": "Наш праздник",
+    "raw": {
+      "touchAction": "pan-x pan-y pinch-zoom"
+    },
+    "font": "\"Nicoletta Script SHA\", cursive"
+  },
+  {
+    "id": "mqs7729b0",
+    "kind": "image",
+    "x": 674.3807320401996,
+    "y": 2692.643542842402,
+    "w": 420,
+    "h": 420,
+    "src": "/design06-exact/_assets/media/tile_1_1-4.png",
+    "raw": {
+      "touchAction": "pan-x pan-y pinch-zoom"
+    },
+    "scale": 1.5754043259508603
+  },
+  {
+    "id": "mqsdx3pf0",
+    "kind": "image",
+    "x": 1322.8048184541356,
+    "y": 4065.088942206453,
+    "w": 420,
+    "h": 403,
+    "src": "/design06-exact/_assets/media/tile_1_1-10.png",
+    "raw": {
+      "touchAction": "pan-x pan-y pinch-zoom"
+    },
+    "scale": 1.8971021587961385
+  },
+  {
+    "id": "mqseijsu1",
+    "kind": "image",
+    "x": 893.0076660814311,
+    "y": 13568.554813847712,
+    "w": 596.335815758718,
+    "h": 386.3133317890836,
+    "src": "/design06-exact/_assets/media/photo_2026-06-24_12.30.56.jpeg",
+    "raw": {
+      "touchAction": "pan-x pan-y pinch-zoom"
+    }
+  },
+  {
+    "id": "mqseo28c0",
+    "kind": "image",
+    "x": 39.08149427223713,
+    "y": 15955.22465675539,
+    "w": 420,
+    "h": 420,
+    "src": "/design06-exact/_assets/media/tile_1_1-7.png",
+    "raw": {
+      "touchAction": "pan-x pan-y pinch-zoom"
+    },
+    "scale": 1.591892096285356
   }
 ];

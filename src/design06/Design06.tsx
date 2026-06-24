@@ -8,7 +8,7 @@
 //
 // Mounted behind ?d06 (see App.tsx) so the Canva global CSS never touches the app.
 
-import { lazy, Suspense, useEffect, useState, type CSSProperties } from "react";
+import { lazy, Suspense, useEffect, useRef, useState, type CSSProperties } from "react";
 import "./canva-base.css"; // Canva :root/тема-переменные + @keyframes (грузится только на ?d06)
 import "./custom-fonts.css"; // доп. (не-Canva) шрифты из assets/fonts (грузится только на ?d06)
 import overrideCss from "./_generated/override.css?raw";
@@ -71,6 +71,11 @@ export default function Design06() {
   const baseline = params.has("baseline");
   const editMode = import.meta.env.DEV && params.has("edit");
   const [scale, setScale] = useState(1);
+  // Натуральная (немасштабированная) высота листа — нужна, т.к. лист масштабируется через
+  // transform: scale() (а не zoom), а transform не влияет на поток: без явной высоты обёртки
+  // под листом осталась бы пустота на полную высоту 1:1. См. рендер ниже.
+  const [natHeight, setNatHeight] = useState(0);
+  const innerRef = useRef<HTMLDivElement>(null);
   const adds = useAdditions();
 
   useEffect(() => {
@@ -85,6 +90,20 @@ export default function Design06() {
     window.addEventListener("resize", calc);
     return () => window.removeEventListener("resize", calc);
   }, [noScale, editMode]);
+
+  // Измеряем немасштабированную высоту контента (offsetHeight не учитывает transform → отдаёт
+  // высоту листа в координатах 1776px). Высоту видимого бокса считаем как natHeight*scale.
+  // ResizeObserver ловит догрузку картинок/шрифтов, меняющую высоту листа.
+  useEffect(() => {
+    if (noScale) return;
+    const inner = innerRef.current;
+    if (!inner) return;
+    const measure = () => setNatHeight(inner.offsetHeight);
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(inner);
+    return () => ro.disconnect();
+  }, [noScale]);
 
   // Палитра. На маунте применяем сохранённый цвет (paletteState.ts) — работает и на проде.
   // Дальше источник правды — currentPalette(): редактор (dev) меняет его при выборе свотча,
@@ -145,12 +164,27 @@ export default function Design06() {
         page
       ) : editMode ? (
         // Левое выравнивание + отступы под тулбар и панель, чтобы инспектор не перекрывал лист.
+        // Масштабируем через transform: scale() (не zoom — iOS Safari ломает раскладку текста
+        // при zoom, см. WebKit bug). transform-origin: top left + бокс с уже масштабированными
+        // размерами (REF_WIDTH*scale × natHeight*scale), чтобы поток занимал ровно видимый лист.
         <div style={{ paddingTop: EDIT_BAR, boxSizing: "border-box" }}>
-          <div style={{ width: REF_WIDTH, zoom: scale }}>{page}</div>
+          <div style={{ width: REF_WIDTH * scale, height: natHeight * scale }}>
+            <div ref={innerRef} style={{ width: REF_WIDTH, transform: `scale(${scale})`, transformOrigin: "top left" }}>
+              {page}
+            </div>
+          </div>
         </div>
       ) : (
+        // Масштабируем через transform: scale() вместо zoom: iOS Safari при zoom неверно
+        // пересчитывает позиции absolute-текста (наезжает друг на друга), хотя Chrome/DevTools
+        // рендерит верно. transform-origin: top left, а внешний бокс зажат под видимый размер
+        // листа (REF_WIDTH*scale × natHeight*scale) — иначе под листом пустота на высоту 1:1.
         <div style={{ display: "flex", justifyContent: "center", width: "100%", overflow: "hidden" }}>
-          <div style={{ width: REF_WIDTH, zoom: scale }}>{page}</div>
+          <div style={{ width: REF_WIDTH * scale, height: natHeight * scale }}>
+            <div ref={innerRef} style={{ width: REF_WIDTH, transform: `scale(${scale})`, transformOrigin: "top left" }}>
+              {page}
+            </div>
+          </div>
         </div>
       )}
       {editMode && Editor && (
