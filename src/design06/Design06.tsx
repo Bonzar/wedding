@@ -9,11 +9,14 @@
 // Mounted behind ?d06 (see App.tsx) so the Canva global CSS never touches the app.
 
 import { useEffect, useState } from "react";
+import "./canva-base.css"; // Canva :root/тема-переменные + @keyframes (грузится только на ?d06)
 import overrideCss from "./_generated/override.css?raw";
 import headLinksRaw from "./_generated/head-links.json?raw";
 import { DESIGN06_SECTIONS } from "./sections";
 
-const cssHrefs: string[] = JSON.parse(headLinksRaw);
+// Из Canva-стайлшитов линком оставляем ТОЛЬКО шрифты (design-fonts.css). Утилиты-классы —
+// в canva.module.css, переменные/keyframes — в canva-base.css. Остальные Canva-<link> убраны.
+const cssHrefs: string[] = (JSON.parse(headLinksRaw) as string[]).filter((h) => h.includes("design-fonts"));
 
 // Макет снят на нативной ширине 1776px. Поведение под ширину окна:
 //   viewport <= 880  → масштабируем под ширину (карточка во весь экран);
