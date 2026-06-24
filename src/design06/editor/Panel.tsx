@@ -158,7 +158,7 @@ export function Panel(p: Props) {
               Заменить файл…
               <input
                 type="file"
-                accept="image/*"
+                accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml"
                 hidden
                 onChange={(e) => {
                   const f = e.target.files?.[0];
@@ -167,7 +167,7 @@ export function Panel(p: Props) {
                 }}
               />
             </label>
-            <p className="d06e-note">Двойной клик по фото — пан/зум внутри обрезки.</p>
+            <p className="d06e-note">JPG / PNG / WebP / GIF / SVG (HEIC с Mac не отрисуется). Двойной клик по фото — пан/зум.</p>
           </section>
         )}
       </div>

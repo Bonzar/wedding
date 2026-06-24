@@ -29,6 +29,26 @@ type Drag =
 const HANDLES = ["nw", "n", "ne", "e", "se", "s", "sw", "w"] as const;
 const RAD = Math.PI / 180;
 
+// Probe whether the browser can actually decode+load a URL as an image.
+const probeImage = (url: string): Promise<boolean> =>
+  new Promise((res) => {
+    const im = new Image();
+    im.onload = () => res(true);
+    im.onerror = () => res(false);
+    im.src = url;
+  });
+
+// A freshly uploaded file isn't served instantly (Vite briefly returns the SPA HTML
+// fallback). Poll with cache-busting until it decodes — also catches undecodable
+// formats (HEIC) which simply never succeed.
+async function waitImageServable(path: string, tries = 14): Promise<boolean> {
+  for (let i = 0; i < tries; i++) {
+    if (await probeImage(`${path}?v=${Date.now()}_${i}`)) return true;
+    await new Promise((r) => setTimeout(r, 150));
+  }
+  return false;
+}
+
 export default function Editor({ scale }: { scale: number }) {
   const [drafts, setDrafts] = useState<Record<string, El>>({});
   const draftsRef = useRef(drafts);
@@ -140,10 +160,17 @@ export default function Editor({ scale }: { scale: number }) {
       });
       const uj = await up.json();
       if (!up.ok || !uj.ok) throw new Error(uj.error || up.statusText);
+      // ждём, пока dev-сервер начнёт реально отдавать файл (гонка записи/раздачи),
+      // заодно ловим форматы, которые браузер не декодирует (HEIC/HEIF и т.п.)
+      if (!(await waitImageServable(uj.path))) {
+        // eslint-disable-next-line no-alert
+        alert("Файл загрузился, но не отображается — браузер не смог его декодировать (часто это HEIC/HEIF с iPhone/Mac). Сконвертируй в JPG, PNG, WebP, GIF или SVG.");
+        return;
+      }
       if (origContentRef.current[wrapEid]?.src == null)
         origContentRef.current[wrapEid] = { ...origContentRef.current[wrapEid], src: imgUnder(wrapEid)?.getAttribute("src") ?? "" };
-      setContent((c) => ({ ...c, [wrapEid]: { ...c[wrapEid], src: uj.path } }));
-      setImgSrc(wrapEid, uj.path);
+      setContent((c) => ({ ...c, [wrapEid]: { ...c[wrapEid], src: uj.path } })); // чистый путь — для Save/.tsx
+      setImgSrc(wrapEid, `${uj.path}?v=${Date.now()}`); // превью — cache-bust
       setTick((t) => t + 1);
     } catch (err) {
       // eslint-disable-next-line no-alert
