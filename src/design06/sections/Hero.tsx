@@ -4,12 +4,13 @@ import { cx } from "../cx";
 import { elStyle } from "../layout";
 import styles from "../canva.module.css";
 import { layout } from "./Hero.layout";
+import { assetUrl } from "../assetUrl";
 
 // Textured backdrop: full-bleed photo rotated behind the cover content.
 function Backdrop() {
   return (
     <div className={styles.Izwocg} data-eid="hero/backdrop-photo" style={elStyle(layout["hero/backdrop-photo"])}>
-      <img decoding="async" className={styles._7_i_XA} crossOrigin="anonymous" draggable={false} src="/design06-exact/_assets/media/2a2388e813cb85fb095b9a0c836a0688.jpg" />
+      <img decoding="async" className={styles._7_i_XA} crossOrigin="anonymous" draggable={false} src={assetUrl("/design06-exact/_assets/media/2a2388e813cb85fb095b9a0c836a0688.jpg")} />
     </div>
   );
 }
@@ -23,7 +24,7 @@ function EngravingFloralRight() {
           <div className={styles.PcHy7w}>
             <div className={cx(styles.uk_25A, styles.Ty61NA)}>
               <div className={styles.Izwocg} data-eid="hero/imgwrap-1" style={elStyle(layout["hero/imgwrap-1"])}>
-                <img decoding="async" className={styles.dMHlHA} crossOrigin="anonymous" draggable={false} src="/design06-exact/_assets/blobs/PBbM6hRVrsx6MjPz_0.svg" />
+                <img decoding="async" className={styles.dMHlHA} crossOrigin="anonymous" draggable={false} src={assetUrl("/design06-exact/_assets/blobs/PBbM6hRVrsx6MjPz_0.svg")} />
               </div>
             </div>
           </div>
@@ -50,7 +51,7 @@ function BirdEngraving() {
           <div className={styles.bFnJ2A} data-eid="hero/clip" style={elStyle(layout["hero/clip"])}>
             <div className={cx(styles._4c2rDg, styles.GxUsfw)} data-eid="hero/cliptf" style={elStyle(layout["hero/cliptf"])}>
               <div className={styles.qhHTGg} data-eid="hero/bird-photo" style={elStyle(layout["hero/bird-photo"])}>
-                <img decoding="async" style={{ objectFit: "cover" }} className={styles._7_i_XA} crossOrigin="anonymous" draggable={false} src="/design06-exact/_assets/media/photo_2026-06-24_12.30.40.jpeg" />
+                <img decoding="async" style={{ objectFit: "cover" }} className={styles._7_i_XA} crossOrigin="anonymous" draggable={false} src={assetUrl("/design06-exact/_assets/media/photo_2026-06-24_12.30.40.jpeg")} />
               </div>
             </div>
           </div>
@@ -72,7 +73,7 @@ function EngravingFloralBottomLeft() {
               <div className={styles.PcHy7w}>
                 <div className={cx(styles.uk_25A, styles.Ty61NA)}>
                   <div className={styles.Izwocg} data-eid="hero/imgwrap-2" style={elStyle(layout["hero/imgwrap-2"])}>
-                    <img decoding="async" className={styles.dMHlHA} crossOrigin="anonymous" draggable={false} src="/design06-exact/_assets/blobs/PBbM6hRVrsx6MjPz_1.png" />
+                    <img decoding="async" className={styles.dMHlHA} crossOrigin="anonymous" draggable={false} src={assetUrl("/design06-exact/_assets/blobs/PBbM6hRVrsx6MjPz_1.png")} />
                   </div>
                 </div>
               </div>
@@ -145,7 +146,7 @@ function EngravingFloralBottomRight() {
               <div className={styles.PcHy7w}>
                 <div className={cx(styles.uk_25A, styles.Ty61NA)}>
                   <div className={styles.Izwocg} data-eid="hero/imgwrap-3" style={elStyle(layout["hero/imgwrap-3"])}>
-                    <img decoding="async" className={styles.dMHlHA} crossOrigin="anonymous" draggable={false} src="/design06-exact/_assets/blobs/PBbM6hRVrsx6MjPz_2.png" />
+                    <img decoding="async" className={styles.dMHlHA} crossOrigin="anonymous" draggable={false} src={assetUrl("/design06-exact/_assets/blobs/PBbM6hRVrsx6MjPz_2.png")} />
                   </div>
                 </div>
               </div>

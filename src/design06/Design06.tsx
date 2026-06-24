@@ -16,6 +16,7 @@ import headLinksRaw from "./_generated/head-links.json?raw";
 import { DESIGN06_SECTIONS } from "./sections";
 import { RsvpModal } from "@/rsvp/components/RsvpModal"; // анкета гостя для раздела Survey (портал в body, rem)
 import { elStyle } from "./layout";
+import { assetUrl } from "./assetUrl";
 import type { Addition } from "./additions";
 import { useAdditions } from "./editor/additionsStore"; // слой добавленных в редакторе элементов
 import { activePalette, applyPalette, currentPalette, teardownPalette } from "./palette"; // акцентный цвет (перекраска текста+иллюстраций)
@@ -57,7 +58,7 @@ function AddedEl({ a }: { a: Addition }) {
   }
   return (
     <div data-eid={`add/${a.id}`} className="d06-add d06-add-img" style={{ ...style, overflow: "hidden" }}>
-      {a.src && <img src={a.src} draggable={false} loading="lazy" decoding="async" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />}
+      {a.src && <img src={assetUrl(a.src)} draggable={false} loading="lazy" decoding="async" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />}
     </div>
   );
 }
@@ -131,7 +132,7 @@ export default function Design06() {
   return (
     <>
       {cssHrefs.map((href) => (
-        <link key={href} rel="stylesheet" href={href} />
+        <link key={href} rel="stylesheet" href={assetUrl(href)} />
       ))}
       <style dangerouslySetInnerHTML={{ __html: overrideCss }} />
       {/* Точечная изоляция от глобального CSS приложения: единственная протечка на

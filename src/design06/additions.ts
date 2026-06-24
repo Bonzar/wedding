@@ -116,8 +116,8 @@ export const additions: Addition[] = [
   {
     "id": "mqs3ludf4",
     "kind": "image",
-    "x": 688.6516683555552,
-    "y": 2785.201362614152,
+    "x": 703.5694214230398,
+    "y": 2785.158801264459,
     "w": 420,
     "h": 433,
     "src": "/design06-exact/_assets/media/_________1_0.5x.png",
@@ -204,23 +204,10 @@ export const additions: Addition[] = [
     }
   },
   {
-    "id": "mqs56lah0",
-    "kind": "image",
-    "x": 677.8714846745587,
-    "y": 8617.703281894052,
-    "w": 420,
-    "h": 420,
-    "src": "/design06-exact/_assets/media/tile_2_3.png",
-    "raw": {
-      "touchAction": "pan-x pan-y pinch-zoom"
-    },
-    "scale": 1.0867121217498892
-  },
-  {
     "id": "mqs5g3181",
     "kind": "text",
-    "x": 776.8360811011191,
-    "y": 5953.887273683138,
+    "x": 781.8360421584428,
+    "y": 5719.922214250623,
     "w": 212.33107041435005,
     "h": 60,
     "fontSize": 55,
@@ -232,5 +219,192 @@ export const additions: Addition[] = [
     },
     "fontWeight": "200",
     "font": "\"Jost\", system-ui, sans-serif"
+  },
+  {
+    "id": "mqs63zuk0",
+    "kind": "image",
+    "x": 1331.7687243128116,
+    "y": 6692.498776301284,
+    "w": 420,
+    "h": 420,
+    "src": "/design06-exact/_assets/media/tile_1_2.png",
+    "raw": {
+      "touchAction": "pan-x pan-y pinch-zoom"
+    }
+  },
+  {
+    "id": "mqs6dl1h0",
+    "kind": "text",
+    "x": 228.23358079407114,
+    "y": 5806.666626538235,
+    "w": 411.1532783742331,
+    "h": 66.78939800613496,
+    "text": "Расположение",
+    "font": "\"Jost\", system-ui, sans-serif",
+    "fontSize": 56,
+    "color": "rgb(53, 80, 116)",
+    "lineHeight": "78px",
+    "letterSpacing": "0em",
+    "raw": {
+      "touchAction": "pan-x pan-y pinch-zoom"
+    }
+  },
+  {
+    "id": "mqs6dl1h1",
+    "kind": "text",
+    "x": 228.23358079407114,
+    "y": 5879.094634448091,
+    "w": 1312.4004984662577,
+    "h": 300.79169861963186,
+    "text": "Для вашего удобства для остановки выбирайте места проживания в центральном районе города Сочи. \nМы советуем остановиться неподалеку от ЖД вокзала, так вам будет комфортно во время поездки, и все будет в пешой доступности.",
+    "font": "\"Jost\", system-ui, sans-serif",
+    "fontSize": 56,
+    "color": "rgb(53, 80, 116)",
+    "lineHeight": "78px",
+    "letterSpacing": "0em",
+    "raw": {
+      "touchAction": "pan-x pan-y pinch-zoom"
+    },
+    "fontWeight": "100"
+  },
+  {
+    "id": "mqs6dl1h2",
+    "kind": "text",
+    "x": 228.23358079407114,
+    "y": 6303.1738861645645,
+    "w": 363.9953029141104,
+    "h": 66.78939800613496,
+    "text": "Как добраться",
+    "font": "\"Jost\", system-ui, sans-serif",
+    "fontSize": 56,
+    "color": "rgb(53, 80, 116)",
+    "lineHeight": "78px",
+    "letterSpacing": "0em",
+    "raw": {
+      "touchAction": "pan-x pan-y pinch-zoom"
+    }
+  },
+  {
+    "id": "mqs6dl1h3",
+    "kind": "text",
+    "x": 229.36592467138377,
+    "y": 6386.461127345546,
+    "w": 1312.4004984662577,
+    "h": 378.7960122699386,
+    "text": "Если вы никогда не были в Сочи, то спешим вас предупредить, аэропорт находится в отдалении от центрального района. Проще всего добраться до него будет на электричке прямо от Аэропорта, или на такси, однако в час пик могут быть большие пробки.",
+    "font": "\"Jost\", system-ui, sans-serif",
+    "fontSize": 56,
+    "color": "rgb(53, 80, 116)",
+    "lineHeight": "78px",
+    "letterSpacing": "0em",
+    "raw": {
+      "touchAction": "pan-x pan-y pinch-zoom"
+    },
+    "fontWeight": "200"
+  },
+  {
+    "id": "mqs6euwl0",
+    "kind": "text",
+    "x": 732.5598782966476,
+    "y": 7146.926500191718,
+    "w": 318.88276606834734,
+    "h": 66.78939800613496,
+    "text": "ДРЕСС КОД",
+    "font": "\"Jost\", system-ui, sans-serif",
+    "fontSize": 55,
+    "color": "rgb(53, 80, 116)",
+    "lineHeight": "78px",
+    "letterSpacing": "0em",
+    "raw": {
+      "touchAction": "pan-x pan-y pinch-zoom"
+    },
+    "fontWeight": "100"
+  },
+  {
+    "id": "mqs6f3mh1",
+    "kind": "image",
+    "x": 683.118112388564,
+    "y": 7289.056802386886,
+    "w": 257.9005400300757,
+    "h": 368.7940950920245,
+    "src": "/design06-exact/_assets/blobs/PBL8ZPfjvBzXjMPd_0.svg",
+    "raw": {
+      "touchAction": "pan-x pan-y pinch-zoom"
+    }
+  },
+  {
+    "id": "mqs6f3mi2",
+    "kind": "image",
+    "x": 941.0230581833541,
+    "y": 7289.056802386886,
+    "w": 151.85889570552146,
+    "h": 217.27569018404907,
+    "src": "/design06-exact/_assets/blobs/PBL8ZPfjvBzXjMPd_1.svg",
+    "raw": {
+      "touchAction": "pan-x pan-y pinch-zoom"
+    }
+  },
+  {
+    "id": "mqs6gm0n2",
+    "kind": "image",
+    "x": 243.16113768033503,
+    "y": 8229.55157208589,
+    "w": 1353.8885041219323,
+    "h": 1282.75228713334,
+    "src": "/design06-exact/_assets/media/589e28d0c5849c11c2508c33b5eaf489.svg",
+    "raw": {
+      "touchAction": "pan-x pan-y pinch-zoom"
+    },
+    "sx": 1.0142813932412342,
+    "sy": 0.8976074366297726
+  },
+  {
+    "id": "mqs6ku2q3",
+    "kind": "text",
+    "x": 574.631748690927,
+    "y": 8326.303328999713,
+    "w": 626.2221688112598,
+    "h": 66.78939800613496,
+    "text": "СВАДЕБНЫЙ ПОДАРОК",
+    "font": "\"Jost\", system-ui, sans-serif",
+    "fontSize": 55,
+    "color": "rgb(53, 80, 116)",
+    "lineHeight": "78px",
+    "letterSpacing": "0em",
+    "raw": {
+      "touchAction": "pan-x pan-y pinch-zoom"
+    },
+    "fontWeight": "200"
+  },
+  {
+    "id": "mqs6ku2q4",
+    "kind": "text",
+    "x": 343.53924785216157,
+    "y": 8898.80568652943,
+    "w": 1151.742417786019,
+    "h": 378.7960122699386,
+    "text": "Ваше присутствие — для нас будет самым лучшим подарком. Мы любим цветы, но через несколько дней улетаем и не сможем забрать их ссобой. Если вы хотите сделать подарок, вместо букета можно выбрать что-то, что сохранится на память об этом дне.",
+    "font": "\"Jost\", system-ui, sans-serif",
+    "fontSize": 56,
+    "color": "rgb(53, 80, 116)",
+    "lineHeight": "78px",
+    "letterSpacing": "0em",
+    "raw": {
+      "touchAction": "pan-x pan-y pinch-zoom"
+    },
+    "fontWeight": "200"
+  },
+  {
+    "id": "mqs6ku2q5",
+    "kind": "image",
+    "x": 677.9993057719032,
+    "y": 8432.719739668208,
+    "w": 420,
+    "h": 420,
+    "src": "/design06-exact/_assets/media/tile_2_3.png",
+    "raw": {
+      "touchAction": "pan-x pan-y pinch-zoom"
+    },
+    "scale": 1.0867121217498892
   }
 ];

@@ -2,4 +2,4 @@
 // null = базовый цвет рефа rgb(53, 80, 116) → рендер пиксель-в-пиксель (0% эталон).
 // Пишется dev-эндпоинтом POST /__d06/save (поле `palette`, см. vite-plugins/d06-save.ts).
 // На ПРОДЕ этот цвет только ПРИМЕНЯЕТСЯ (Design06 читает его на маунте); пикер — только dev.
-export const activePalette: string | null = "#1f3a5f";
+export const activePalette: string | null = "#2d6a8f";
