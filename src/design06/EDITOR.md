@@ -12,6 +12,11 @@
   `:hover`, тема, псевдоэлементы, комбинаторы), импортируется всеми секциями.
   Это неизменяемый фундамент, даёт 0%. Общий модуль → copy/create между секциями
   ссылаются на одни и те же классы.
+- **Глобальная база Canva** — `canva-base.css` (plain global, не module): правила,
+  определяющие используемые custom-props (`--lgQg`, `--3foukQ`… на `.light`/`.dark`/
+  `.hhtymQ`) + `@keyframes`. Импортируется в `Design06.tsx`, грузится только на `?d06`
+  (Design06 ленивый). Линком из Canva-стайлшитов оставлен ТОЛЬКО `design-fonts.css`
+  (`@font-face`); остальные 8 Canva-`<link>` убраны (чистка 3) — всё нужное локально.
 - **Редактируемый слой** — на элемент одна запись `El` в `<Section>.layout.ts`,
   ключ = `data-eid`. Применяется инлайном: `style={elStyle(layout[eid])}`.
 - Тип `El` и сборщик `elStyle` — в [`layout.ts`](./layout.ts):
@@ -91,5 +96,6 @@
 - `sections/<S>.tsx` — структура + утилиты-классы (база) + применение по `data-eid`.
 - `sections/<S>.layout.ts` — редактируемые записи (источник правды для редактора).
 - `canva.module.css` — общий модуль утилит-классов (один на все секции).
+- `canva-base.css` — глобальная база: var-определяющие правила + `@keyframes` (только `?d06`).
 - `cx.ts` — сборка классов.
-- Генераторы: `tools/design06-{extract,gen-sections,css-modules,layout-data,name-eids,mark-selectable}.mjs`.
+- Генераторы: `tools/design06-{extract,gen-sections,css-modules,layout-data,name-eids,mark-selectable,shared-css,base-css}.mjs`.
