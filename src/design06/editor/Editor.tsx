@@ -334,17 +334,26 @@ export default function Editor({ scale }: { scale: number }) {
 
     const armMove = (eid: string, e: PointerEvent) => {
       // fields don't move (no x/y translate) — reposition via the parent object instead
-      if (hasGeometry(BASE[eid]) && !isField(BASE[eid]))
-        dragRef.current = { kind: "move", eid, cx: e.clientX, cy: e.clientY, start: merged(eid), moved: false, clipBox: clipAncestorOf(eid), clipDone: false };
+      if (!hasGeometry(BASE[eid]) || isField(BASE[eid])) return;
+      // проваленный слой (фото) панится ВНУТРИ обрезки → клип-предка НЕ снимаем (это и есть кадр)
+      const inner = !isObject(BASE[eid]) && !isSection(eid);
+      dragRef.current = { kind: "move", eid, cx: e.clientX, cy: e.clientY, start: merged(eid), moved: false, clipBox: inner ? null : clipAncestorOf(eid), clipDone: false };
     };
 
     const onDown = (e: PointerEvent) => {
       if (inChrome(e.target)) return; // панель/ручки обрабатывают себя сами
       const cur = selectedRef.current;
       const curNode = cur ? nodeFor(cur) : null;
-      if (cur && curNode && e.target instanceof Node && curNode.contains(e.target)) {
-        armMove(cur, e);
-        return;
+      if (cur && curNode) {
+        const inDom = e.target instanceof Node && curNode.contains(e.target);
+        // для проваленного слоя (фото/поле) хит-тест ГЕОМЕТРИЧЕСКИЙ: перекрывающие сверху
+        // соседи (текст/гравюра) не должны перехватывать перетаскивание внутри обрезки
+        let inBox = false;
+        if (!inDom && !isObject(BASE[cur]) && !isSection(cur)) {
+          const r = curNode.getBoundingClientRect();
+          inBox = e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom;
+        }
+        if (inDom || inBox) { armMove(cur, e); return; }
       }
       const obj = resolveObject(e.target as Element);
       setSelected(obj);
