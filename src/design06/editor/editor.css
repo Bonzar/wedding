@@ -8,6 +8,24 @@
 .d06e-hint { color: #9fb4d6; font-size: 12px; }
 .d06e-exit { margin-left: auto; color: #cfe0ff; text-decoration: none; padding: 4px 10px; border: 1px solid #34507a; border-radius: 6px; }
 .d06e-exit:hover { background: #1c3055; }
+/* toolbar add buttons */
+.d06e-tool { padding: 4px 10px; background: #1c3055; color: #cfe0ff; border: 1px solid #34507a; border-radius: 6px; cursor: pointer; }
+.d06e-tool:hover { background: #25416f; }
+.d06e-tool:disabled { opacity: 0.45; cursor: default; }
+.d06e-toolsave { background: #2563eb; border-color: #2f63d6; color: #fff; }
+.d06e-toolsave:not(:disabled):hover { background: #1d4fd0; }
+.d06e-bardirty { color: #ffd479; font-size: 12px; }
+
+/* per-selection actions (copy / layer order / delete) */
+.d06e-actions { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 10px; }
+.d06e-act { padding: 4px 8px; border: 1px solid #cdd7e6; background: #fff; border-radius: 6px; cursor: pointer; font-size: 13px; line-height: 1.2; }
+.d06e-act:hover { background: #eef3fb; }
+.d06e-del { margin-left: auto; color: #b4232a; border-color: #e6b9bc; }
+.d06e-del:hover { background: #fbeded; }
+
+/* added (editor-inserted) elements, rendered by Design06 in the canvas */
+.d06-add-text { white-space: pre-wrap; word-break: break-word; }
+.d06-add-img { line-height: 0; }
 
 /* hover + selection boxes (screen-space, fixed) */
 .d06e-hov { position: fixed; outline: 1.5px dashed #3b82f6; outline-offset: -1px; pointer-events: none; }
@@ -48,8 +66,9 @@
 .d06e-grid1 { grid-template-columns: minmax(0, 1fr); }
 .d06e-f { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
 .d06e-f > span { font-size: 11px; color: #7a8aa6; }
-.d06e-f input { width: 100%; box-sizing: border-box; padding: 5px 7px; border: 1px solid #cdd7e6; border-radius: 6px; background: #fff; min-width: 0; }
-.d06e-f input:focus { outline: 2px solid #93b4ef; border-color: #93b4ef; }
+.d06e-f input, .d06e-f select { width: 100%; box-sizing: border-box; padding: 5px 7px; border: 1px solid #cdd7e6; border-radius: 6px; background: #fff; min-width: 0; }
+.d06e-f input:focus, .d06e-f select:focus { outline: 2px solid #93b4ef; border-color: #93b4ef; }
+.d06e-f select { cursor: pointer; height: 30px; }
 .d06e-ta { padding: 6px 7px; border: 1px solid #cdd7e6; border-radius: 6px; background: #fff; resize: vertical; font: inherit; min-height: 32px; }
 .d06e-ta:focus { outline: 2px solid #93b4ef; border-color: #93b4ef; }
 .d06e-file { display: inline-flex; align-items: center; cursor: pointer; }

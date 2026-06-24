@@ -6,7 +6,7 @@ import { elStyle, type El } from "../layout";
 
 const KNOWN_KEYS = [
   "width", "height", "transform", "fontFamily", "letterSpacing", "lineHeight",
-  "textAlign", "textTransform", "color", "clipPath", "whiteSpace",
+  "textAlign", "textTransform", "color", "clipPath", "whiteSpace", "display", "zIndex",
 ] as const;
 
 export function nodeFor(eid: string): HTMLElement | null {

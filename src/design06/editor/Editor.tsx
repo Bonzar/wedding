@@ -15,8 +15,13 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react
 import type { El } from "../layout";
 import { applyEl, imgUnder, nodeFor, resetEl, setImgSrc, setText, textOf } from "./apply";
 import { BASE, hasGeometry, hasTypography, isField, isObject, isSection } from "./registry";
+import { addStore } from "./additionsStore";
 import { Panel, type FieldKey } from "./Panel";
 import "./editor.css";
+
+const isAdd = (eid: string | null | undefined) => addStore.isAdd(eid);
+const idOf = (eid: string) => addStore.idOf(eid);
+const addKindOf = (eid: string | null) => (eid && isAdd(eid) ? addStore.get(idOf(eid))?.kind ?? null : null);
 
 type OBox = { cx: number; cy: number; vw: number; vh: number; rot: number } | null;
 type Mode = "image" | "text" | "scale" | "wh" | "photo";
@@ -182,6 +187,7 @@ export default function Editor({ scale }: { scale: number }) {
   }, []);
 
   const onText = useCallback((spanEid: string, text: string) => {
+    if (isAdd(spanEid)) { addStore.patch(idOf(spanEid), { text }); setTick((t) => t + 1); return; }
     if (origContentRef.current[spanEid]?.text == null)
       origContentRef.current[spanEid] = { ...origContentRef.current[spanEid], text: textOf(spanEid) };
     setContent((c) => ({ ...c, [spanEid]: { ...c[spanEid], text } }));
@@ -189,44 +195,50 @@ export default function Editor({ scale }: { scale: number }) {
     setTick((t) => t + 1);
   }, []);
 
-  const onReplaceImage = useCallback(async (wrapEid: string, file: File) => {
+  // Загрузить файл в public/.../media и вернуть отдаваемый путь (или null + alert).
+  const uploadFile = useCallback(async (file: File): Promise<string | null> => {
     const dataUrl: string = await new Promise((res) => {
       const r = new FileReader();
       r.onload = () => res(String(r.result));
       r.readAsDataURL(file);
     });
-    const base64 = dataUrl.split(",")[1];
     try {
       const up = await fetch("/__d06/upload", {
         method: "POST", headers: { "content-type": "application/json" },
-        body: JSON.stringify({ name: file.name, data: base64 }),
+        body: JSON.stringify({ name: file.name, data: dataUrl.split(",")[1] }),
       });
       const uj = await up.json();
       if (!up.ok || !uj.ok) throw new Error(uj.error || up.statusText);
-      // ждём, пока dev-сервер начнёт реально отдавать файл (гонка записи/раздачи),
-      // заодно ловим форматы, которые браузер не декодирует (HEIC/HEIF и т.п.)
       if (!(await waitImageServable(uj.path))) {
         // eslint-disable-next-line no-alert
         alert("Файл загрузился, но не отображается — браузер не смог его декодировать (часто это HEIC/HEIF с iPhone/Mac). Сконвертируй в JPG, PNG, WebP, GIF или SVG.");
-        return;
+        return null;
       }
-      if (origContentRef.current[wrapEid]?.src == null)
-        origContentRef.current[wrapEid] = { ...origContentRef.current[wrapEid], src: imgUnder(wrapEid)?.getAttribute("src") ?? "" };
-      setContent((c) => ({ ...c, [wrapEid]: { ...c[wrapEid], src: uj.path } })); // чистый путь — для Save/.tsx
-      setImgSrc(wrapEid, `${uj.path}?v=${Date.now()}`); // превью — cache-bust
-      // оригиналы рендерятся с object-fit:fill (были обрезаны точно под рамку) → новое фото
-      // другого аспекта оно бы «плющило». Заполняем рамку без искажения (cover, обрезая лишнее).
-      const img = imgUnder(wrapEid);
-      if (img) img.style.objectFit = "cover";
-      setTick((t) => t + 1);
+      return uj.path;
     } catch (err) {
       // eslint-disable-next-line no-alert
       alert("Загрузка не удалась: " + (err as Error).message);
+      return null;
     }
   }, []);
 
+  const onReplaceImage = useCallback(async (wrapEid: string, file: File) => {
+    const path = await uploadFile(file);
+    if (!path) return;
+    if (isAdd(wrapEid)) { addStore.patch(idOf(wrapEid), { src: path }); setTick((t) => t + 1); return; }
+    if (origContentRef.current[wrapEid]?.src == null)
+      origContentRef.current[wrapEid] = { ...origContentRef.current[wrapEid], src: imgUnder(wrapEid)?.getAttribute("src") ?? "" };
+    setContent((c) => ({ ...c, [wrapEid]: { ...c[wrapEid], src: path } })); // чистый путь — для Save/.tsx
+    setImgSrc(wrapEid, `${path}?v=${Date.now()}`); // превью — cache-bust
+    // оригиналы с object-fit:fill (обрезаны под рамку) → новое фото другого аспекта «плющило».
+    const img = imgUnder(wrapEid);
+    if (img) img.style.objectFit = "cover";
+    setTick((t) => t + 1);
+  }, [uploadFile]);
+
   // ---- live edit -> draft + DOM ------------------------------------------------------
   const writeDraft = useCallback((eid: string, rec: El) => {
+    if (isAdd(eid)) { addStore.patch(idOf(eid), rec); setTick((t) => t + 1); return; } // добавленный → стор (Design06 ре-рендерит)
     setDrafts((d) => ({ ...d, [eid]: rec }));
     applyEl(eid, rec);
     setTick((t) => t + 1);
@@ -242,6 +254,92 @@ export default function Editor({ scale }: { scale: number }) {
     },
     [writeDraft],
   );
+
+  // ---- add / copy / delete / layers --------------------------------------------------
+  const idCounter = useRef(0);
+  const newId = () => `${Date.now().toString(36)}${(idCounter.current++).toString(36)}`;
+  // центр текущего вьюпорта в координатах канвы (слой добавлений лежит в 0,0 канвы)
+  const canvasPoint = useCallback(() => {
+    const el = document.querySelector(".d06-add-layer") ?? document.querySelector(".KYQZFA");
+    const r = el?.getBoundingClientRect();
+    const left = r?.left ?? 0, top = r?.top ?? 0;
+    return { x: (window.innerWidth / 2 - left) / scale, y: (window.innerHeight / 2 - top) / scale };
+  }, [scale]);
+
+  const addText = useCallback(() => {
+    const { x, y } = canvasPoint();
+    const id = newId();
+    addStore.add({ id, kind: "text", x: x - 200, y: y - 30, w: 400, h: 60, fontSize: 40, color: "rgb(53, 80, 116)", lineHeight: "1.25", text: "Новый текст" });
+    setSelected(`add/${id}`); setTick((t) => t + 1);
+  }, [canvasPoint]);
+
+  const fileRef = useRef<HTMLInputElement>(null);
+  const addImageFile = useCallback(async (file: File) => {
+    const path = await uploadFile(file);
+    if (!path) return;
+    const dims: { w: number; h: number } = await new Promise((res) => {
+      const im = new Image(); im.onload = () => res({ w: im.naturalWidth, h: im.naturalHeight }); im.onerror = () => res({ w: 1, h: 1 }); im.src = path;
+    });
+    const w = 420, h = Math.max(1, Math.round(w * dims.h / dims.w));
+    const { x, y } = canvasPoint();
+    const id = newId();
+    addStore.add({ id, kind: "image", x: x - w / 2, y: y - h / 2, w, h, src: path });
+    setSelected(`add/${id}`); setTick((t) => t + 1);
+  }, [uploadFile, canvasPoint]);
+
+  const copySelected = useCallback(() => {
+    const sel = selectedRef.current; if (!sel) return;
+    if (isAdd(sel)) {
+      const a = addStore.get(idOf(sel)); if (!a) return;
+      const id = newId(); addStore.add({ ...a, id, x: (a.x ?? 0) + 24, y: (a.y ?? 0) + 24 });
+      setSelected(`add/${id}`); setTick((t) => t + 1); return;
+    }
+    if (isSection(sel)) return;
+    // Canva-объект → копия как свободный addition в тех же экранных координатах
+    const node = nodeFor(sel); const layer = document.querySelector(".d06-add-layer"); if (!node || !layer) return;
+    const lr = layer.getBoundingClientRect(), r = node.getBoundingClientRect();
+    const x = (r.left - lr.left) / scale + 24, y = (r.top - lr.top) / scale + 24, w = r.width / scale, h = r.height / scale;
+    const id = newId(); const img = node.querySelector("img");
+    if (img) addStore.add({ id, kind: "image", x, y, w, h, src: img.getAttribute("src") ?? undefined });
+    else {
+      const pe = node.querySelector("p")?.getAttribute("data-eid"); const pr = pe ? merged(pe) : {};
+      addStore.add({ id, kind: "text", x, y, w, h, text: (node.textContent ?? "").trim() || "Текст", font: pr.font, fontSize: pr.fontSize, color: pr.color, lineHeight: pr.lineHeight, letterSpacing: pr.letterSpacing });
+    }
+    setSelected(`add/${id}`); setTick((t) => t + 1);
+  }, [scale, merged]);
+
+  const deleteSelected = useCallback(() => {
+    const sel = selectedRef.current; if (!sel || isSection(sel)) return;
+    if (isAdd(sel)) { addStore.remove(idOf(sel)); setSelected(null); setTick((t) => t + 1); return; }
+    const rec = merged(sel); // Canva-объект не вырезать из .tsx → прячем (display:none)
+    writeDraft(sel, { ...rec, raw: { ...(rec.raw ?? {}), display: "none" } });
+    setSelected(null);
+  }, [merged, writeDraft]);
+
+  const reorder = useCallback((where: "front" | "back" | "fwd" | "bwd") => {
+    const sel = selectedRef.current; if (!sel || isSection(sel)) return;
+    if (isAdd(sel)) {
+      const list = addStore.list(); const i = list.findIndex((a) => `add/${a.id}` === sel); if (i < 0) return;
+      const copy = [...list]; const [it] = copy.splice(i, 1);
+      const j = where === "front" ? copy.length : where === "back" ? 0 : where === "fwd" ? Math.min(copy.length, i + 1) : Math.max(0, i - 1);
+      copy.splice(j, 0, it); addStore.set(copy); setTick((t) => t + 1); return;
+    }
+    const rec = merged(sel); const cur = Number((rec.raw as Record<string, unknown> | undefined)?.zIndex ?? 0);
+    const z = where === "front" ? 9999 : where === "back" ? -1 : where === "fwd" ? cur + 1 : cur - 1;
+    writeDraft(sel, { ...rec, raw: { ...(rec.raw ?? {}), zIndex: z } });
+  }, [merged, writeDraft]);
+
+  // клавиши: Delete — удалить/скрыть, Cmd/Ctrl+D — дублировать
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const t = e.target as HTMLElement | null;
+      if (t && (t.closest(".d06e-panel") || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return;
+      if (e.key === "Delete" || e.key === "Backspace") { e.preventDefault(); deleteSelected(); }
+      else if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "d") { e.preventDefault(); copySelected(); }
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [deleteSelected, copySelected]);
 
   // ---- global pointer wiring: hover, select, drag ------------------------------------
   useEffect(() => {
@@ -461,7 +559,7 @@ export default function Editor({ scale }: { scale: number }) {
   // ---- save / reset ------------------------------------------------------------------
   const dirty = Object.keys(drafts);
   const dirtyContent = Object.keys(content);
-  const totalDirty = dirty.length + dirtyContent.length;
+  const totalDirty = dirty.length + dirtyContent.length + (addStore.dirty() ? 1 : 0);
   const onReset = () => {
     for (const eid of dirty) resetEl(eid, BASE[eid] ?? {});
     for (const eid of dirtyContent) {
@@ -469,6 +567,8 @@ export default function Editor({ scale }: { scale: number }) {
       if (o.text != null) setText(eid, o.text);
       if (o.src != null) { setImgSrc(eid, o.src); const img = imgUnder(eid); if (img) img.style.objectFit = ""; } // вернуть class-овый fill
     }
+    addStore.reset();
+    setSelected(null);
     setDrafts({});
     setContent({});
     origContentRef.current = {};
@@ -484,10 +584,12 @@ export default function Editor({ scale }: { scale: number }) {
         body: JSON.stringify({
           changes: dirty.map((eid) => ({ eid, record: drafts[eid] })),
           content: dirtyContent.map((eid) => ({ eid, ...content[eid] })),
+          additions: addStore.list(),
         }),
       });
       const json = await res.json();
       if (!res.ok || !json.ok) throw new Error(json.error || res.statusText);
+      addStore.markSaved();
       setDrafts({});
       setContent({});
       origContentRef.current = {};
@@ -499,16 +601,26 @@ export default function Editor({ scale }: { scale: number }) {
     }
   };
 
-  const textEid = selected ? textEidOf(selected) : null;
-  const fieldEid = selected ? fieldEidOf(selected) : null;
-  const textSpanEid = selected ? contentSpanOf(selected) : null;
-  const imgWrapEid = selected ? imgWrapOf(selected) : null;
+  // добавленный текст/картинка — простой элемент: типографика/контент/картинка на нём самом
+  const selKind = addKindOf(selected);
+  const textEid = !selected ? null : selKind === "text" ? selected : isAdd(selected) ? null : textEidOf(selected);
+  const fieldEid = selected && !isAdd(selected) ? fieldEidOf(selected) : null;
+  const textSpanEid = !selected ? null : selKind === "text" ? selected : isAdd(selected) ? null : contentSpanOf(selected);
+  const imgWrapEid = !selected ? null : selKind === "image" ? selected : isAdd(selected) ? null : imgWrapOf(selected);
+  const textValue = !textSpanEid ? "" : isAdd(textSpanEid) ? (addStore.get(idOf(textSpanEid))?.text ?? "") : (content[textSpanEid]?.text ?? textOf(textSpanEid));
 
   return (
     <div className="d06e-chrome">
       <div className="d06e-bar">
         <strong>design06 · редактор</strong>
-        <span className="d06e-hint">клик — объект · 2× — внутрь (фото/поле) · тащить — двигать · углы — размер · Option — свободные пропорции</span>
+        <button className="d06e-tool" onClick={addText}>+ Текст</button>
+        <button className="d06e-tool" onClick={() => fileRef.current?.click()}>+ Картинка</button>
+        <input ref={fileRef} type="file" accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml" hidden
+          onChange={(e) => { const f = e.target.files?.[0]; if (f) addImageFile(f); e.target.value = ""; }} />
+        <span className="d06e-hint">тащить — двигать · углы — размер · Option — растянуть · ⌘D — копия · Del — удалить</span>
+        <span className="d06e-bardirty" style={{ marginLeft: "auto" }}>{totalDirty > 0 ? `● ${totalDirty}` : ""}</span>
+        <button className="d06e-tool" disabled={totalDirty === 0} onClick={onReset}>Сбросить</button>
+        <button className="d06e-tool d06e-toolsave" disabled={totalDirty === 0 || saving} onClick={onSave}>{saving ? "Сохраняю…" : "Сохранить"}</button>
         <a className="d06e-exit" href={withoutEdit()}>Выйти</a>
       </div>
 
@@ -536,14 +648,18 @@ export default function Editor({ scale }: { scale: number }) {
           textEid={textEid}
           textDraft={textEid ? merged(textEid) : null}
           textSpanEid={textSpanEid}
-          textValue={textSpanEid ? (content[textSpanEid]?.text ?? textOf(textSpanEid)) : ""}
+          textValue={textValue}
           imgWrapEid={imgWrapEid}
+          added={isAdd(selected)}
           dirtyCount={totalDirty}
           saving={saving}
           onSelect={setSelected}
           onField={onField}
           onText={onText}
           onReplaceImage={onReplaceImage}
+          onCopy={copySelected}
+          onDelete={deleteSelected}
+          onLayer={reorder}
           onSave={onSave}
           onReset={onReset}
         />

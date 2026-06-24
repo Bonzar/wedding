@@ -132,10 +132,10 @@ export function d06Save(): Plugin {
       server.middlewares.use("/__d06/save", async (req, res) => {
         if (req.method !== "POST") return json(res, 405, { ok: false, error: "POST only" });
         try {
-          const { changes = [], content = [] } = JSON.parse(await readBody(req)) as {
-            changes?: StyleChange[]; content?: ContentChange[];
+          const { changes = [], content = [], additions = null } = JSON.parse(await readBody(req)) as {
+            changes?: StyleChange[]; content?: ContentChange[]; additions?: unknown[] | null;
           };
-          if (!changes.length && !content.length) return json(res, 400, { ok: false, error: "nothing to save" });
+          if (!changes.length && !content.length && !additions) return json(res, 400, { ok: false, error: "nothing to save" });
 
           // STYLE → <Section>.layout.ts (record patched by key)
           const byLayout = new Map<string, StyleChange[]>();
@@ -170,7 +170,16 @@ export function d06Save(): Plugin {
             await writeFile(file, src);
           }
 
-          json(res, 200, { ok: true, style: changes.length, content: content.length });
+          // ADDED elements → src/design06/additions.ts (заменяем массив, шапку/тип сохраняем)
+          if (Array.isArray(additions)) {
+            const file = join(ROOT, "src", "design06", "additions.ts");
+            const src = await readFile(file, "utf8");
+            const marker = "export const additions: Addition[] =";
+            const head = src.includes(marker) ? src.slice(0, src.indexOf(marker)) : src + "\n";
+            await writeFile(file, `${head}${marker} ${JSON.stringify(additions, null, 2)};\n`);
+          }
+
+          json(res, 200, { ok: true, style: changes.length, content: content.length, additions: Array.isArray(additions) ? additions.length : 0 });
         } catch (e) {
           json(res, 500, { ok: false, error: (e as Error).message });
         }

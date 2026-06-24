@@ -26,11 +26,19 @@ type Props = {
   onField: (eid: string, key: FieldKey, value: string | number | undefined) => void;
   onText: (spanEid: string, text: string) => void;
   onReplaceImage: (wrapEid: string, file: File) => void;
+  added: boolean; // выбран добавленный элемент (add/*) — удаление убирает, у Canva — скрывает
+  onCopy: () => void;
+  onDelete: () => void;
+  onLayer: (where: "front" | "back" | "fwd" | "bwd") => void;
   onSave: () => void;
   onReset: () => void;
 };
 
 const num = (v: unknown) => (v == null || v === "" ? "" : String(v));
+
+// Читаемый ярлык для пункта списка шрифтов: первое семейство без кавычек/фолбэка.
+// '"Great Vibes", cursive' → «Great Vibes»; 'YACkoFu1RUU_0, auto' → «YACkoFu1RUU_0».
+const fontLabel = (v: string) => v.split(",")[0].trim().replace(/^["']|["']$/g, "");
 
 export function Panel(p: Props) {
   const numField = (key: FieldKey, label: string, target: string, rec: El) => (
@@ -55,6 +63,29 @@ export function Panel(p: Props) {
       />
     </label>
   );
+  // Шрифт — нативный <select> (а не input+datalist): всегда показывает ВСЕ опции
+  // независимо от текущего значения и не «съезжает». Текущее значение, если его нет
+  // в списке (легаси/ручная правка), добавляется первым пунктом, чтобы не потерялось.
+  const fontField = (target: string, rec: El) => {
+    const cur = num(rec.font);
+    const opts = cur && !FONTS.includes(cur) ? [cur, ...FONTS] : FONTS;
+    return (
+      <label className="d06e-f" key="font">
+        <span>Шрифт</span>
+        <select
+          value={cur}
+          onChange={(e) => p.onField(target, "font", e.target.value === "" ? undefined : e.target.value)}
+        >
+          <option value="">— авто —</option>
+          {opts.map((f) => (
+            <option key={f} value={f}>
+              {fontLabel(f)}
+            </option>
+          ))}
+        </select>
+      </label>
+    );
+  };
 
   return (
     <aside className="d06e-panel" onPointerDown={(e) => e.stopPropagation()}>
@@ -68,6 +99,14 @@ export function Panel(p: Props) {
           <span className="d06e-crumb d06e-cur">{p.eid.split("/")[1] ?? p.eid}</span>
         </div>
         <div className="d06e-eid">{p.eid}</div>
+        <div className="d06e-actions">
+          <button className="d06e-act" title="Дублировать (⌘D)" onClick={p.onCopy}>⧉</button>
+          <button className="d06e-act" title="Слой вперёд" onClick={() => p.onLayer("fwd")}>↑</button>
+          <button className="d06e-act" title="Слой назад" onClick={() => p.onLayer("bwd")}>↓</button>
+          <button className="d06e-act" title="На передний план" onClick={() => p.onLayer("front")}>⤒</button>
+          <button className="d06e-act" title="На задний план" onClick={() => p.onLayer("back")}>⤓</button>
+          <button className="d06e-act d06e-del" title={p.added ? "Удалить (Del)" : "Скрыть (Del)"} onClick={p.onDelete}>{p.added ? "Удалить" : "Скрыть"}</button>
+        </div>
       </div>
 
       <div className="d06e-body">
@@ -113,21 +152,7 @@ export function Panel(p: Props) {
                   />
                 </label>
               )}
-              <label className="d06e-f">
-                <span>Шрифт</span>
-                <input
-                  type="text"
-                  list="d06e-fonts"
-                  value={num(p.textDraft.font)}
-                  placeholder="Family_0, auto"
-                  onChange={(e) => p.onField(p.textEid!, "font", e.target.value === "" ? undefined : e.target.value)}
-                />
-                <datalist id="d06e-fonts">
-                  {FONTS.map((f) => (
-                    <option key={f} value={f} />
-                  ))}
-                </datalist>
-              </label>
+              {fontField(p.textEid, p.textDraft)}
               {numField("fontSize", "Кегль px", p.textEid, p.textDraft)}
               {textField("letterSpacing", "Трекинг", p.textEid, p.textDraft, "0em")}
               {textField("lineHeight", "Интерлиньяж", p.textEid, p.textDraft, "89px")}
