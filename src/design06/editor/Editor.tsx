@@ -10,7 +10,7 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { El } from "../layout";
 import { applyEl, nodeFor, resetEl } from "./apply";
-import { BASE, hasGeometry, hasTypography, isObject, isSection } from "./registry";
+import { BASE, hasGeometry, hasTypography, isField, isObject, isSection } from "./registry";
 import { Panel, type FieldKey } from "./Panel";
 import "./editor.css";
 
@@ -23,6 +23,7 @@ type Drag =
       cParent: { x: number; y: number }; cScreen: { x: number; y: number };
       start: El; innerImg: string | null; innerBase: El | null;
     }
+  | { kind: "field"; eid: string; dir: string; w0: number; h0: number; k: number; cx: number; cy: number; start: El }
   | null;
 
 const HANDLES = ["nw", "n", "ne", "e", "se", "s", "sw", "w"] as const;
@@ -83,6 +84,17 @@ export default function Editor({ scale }: { scale: number }) {
     return null;
   }, []);
 
+  // text-field wrapper inside a text object (controls the wrapping width / text area)
+  const fieldEidOf = useCallback((eid: string): string | null => {
+    const node = nodeFor(eid);
+    if (!node || isField(BASE[eid])) return null;
+    for (const d of Array.from(node.querySelectorAll<HTMLElement>("[data-eid]"))) {
+      const id = d.getAttribute("data-eid")!;
+      if (isField(BASE[id])) return id;
+    }
+    return null;
+  }, []);
+
   // ---- live edit -> draft + DOM ------------------------------------------------------
   const writeDraft = useCallback((eid: string, rec: El) => {
     setDrafts((d) => ({ ...d, [eid]: rec }));
@@ -113,6 +125,13 @@ export default function Editor({ scale }: { scale: number }) {
         drag.moved = true;
         const s = drag.start;
         writeDraft(drag.eid, { ...s, x: (s.x ?? 0) + sdx / scale, y: (s.y ?? 0) + sdy / scale });
+        return;
+      }
+      if (drag?.kind === "field") {
+        // text-field: flow-positioned + scaled, no rotation → just w/h, top-left anchored.
+        const dw = drag.dir.includes("e") ? (e.clientX - drag.cx) / drag.k : drag.dir.includes("w") ? -(e.clientX - drag.cx) / drag.k : 0;
+        const dh = drag.dir.includes("s") ? (e.clientY - drag.cy) / drag.k : drag.dir.includes("n") ? -(e.clientY - drag.cy) / drag.k : 0;
+        writeDraft(drag.eid, { ...drag.start, w: Math.max(1, drag.w0 + dw), h: Math.max(1, drag.h0 + dh) });
         return;
       }
       if (drag?.kind === "resize") {
@@ -148,7 +167,8 @@ export default function Editor({ scale }: { scale: number }) {
     };
 
     const armMove = (eid: string, e: PointerEvent) => {
-      if (hasGeometry(BASE[eid])) dragRef.current = { kind: "move", eid, cx: e.clientX, cy: e.clientY, start: merged(eid), moved: false };
+      // fields don't move (no x/y translate) — reposition via the parent object instead
+      if (hasGeometry(BASE[eid]) && !isField(BASE[eid])) dragRef.current = { kind: "move", eid, cx: e.clientX, cy: e.clientY, start: merged(eid), moved: false };
     };
 
     const onDown = (e: PointerEvent) => {
@@ -166,11 +186,12 @@ export default function Editor({ scale }: { scale: number }) {
       if (obj) armMove(obj, e);
     };
 
-    // двойной клик по картинке-объекту — провалиться внутрь, к самому фото (пан/зум в обрезке)
+    // двойной клик — провалиться внутрь объекта: к самому фото (пан/зум в обрезке)
+    // или к полю текста (обёртка, регулирующая область переноса).
     const onDbl = (e: MouseEvent) => {
       if (inChrome(e.target)) return;
       const obj = resolveObject(e.target as Element);
-      const inner = obj ? innerImgEidOf(obj) : null;
+      const inner = obj ? (innerImgEidOf(obj) ?? fieldEidOf(obj)) : null;
       if (inner) { setSelected(inner); dragRef.current = null; }
     };
 
@@ -186,7 +207,7 @@ export default function Editor({ scale }: { scale: number }) {
       document.removeEventListener("pointerup", onUp, true);
       document.removeEventListener("dblclick", onDbl, true);
     };
-  }, [scale, resolveObject, writeDraft, merged, innerImgEidOf]);
+  }, [scale, resolveObject, writeDraft, merged, innerImgEidOf, fieldEidOf]);
 
   useEffect(() => {
     const bump = () => setTick((t) => t + 1);
@@ -205,11 +226,12 @@ export default function Editor({ scale }: { scale: number }) {
     const rec = draftsRef.current[eid] ?? BASE[eid];
     if (!node || !rec) return null;
     const r = node.getBoundingClientRect();
+    const el = rec.scale ?? 1; // элемент со своим scale (поле текста) — учитываем в габаритах рамки
     return {
       cx: r.left + r.width / 2,
       cy: r.top + r.height / 2,
-      vw: (rec.w ?? r.width / scale) * scale,
-      vh: (rec.h ?? r.height / scale) * scale,
+      vw: (rec.w != null ? rec.w * el : r.width / scale) * scale,
+      vh: (rec.h != null ? rec.h * el : r.height / scale) * scale,
       rot: rec.rot ?? 0,
     };
   }, [scale]);
@@ -223,6 +245,11 @@ export default function Editor({ scale }: { scale: number }) {
     if (!selected) return;
     e.stopPropagation();
     const rec = merged(selected);
+    if (isField(BASE[selected])) {
+      // px-per-local-unit = zoom × элементный scale; ресайз только w/h, без поворота/x-y
+      dragRef.current = { kind: "field", eid: selected, dir, w0: rec.w ?? 0, h0: rec.h ?? 0, k: (rec.scale ?? 1) * scale, cx: e.clientX, cy: e.clientY, start: rec };
+      return;
+    }
     const node = nodeFor(selected);
     if (!node) return;
     const r = node.getBoundingClientRect();
@@ -265,12 +292,13 @@ export default function Editor({ scale }: { scale: number }) {
   };
 
   const textEid = selected ? textEidOf(selected) : null;
+  const fieldEid = selected ? fieldEidOf(selected) : null;
 
   return (
     <div className="d06e-chrome">
       <div className="d06e-bar">
         <strong>design06 · редактор</strong>
-        <span className="d06e-hint">клик — рамка · 2× клик — фото внутри · тащить — двигать · грани/углы — размер</span>
+        <span className="d06e-hint">клик — объект · 2× клик — фото/поле текста · тащить — двигать · грани/углы — размер</span>
         <a className="d06e-exit" href={withoutEdit()}>Выйти</a>
       </div>
 
@@ -293,6 +321,8 @@ export default function Editor({ scale }: { scale: number }) {
           draft={merged(selected)}
           geometry={hasGeometry(BASE[selected])}
           crumbs={crumbsOf(selected)}
+          fieldEid={fieldEid}
+          fieldDraft={fieldEid ? merged(fieldEid) : null}
           textEid={textEid}
           textDraft={textEid ? merged(textEid) : null}
           dirtyCount={dirty.length}

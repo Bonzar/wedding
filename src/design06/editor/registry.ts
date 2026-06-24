@@ -68,3 +68,10 @@ export function isObject(r: El | undefined): boolean {
 export function isSection(eid: string): boolean {
   return eid.endsWith("/section");
 }
+
+/** The text-field wrapper (Canva marks it with writing-mode). Its width controls line
+ *  wrapping / the text area; it is flow-positioned + scaled, so it resizes by w/h only
+ *  (no x/y translate), unlike a normal object. */
+export function isField(r: El | undefined): boolean {
+  return !!r && !!r.raw && (r.raw as Record<string, unknown>).writingMode != null;
+}

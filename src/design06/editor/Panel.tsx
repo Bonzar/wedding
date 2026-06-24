@@ -13,6 +13,8 @@ type Props = {
   draft: El;
   geometry: boolean;
   crumbs: string[]; // ancestor block eids, outermost→nearest (excluding selected)
+  fieldEid: string | null; // text-area wrapper (controls wrapping width); null if not a text object
+  fieldDraft: El | null;
   textEid: string | null;
   textDraft: El | null;
   dirtyCount: number;
@@ -79,6 +81,17 @@ export function Panel(p: Props) {
             <p className="d06e-note">Этот элемент позиционируется маской/трансформом — двигать через родителя.</p>
           )}
         </section>
+
+        {p.fieldEid && p.fieldDraft && (
+          <section className="d06e-grp">
+            <h4>Область текста <em>{p.fieldEid.split("/")[1]}</em></h4>
+            <div className="d06e-grid">
+              {numField("w", "Ширина", p.fieldEid, p.fieldDraft)}
+              {numField("h", "Высота", p.fieldEid, p.fieldDraft)}
+            </div>
+            <p className="d06e-note">Ширина управляет переносом строк (2× клик по тексту — выбрать поле с ручками).</p>
+          </section>
+        )}
 
         {p.textEid && p.textDraft && (
           <section className="d06e-grp">
