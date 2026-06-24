@@ -215,5 +215,22 @@ export const additions: Addition[] = [
       "touchAction": "pan-x pan-y pinch-zoom"
     },
     "scale": 1.0867121217498892
+  },
+  {
+    "id": "mqs5g3181",
+    "kind": "text",
+    "x": 776.8360811011191,
+    "y": 5953.887273683138,
+    "w": 212.33107041435005,
+    "h": 60,
+    "fontSize": 55,
+    "color": "rgb(53, 80, 116)",
+    "lineHeight": "1.25",
+    "text": "ДЕТАЛИ",
+    "raw": {
+      "touchAction": "pan-x pan-y pinch-zoom"
+    },
+    "fontWeight": "200",
+    "font": "\"Jost\", system-ui, sans-serif"
   }
 ];

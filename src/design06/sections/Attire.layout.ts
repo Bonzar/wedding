@@ -16,7 +16,7 @@ export const layout: Record<string, El> = {
   "attire/icon-small": { w: 151.866, h: 217.279, x: 915.337, y: 136.6, raw: { "touchAction": "pan-x pan-y pinch-zoom" } },
   "attire/imgwrap-2": { w: 151.866, h: 217.279, x: 0, y: 0, rot: 0 },
   "attire/box-2": { h: 217.279, w: 151.866, scale: 1, raw: { "position": "absolute", "top": "0px", "left": "0px", "transformOrigin": "0px 0px", "pointerEvents": "none" } },
-  "attire/title": { x: 739.7907456803584, y: -35.262561119631904, w: 296.422, h: 66.8, raw: { "touchAction": "pan-x pan-y pinch-zoom" } },
+  "attire/title": { x: 739.659154632381, y: 12.028418558282205, w: 296.422, h: 66.8, raw: { "touchAction": "pan-x pan-y pinch-zoom" } },
   "attire/text-1": { w: 296.422, h: 66.8, raw: { "writingMode": "horizontal-tb" } },
   "attire/box-3": { x: 0, y: -5.6 },
   "attire/title-text": { font: "\"Jost\", system-ui, sans-serif", fontSize: 55, letterSpacing: "0em", lineHeight: "78px", textTransform: "none", color: "rgb(53, 80, 116)", raw: { "--gixK-A": "0", "--kJ5CrQ": "0", "--zPlnxA": "none", "listStyleType": "none" } },
