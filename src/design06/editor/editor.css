@@ -11,7 +11,10 @@
 
 /* hover + selection boxes (screen-space, fixed) */
 .d06e-hov { position: fixed; outline: 1.5px dashed #3b82f6; outline-offset: -1px; pointer-events: none; }
-.d06e-sel { position: fixed; outline: 2px solid #2563eb; outline-offset: -1px; pointer-events: auto; cursor: move; box-shadow: 0 0 0 100vmax rgba(17,32,58,0.04); }
+/* selection box doesn't eat clicks — only its handles do — so other elements stay selectable */
+.d06e-sel { position: fixed; outline: 2px solid #2563eb; outline-offset: -1px; pointer-events: none; transform-origin: center; }
+.d06e-sel.d06e-inner { outline: 2px dashed #e0a500; } /* drilled-in inner photo */
+.d06e-hov { transform-origin: center; }
 
 /* resize handles */
 .d06e-h { position: absolute; width: 11px; height: 11px; background: #fff; border: 2px solid #2563eb; border-radius: 2px; pointer-events: auto; box-sizing: border-box; }

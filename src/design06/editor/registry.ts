@@ -29,6 +29,22 @@ export function sectionOf(eid: string): string {
 /** All eids known to the editor. */
 export const ALL_EIDS: string[] = Object.keys(BASE);
 
+/** Шрифты, добавленные вручную (не из Canva-бандла) и подключённые через custom-fonts.css.
+ *  Значение = готовая font-family-строка (имя в кавычках — есть пробелы/цифры; generic-фолбэк). */
+export const CUSTOM_FONTS: string[] = [
+  '"English 111 Vivace BT", cursive',
+  '"Nicoletta Script SHA", cursive',
+];
+
+/** Distinct font stacks actually used in the design + добавленные вручную — offered as a
+ *  picker so the font field isn't a free-text typo trap (e.g. "Ariel" silently falling back). */
+export const FONTS: string[] = [
+  ...new Set([
+    ...Object.values(BASE).map((r) => r.font).filter((f): f is string => !!f),
+    ...CUSTOM_FONTS,
+  ]),
+];
+
 /** A record is geometry-editable only if it positions itself via top-level El fields
  *  (not a hand-rolled raw.transform — clobbering those would break masks/clips). */
 export function hasGeometry(r: El | undefined): boolean {
@@ -38,4 +54,17 @@ export function hasGeometry(r: El | undefined): boolean {
 /** A record carries text styling if any typography field is set. */
 export function hasTypography(r: El | undefined): boolean {
   return !!r && (r.font != null || r.fontSize != null || r.letterSpacing != null || r.lineHeight != null || r.color != null);
+}
+
+/** Canva marks every top-level, user-movable object with this touch-action. Inner image
+ *  layers have geometry but no marker; inner SVG paths have the marker but no geometry —
+ *  so `marker && geometry` uniquely picks the selectable object (crop frame, line, text). */
+export function isObject(r: El | undefined): boolean {
+  const ta = r?.raw?.touchAction;
+  return hasGeometry(r) && typeof ta === "string" && ta.includes("pinch-zoom");
+}
+
+/** Section root (`<slug>/section`) — the coarsest selectable. */
+export function isSection(eid: string): boolean {
+  return eid.endsWith("/section");
 }

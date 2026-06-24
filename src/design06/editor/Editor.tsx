@@ -2,20 +2,31 @@
 // panel over the pixel-exact baseline. Edits are drafts on top of the committed base
 // records; Save persists them back into the matching <Section>.layout.ts via a dev
 // endpoint (vite-plugins/d06-save.ts). With the editor unmounted, render is the 0% base.
+//
+// Selection targets Canva *objects* (the top-level crop frame / line / text block — marked
+// by touch-action; see registry.isObject), never the inner image layer. The selection box
+// is oriented to the object's rotation, so resize handles act in the object's local axes:
+// edges resize the crop frame, corners also scale the inner image.
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { El } from "../layout";
 import { applyEl, nodeFor, resetEl } from "./apply";
-import { BASE, hasGeometry, hasTypography } from "./registry";
+import { BASE, hasGeometry, hasTypography, isObject, isSection } from "./registry";
 import { Panel, type FieldKey } from "./Panel";
 import "./editor.css";
 
-type Box = { x: number; y: number; w: number; h: number } | null;
+type OBox = { cx: number; cy: number; vw: number; vh: number; rot: number } | null;
 type Drag =
-  | { kind: "move"; eid: string; cx: number; cy: number; start: El }
-  | { kind: "resize"; eid: string; dir: string; cx: number; cy: number; start: El }
+  | { kind: "move"; eid: string; cx: number; cy: number; start: El; moved: boolean }
+  | {
+      kind: "resize"; eid: string; dir: string;
+      rot: number; w0: number; h0: number;
+      cParent: { x: number; y: number }; cScreen: { x: number; y: number };
+      start: El; innerImg: string | null; innerBase: El | null;
+    }
   | null;
 
 const HANDLES = ["nw", "n", "ne", "e", "se", "s", "sw", "w"] as const;
+const RAD = Math.PI / 180;
 
 export default function Editor({ scale }: { scale: number }) {
   const [drafts, setDrafts] = useState<Record<string, El>>({});
@@ -23,6 +34,8 @@ export default function Editor({ scale }: { scale: number }) {
   draftsRef.current = drafts;
 
   const [selected, setSelected] = useState<string | null>(null);
+  const selectedRef = useRef(selected);
+  selectedRef.current = selected;
   const [hover, setHover] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [tick, setTick] = useState(0);
@@ -30,23 +43,20 @@ export default function Editor({ scale }: { scale: number }) {
 
   const merged = useCallback((eid: string): El => draftsRef.current[eid] ?? BASE[eid] ?? {}, []);
 
-  // ---- selection helpers (resolve clicks/hover to a geometry block) ------------------
-  const resolveBlock = useCallback((from: Element | null): string | null => {
+  // ---- selection helpers: clicks/hover resolve to the nearest Canva object -----------
+  const resolveObject = useCallback((from: Element | null): string | null => {
     for (let el: Element | null = from; el; el = el.parentElement) {
       const eid = el.getAttribute?.("data-eid");
-      if (eid && hasGeometry(BASE[eid])) return eid;
+      if (eid && (isObject(BASE[eid]) || isSection(eid))) return eid;
     }
-    // fall back to the innermost data-eid even if it lacks geometry (text/span)
-    const any = from?.closest?.("[data-eid]");
-    return any?.getAttribute("data-eid") ?? null;
+    return null;
   }, []);
 
   const crumbsOf = useCallback((eid: string): string[] => {
-    const node = nodeFor(eid);
     const out: string[] = [];
-    for (let el = node?.parentElement ?? null; el; el = el.parentElement) {
+    for (let el = nodeFor(eid)?.parentElement ?? null; el; el = el.parentElement) {
       const id = el.getAttribute("data-eid");
-      if (id && hasGeometry(BASE[id])) out.push(id);
+      if (id && (isObject(BASE[id]) || isSection(id))) out.push(id);
     }
     return out.reverse();
   }, []);
@@ -57,6 +67,18 @@ export default function Editor({ scale }: { scale: number }) {
     for (const d of Array.from(node.querySelectorAll<HTMLElement>("[data-eid]"))) {
       const id = d.getAttribute("data-eid")!;
       if (hasTypography(BASE[id])) return id;
+    }
+    return null;
+  }, []);
+
+  // inner image layer of an object (the geometry-bearing, non-object wrapper around <img>)
+  const innerImgEidOf = useCallback((eid: string): string | null => {
+    const node = nodeFor(eid);
+    const img = node?.querySelector("img");
+    if (!img || !node) return null;
+    for (let el = img.parentElement; el && el !== node.parentElement; el = el.parentElement) {
+      const id = el.getAttribute("data-eid");
+      if (id && hasGeometry(BASE[id]) && !isObject(BASE[id])) return id;
     }
     return null;
   }, []);
@@ -85,32 +107,71 @@ export default function Editor({ scale }: { scale: number }) {
 
     const onMove = (e: PointerEvent) => {
       const drag = dragRef.current;
-      if (drag) {
-        const dx = (e.clientX - drag.cx) / scale;
-        const dy = (e.clientY - drag.cy) / scale;
+      if (drag?.kind === "move") {
+        const sdx = e.clientX - drag.cx, sdy = e.clientY - drag.cy;
+        if (!drag.moved && Math.hypot(sdx, sdy) < 3) return; // порог: клик ≠ перетаскивание
+        drag.moved = true;
         const s = drag.start;
-        if (drag.kind === "move") {
-          writeDraft(drag.eid, { ...s, x: (s.x ?? 0) + dx, y: (s.y ?? 0) + dy });
-        } else {
-          const r: El = { ...s };
-          const x0 = s.x ?? 0, y0 = s.y ?? 0, w0 = s.w ?? 0, h0 = s.h ?? 0;
-          if (drag.dir.includes("e")) r.w = Math.max(1, w0 + dx);
-          if (drag.dir.includes("s")) r.h = Math.max(1, h0 + dy);
-          if (drag.dir.includes("w")) { r.w = Math.max(1, w0 - dx); r.x = x0 + dx; }
-          if (drag.dir.includes("n")) { r.h = Math.max(1, h0 - dy); r.y = y0 + dy; }
-          writeDraft(drag.eid, r);
+        writeDraft(drag.eid, { ...s, x: (s.x ?? 0) + sdx / scale, y: (s.y ?? 0) + sdy / scale });
+        return;
+      }
+      if (drag?.kind === "resize") {
+        // screen pointer -> parent(canvas) coords via the start-time center mapping
+        const px = drag.cParent.x + (e.clientX - drag.cScreen.x) / scale;
+        const py = drag.cParent.y + (e.clientY - drag.cScreen.y) / scale;
+        const ux = { x: Math.cos(drag.rot), y: Math.sin(drag.rot) };
+        const uy = { x: -Math.sin(drag.rot), y: Math.cos(drag.rot) };
+        const horiz = drag.dir.includes("e") ? 1 : drag.dir.includes("w") ? -1 : 0;
+        const vert = drag.dir.includes("s") ? 1 : drag.dir.includes("n") ? -1 : 0;
+        // fixed anchor = opposite edge/corner (keeps it pinned while dragging)
+        const ax = -horiz, ay = -vert;
+        const anchor = {
+          x: drag.cParent.x + ax * (drag.w0 / 2) * ux.x + ay * (drag.h0 / 2) * uy.x,
+          y: drag.cParent.y + ax * (drag.w0 / 2) * ux.y + ay * (drag.h0 / 2) * uy.y,
+        };
+        const relx = (px - anchor.x) * ux.x + (py - anchor.y) * ux.y;
+        const rely = (px - anchor.x) * uy.x + (py - anchor.y) * uy.y;
+        const newW = horiz ? Math.max(1, horiz * relx) : drag.w0;
+        const newH = vert ? Math.max(1, vert * rely) : drag.h0;
+        const cx = anchor.x + horiz * (newW / 2) * ux.x + vert * (newH / 2) * uy.x;
+        const cy = anchor.y + horiz * (newW / 2) * ux.y + vert * (newH / 2) * uy.y;
+        writeDraft(drag.eid, { ...drag.start, w: newW, h: newH, x: cx - newW / 2, y: cy - newH / 2 });
+        // corner drag also scales the inner image layer (crop + photo together)
+        if (drag.innerImg && drag.innerBase && horiz && vert) {
+          const ib = drag.innerBase;
+          writeDraft(drag.innerImg, { ...ib, w: (ib.w ?? 0) * (newW / drag.w0), h: (ib.h ?? 0) * (newH / drag.h0) });
         }
         return;
       }
       if (inChrome(e.target)) return;
-      setHover(resolveBlock(e.target as Element));
+      setHover(resolveObject(e.target as Element));
+    };
+
+    const armMove = (eid: string, e: PointerEvent) => {
+      if (hasGeometry(BASE[eid])) dragRef.current = { kind: "move", eid, cx: e.clientX, cy: e.clientY, start: merged(eid), moved: false };
     };
 
     const onDown = (e: PointerEvent) => {
-      if (inChrome(e.target)) return; // panel / handles handle themselves
-      const eid = resolveBlock(e.target as Element);
-      setSelected(eid);
+      if (inChrome(e.target)) return; // панель/ручки обрабатывают себя сами
+      // нажатие внутри уже выбранного (в т.ч. вложенной картинки) — двигаем именно его
+      const cur = selectedRef.current;
+      const curNode = cur ? nodeFor(cur) : null;
+      if (cur && curNode && e.target instanceof Node && curNode.contains(e.target)) {
+        armMove(cur, e);
+        return;
+      }
+      const obj = resolveObject(e.target as Element);
+      setSelected(obj);
       setHover(null);
+      if (obj) armMove(obj, e);
+    };
+
+    // двойной клик по картинке-объекту — провалиться внутрь, к самому фото (пан/зум в обрезке)
+    const onDbl = (e: MouseEvent) => {
+      if (inChrome(e.target)) return;
+      const obj = resolveObject(e.target as Element);
+      const inner = obj ? innerImgEidOf(obj) : null;
+      if (inner) { setSelected(inner); dragRef.current = null; }
     };
 
     const onUp = () => { dragRef.current = null; };
@@ -118,14 +179,15 @@ export default function Editor({ scale }: { scale: number }) {
     document.addEventListener("pointermove", onMove, true);
     document.addEventListener("pointerdown", onDown, true);
     document.addEventListener("pointerup", onUp, true);
+    document.addEventListener("dblclick", onDbl, true);
     return () => {
       document.removeEventListener("pointermove", onMove, true);
       document.removeEventListener("pointerdown", onDown, true);
       document.removeEventListener("pointerup", onUp, true);
+      document.removeEventListener("dblclick", onDbl, true);
     };
-  }, [scale, resolveBlock, writeDraft]);
+  }, [scale, resolveObject, writeDraft, merged, innerImgEidOf]);
 
-  // reposition boxes on scroll/resize
   useEffect(() => {
     const bump = () => setTick((t) => t + 1);
     window.addEventListener("scroll", bump, true);
@@ -136,27 +198,42 @@ export default function Editor({ scale }: { scale: number }) {
     };
   }, []);
 
-  // ---- screen-space boxes ------------------------------------------------------------
-  const [selBox, setSelBox] = useState<Box>(null);
-  const [hovBox, setHovBox] = useState<Box>(null);
-  const rectOf = (eid: string | null): Box => {
-    const n = eid ? nodeFor(eid) : null;
-    if (!n) return null;
-    const r = n.getBoundingClientRect();
-    return { x: r.left, y: r.top, w: r.width, h: r.height };
-  };
-  useLayoutEffect(() => { setSelBox(rectOf(selected)); }, [selected, tick]);
-  useLayoutEffect(() => { setHovBox(rectOf(hover)); }, [hover, tick]);
+  // ---- oriented selection / hover boxes ----------------------------------------------
+  const orientedFor = useCallback((eid: string | null): OBox => {
+    if (!eid) return null;
+    const node = nodeFor(eid);
+    const rec = draftsRef.current[eid] ?? BASE[eid];
+    if (!node || !rec) return null;
+    const r = node.getBoundingClientRect();
+    return {
+      cx: r.left + r.width / 2,
+      cy: r.top + r.height / 2,
+      vw: (rec.w ?? r.width / scale) * scale,
+      vh: (rec.h ?? r.height / scale) * scale,
+      rot: rec.rot ?? 0,
+    };
+  }, [scale]);
 
-  const startMove = (e: React.PointerEvent) => {
-    if (!selected || !hasGeometry(BASE[selected])) return;
-    e.stopPropagation();
-    dragRef.current = { kind: "move", eid: selected, cx: e.clientX, cy: e.clientY, start: merged(selected) };
-  };
+  const [selBox, setSelBox] = useState<OBox>(null);
+  const [hovBox, setHovBox] = useState<OBox>(null);
+  useLayoutEffect(() => { setSelBox(orientedFor(selected)); }, [selected, tick, orientedFor]);
+  useLayoutEffect(() => { setHovBox(orientedFor(hover)); }, [hover, tick, orientedFor]);
+
   const startResize = (e: React.PointerEvent, dir: string) => {
     if (!selected) return;
     e.stopPropagation();
-    dragRef.current = { kind: "resize", eid: selected, dir, cx: e.clientX, cy: e.clientY, start: merged(selected) };
+    const rec = merged(selected);
+    const node = nodeFor(selected);
+    if (!node) return;
+    const r = node.getBoundingClientRect();
+    const innerImg = innerImgEidOf(selected);
+    dragRef.current = {
+      kind: "resize", eid: selected, dir,
+      rot: (rec.rot ?? 0) * RAD, w0: rec.w ?? 0, h0: rec.h ?? 0,
+      cParent: { x: (rec.x ?? 0) + (rec.w ?? 0) / 2, y: (rec.y ?? 0) + (rec.h ?? 0) / 2 },
+      cScreen: { x: r.left + r.width / 2, y: r.top + r.height / 2 },
+      start: rec, innerImg, innerBase: innerImg ? merged(innerImg) : null,
+    };
   };
 
   // ---- save / reset ------------------------------------------------------------------
@@ -178,7 +255,6 @@ export default function Editor({ scale }: { scale: number }) {
       });
       const json = await res.json();
       if (!res.ok || !json.ok) throw new Error(json.error || res.statusText);
-      // Persisted into layout.ts → HMR re-renders the same values from the new base.
       setDrafts({});
     } catch (err) {
       // eslint-disable-next-line no-alert
@@ -194,23 +270,19 @@ export default function Editor({ scale }: { scale: number }) {
     <div className="d06e-chrome">
       <div className="d06e-bar">
         <strong>design06 · редактор</strong>
-        <span className="d06e-hint">клик — выбрать · тащить — двигать · уголки — размер</span>
+        <span className="d06e-hint">клик — рамка · 2× клик — фото внутри · тащить — двигать · грани/углы — размер</span>
         <a className="d06e-exit" href={withoutEdit()}>Выйти</a>
       </div>
 
       {hovBox && hover !== selected && (
-        <div className="d06e-hov" style={boxStyle(hovBox)} />
+        <div className="d06e-hov" style={obStyle(hovBox)} />
       )}
 
       {selBox && selected && (
-        <div className="d06e-sel" style={boxStyle(selBox)} onPointerDown={startMove}>
+        <div className={`d06e-sel${isObject(BASE[selected]) || isSection(selected) ? "" : " d06e-inner"}`} style={obStyle(selBox)}>
           {hasGeometry(BASE[selected]) &&
             HANDLES.map((dir) => (
-              <span
-                key={dir}
-                className={`d06e-h d06e-h-${dir}`}
-                onPointerDown={(e) => startResize(e, dir)}
-              />
+              <span key={dir} className={`d06e-h d06e-h-${dir}`} onPointerDown={(e) => startResize(e, dir)} />
             ))}
         </div>
       )}
@@ -235,7 +307,13 @@ export default function Editor({ scale }: { scale: number }) {
   );
 }
 
-const boxStyle = (b: NonNullable<Box>) => ({ left: b.x, top: b.y, width: b.w, height: b.h });
+const obStyle = (b: NonNullable<OBox>) => ({
+  left: b.cx - b.vw / 2,
+  top: b.cy - b.vh / 2,
+  width: b.vw,
+  height: b.vh,
+  transform: `rotate(${b.rot}deg)`,
+});
 
 function withoutEdit(): string {
   const u = new URL(window.location.href);

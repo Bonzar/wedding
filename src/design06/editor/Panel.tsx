@@ -4,6 +4,7 @@
 // The block is the click target; its text record is found and edited from here.
 import type { CSSProperties } from "react";
 import type { El } from "../layout";
+import { FONTS } from "./registry";
 
 export type FieldKey = keyof El;
 
@@ -83,7 +84,21 @@ export function Panel(p: Props) {
           <section className="d06e-grp">
             <h4>Текст <em>{p.textEid.split("/")[1]}</em></h4>
             <div className="d06e-grid d06e-grid1">
-              {textField("font", "Шрифт", p.textEid, p.textDraft, "Family_0, auto")}
+              <label className="d06e-f">
+                <span>Шрифт</span>
+                <input
+                  type="text"
+                  list="d06e-fonts"
+                  value={num(p.textDraft.font)}
+                  placeholder="Family_0, auto"
+                  onChange={(e) => p.onField(p.textEid!, "font", e.target.value === "" ? undefined : e.target.value)}
+                />
+                <datalist id="d06e-fonts">
+                  {FONTS.map((f) => (
+                    <option key={f} value={f} />
+                  ))}
+                </datalist>
+              </label>
               {numField("fontSize", "Кегль px", p.textEid, p.textDraft)}
               {textField("letterSpacing", "Трекинг", p.textEid, p.textDraft, "0em")}
               {textField("lineHeight", "Интерлиньяж", p.textEid, p.textDraft, "89px")}

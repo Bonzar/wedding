@@ -10,6 +10,7 @@
 
 import { lazy, Suspense, useEffect, useState } from "react";
 import "./canva-base.css"; // Canva :root/тема-переменные + @keyframes (грузится только на ?d06)
+import "./custom-fonts.css"; // доп. (не-Canva) шрифты из assets/fonts (грузится только на ?d06)
 import overrideCss from "./_generated/override.css?raw";
 import headLinksRaw from "./_generated/head-links.json?raw";
 import { DESIGN06_SECTIONS } from "./sections";
@@ -28,6 +29,8 @@ const cssHrefs: string[] = (JSON.parse(headLinksRaw) as string[]).filter((h) => 
 // ?d06&noscale отключает скейлер (масштаб 1:1) — для пиксельного сравнения с эталоном.
 const REF_WIDTH = 1776;
 const MAX_WIDTH = 880;
+const EDIT_BAR = 36; // высота тулбара редактора
+const EDIT_PANEL = 300; // зарезервировано справа под инспектор (панель 280 + зазор)
 
 export default function Design06() {
   const params = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : new URLSearchParams();
@@ -41,7 +44,7 @@ export default function Design06() {
     // иначе обычная логика: ≤880 под ширину, >880 фикс 880.
     const calc = () => {
       const w = document.documentElement.clientWidth;
-      setScale((editMode ? w : Math.min(w, MAX_WIDTH)) / REF_WIDTH);
+      setScale((editMode ? w - EDIT_PANEL : Math.min(w, MAX_WIDTH)) / REF_WIDTH);
     };
     calc();
     window.addEventListener("resize", calc);
@@ -78,6 +81,11 @@ export default function Design06() {
       <style>{`.yIDCqA section.rGeu6w{padding:0;position:static;overflow:visible}`}</style>
       {noScale ? (
         page
+      ) : editMode ? (
+        // Левое выравнивание + отступы под тулбар и панель, чтобы инспектор не перекрывал лист.
+        <div style={{ paddingTop: EDIT_BAR, boxSizing: "border-box" }}>
+          <div style={{ width: REF_WIDTH, zoom: scale }}>{page}</div>
+        </div>
       ) : (
         <div style={{ display: "flex", justifyContent: "center", width: "100%", overflow: "hidden" }}>
           <div style={{ width: REF_WIDTH, zoom: scale }}>{page}</div>
