@@ -22,8 +22,8 @@ type OBox = { cx: number; cy: number; vw: number; vh: number; rot: number } | nu
 type Mode = "image" | "text" | "scale" | "wh" | "photo";
 type RotBox = { rot: number; w0: number; h0: number; cParent: { x: number; y: number }; cScreen: { x: number; y: number } };
 type Drag =
-  | { kind: "move"; eid: string; cx: number; cy: number; start: El; moved: boolean }
-  | { kind: "field"; eid: string; dir: string; w0: number; h0: number; k: number; cx: number; cy: number; start: El }
+  | { kind: "move"; eid: string; cx: number; cy: number; start: El; moved: boolean; clipBox: string | null; clipDone: boolean }
+  | { kind: "field"; eid: string; dir: string; w0: number; h0: number; k: number; cx: number; cy: number; start: El; scale0: number; handle0: { x: number; y: number }; cScreen: { x: number; y: number } }
   | ({ kind: "wh"; eid: string; dir: string; start: El } & RotBox)
   | ({
       kind: "prop"; eid: string; dir: string; target: "framePhoto" | "scale" | "photo";
@@ -123,6 +123,17 @@ export default function Editor({ scale }: { scale: number }) {
     for (const d of Array.from(node.querySelectorAll<HTMLElement>("[data-eid]"))) {
       const id = d.getAttribute("data-eid")!;
       if (isField(BASE[id])) return id;
+    }
+    return null;
+  }, []);
+
+  // nearest ancestor whose record clips its children to a fixed polygon (Canva corner clip);
+  // moving an object out of that region would clip it, so we neutralize the clip on move.
+  const clipAncestorOf = useCallback((eid: string): string | null => {
+    for (let el = nodeFor(eid)?.parentElement ?? null; el; el = el.parentElement) {
+      const id = el.getAttribute("data-eid");
+      const cp = id && (BASE[id]?.raw as Record<string, unknown> | undefined)?.clipPath;
+      if (id && typeof cp === "string" && cp.startsWith("polygon")) return id;
     }
     return null;
   }, []);
@@ -260,12 +271,27 @@ export default function Editor({ scale }: { scale: number }) {
         const sdx = e.clientX - drag.cx, sdy = e.clientY - drag.cy;
         if (!drag.moved && Math.hypot(sdx, sdy) < 3) return; // порог: клик ≠ перетаскивание
         drag.moved = true;
+        // освобождаем от обрезки родителя-клиппера, чтобы объект можно было двигать свободно
+        if (drag.clipBox && !drag.clipDone) {
+          drag.clipDone = true;
+          const cb = merged(drag.clipBox);
+          writeDraft(drag.clipBox, { ...cb, raw: { ...(cb.raw ?? {}), clipPath: "none" } });
+        }
         const s = drag.start;
         writeDraft(drag.eid, { ...s, x: (s.x ?? 0) + sdx / scale, y: (s.y ?? 0) + sdy / scale });
         return;
       }
       if (drag?.kind === "field") {
-        // text-field: flow-positioned + scaled, no rotation → just w/h, top-left anchored.
+        const horiz = drag.dir.includes("e") || drag.dir.includes("w");
+        const vert = drag.dir.includes("s") || drag.dir.includes("n");
+        if (horiz && vert) {
+          // corner → scale the text itself (кегль), как в Canva (многие заголовки nowrap — ширина их не переносит)
+          const d0 = dist(drag.handle0.x, drag.handle0.y, drag.cScreen.x, drag.cScreen.y) || 1;
+          const k = Math.max(0.05, dist(e.clientX, e.clientY, drag.cScreen.x, drag.cScreen.y) / d0);
+          writeDraft(drag.eid, { ...drag.start, scale: drag.scale0 * k });
+          return;
+        }
+        // edge → field w/h (область переноса строк), flow-positioned + scaled, no rotation
         const dw = drag.dir.includes("e") ? (e.clientX - drag.cx) / drag.k : drag.dir.includes("w") ? -(e.clientX - drag.cx) / drag.k : 0;
         const dh = drag.dir.includes("s") ? (e.clientY - drag.cy) / drag.k : drag.dir.includes("n") ? -(e.clientY - drag.cy) / drag.k : 0;
         writeDraft(drag.eid, { ...drag.start, w: Math.max(1, drag.w0 + dw), h: Math.max(1, drag.h0 + dh) });
@@ -304,7 +330,8 @@ export default function Editor({ scale }: { scale: number }) {
 
     const armMove = (eid: string, e: PointerEvent) => {
       // fields don't move (no x/y translate) — reposition via the parent object instead
-      if (hasGeometry(BASE[eid]) && !isField(BASE[eid])) dragRef.current = { kind: "move", eid, cx: e.clientX, cy: e.clientY, start: merged(eid), moved: false };
+      if (hasGeometry(BASE[eid]) && !isField(BASE[eid]))
+        dragRef.current = { kind: "move", eid, cx: e.clientX, cy: e.clientY, start: merged(eid), moved: false, clipBox: clipAncestorOf(eid), clipDone: false };
     };
 
     const onDown = (e: PointerEvent) => {
@@ -342,7 +369,7 @@ export default function Editor({ scale }: { scale: number }) {
       document.removeEventListener("pointerup", onUp, true);
       document.removeEventListener("dblclick", onDbl, true);
     };
-  }, [scale, resolveObject, writeDraft, merged, innerImgEidOf, fieldEidOf]);
+  }, [scale, resolveObject, writeDraft, merged, innerImgEidOf, fieldEidOf, clipAncestorOf]);
 
   useEffect(() => {
     const bump = () => setTick((t) => t + 1);
@@ -396,7 +423,7 @@ export default function Editor({ scale }: { scale: number }) {
       cParent: { x: (rec.x ?? 0) + (rec.w ?? 0) / 2, y: (rec.y ?? 0) + (rec.h ?? 0) / 2 }, cScreen,
     };
     if (t.mode === "text") {
-      dragRef.current = { kind: "field", eid: t.resizeEid, dir, w0: rec.w ?? 0, h0: rec.h ?? 0, k: (rec.scale ?? 1) * scale, cx: e.clientX, cy: e.clientY, start: rec };
+      dragRef.current = { kind: "field", eid: t.resizeEid, dir, w0: rec.w ?? 0, h0: rec.h ?? 0, k: (rec.scale ?? 1) * scale, cx: e.clientX, cy: e.clientY, start: rec, scale0: rec.scale ?? 1, handle0, cScreen };
     } else if (t.mode === "wh") {
       dragRef.current = { kind: "wh", eid: t.resizeEid, dir, start: rec, ...rotBox };
     } else {
