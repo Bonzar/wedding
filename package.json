@@ -34,6 +34,7 @@
     "happy-dom": "^15.11.7",
     "pixelmatch": "^6.0.0",
     "pngjs": "^7.0.0",
+    "sharp": "^0.35.2",
     "typescript": "^5.7.2",
     "vite": "^5.4.11",
     "vitest": "^2.1.8"

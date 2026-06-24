@@ -14,7 +14,7 @@ function Backdrop() {
 function BackdropImage() {
   return (
     <div className={styles.Izwocg} data-eid="closing/backdropImage" style={elStyle(layout["closing/backdropImage"])}>
-      <img className={styles._7_i_XA} crossOrigin="anonymous" draggable={false} src="/design06-exact/_assets/media/2a2388e813cb85fb095b9a0c836a0688.jpg" />
+      <img loading="lazy" decoding="async" className={styles._7_i_XA} crossOrigin="anonymous" draggable={false} src="/design06-exact/_assets/media/2a2388e813cb85fb095b9a0c836a0688.jpg" />
     </div>
   );
 }
@@ -30,7 +30,7 @@ function Engraving() {
               <div className={styles.PcHy7w}>
                 <div className={cx(styles.uk_25A, styles.Ty61NA)}>
                   <div className={styles.Izwocg} data-eid="closing/engravingImage" style={elStyle(layout["closing/engravingImage"])}>
-                    <img className={styles.dMHlHA} crossOrigin="anonymous" draggable={false} src="/design06-exact/_assets/blobs/PB9GyzXqcqH056Yr_0.png" />
+                    <img loading="lazy" decoding="async" className={styles.dMHlHA} crossOrigin="anonymous" draggable={false} src="/design06-exact/_assets/blobs/PB9GyzXqcqH056Yr_0.png" />
                   </div>
                 </div>
               </div>
@@ -54,15 +54,7 @@ function BodyText() {
               <div className={cx(styles._2UyCZQ, styles.vkN2Cw, styles.Mb8E_A, styles.e1_zQg)} lang="en">
                 <p className={cx(styles._28USrA, styles.AfeL7g, styles.XN6uKA, styles._4N4NA)} data-eid="closing/bodyTextParagraph" style={elStyle(layout["closing/bodyTextParagraph"])}>
                   <span className={styles.a_GcMg} data-eid="closing/bodyTextSpan" style={elStyle(layout["closing/bodyTextSpan"])}>
-                    {"We are grateful for the love and support of our"}
-                    <br />
-                    {"family and friends. Your presence will make our day"}
-                    <br />
-                    {"more special, and we look forward to celebrating"}
-                    <br />
-                    {"with joy and creating unforgettable memories"}
-                    <br />
-                    {"together."}
+                    {"Мы безумно вас любим и очень  ждем. Ваше присутствие сделает этот день особенным, и мы с нетерпением ждем возможности разделеить этот день с вами и создать незабываемые воспоминания."}
                   </span>
                 </p>
               </div>
@@ -85,7 +77,7 @@ function Title() {
               <div className={cx(styles._2UyCZQ, styles.vkN2Cw, styles.Mb8E_A, styles.e1_zQg)} lang="en">
                 <p className={cx(styles._28USrA, styles.AfeL7g, styles.XN6uKA, styles._4N4NA)} data-eid="closing/titleParagraph" style={elStyle(layout["closing/titleParagraph"])}>
                   <span className={styles.a_GcMg} data-eid="closing/titleSpan" style={elStyle(layout["closing/titleSpan"])}>
-                    {"Felix & Angel"}
+                    {"Оля & Влад"}
                   </span>
                 </p>
               </div>

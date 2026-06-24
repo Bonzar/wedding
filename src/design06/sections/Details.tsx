@@ -12,7 +12,7 @@ function BackgroundPhoto() {
       <div className={styles.PcHy7w}>
         <div className={cx(styles.uk_25A, styles.Ty61NA)}>
           <div className={styles.Izwocg} data-eid="details/bg-photo" style={elStyle(layout["details/bg-photo"])}>
-            <img className={styles._7_i_XA} crossOrigin="anonymous" draggable={false} src="/design06-exact/_assets/media/2a2388e813cb85fb095b9a0c836a0688.jpg" />
+            <img loading="lazy" decoding="async" className={styles._7_i_XA} crossOrigin="anonymous" draggable={false} src="/design06-exact/_assets/media/2a2388e813cb85fb095b9a0c836a0688.jpg" />
           </div>
         </div>
       </div>
@@ -30,7 +30,7 @@ function Title() {
               <div className={cx(styles._2UyCZQ, styles.vkN2Cw, styles.Mb8E_A, styles.e1_zQg)} lang="en">
                 <p className={cx(styles._28USrA, styles.AfeL7g, styles.XN6uKA, styles._4N4NA)} data-eid="details/title-text" style={elStyle(layout["details/title-text"])}>
                   <span className={styles.a_GcMg} data-eid="details/span-1" style={elStyle(layout["details/span-1"])}>
-                    {"Wedding Details"}
+                    {"Детали"}
                   </span>
                 </p>
               </div>
@@ -144,7 +144,7 @@ function EngravingPhoto() {
           <div className={styles.PcHy7w}>
             <div className={cx(styles.uk_25A, styles.Ty61NA)}>
               <div className={styles.Izwocg} data-eid="details/engraving-photo" style={elStyle(layout["details/engraving-photo"])}>
-                <img className={styles.dMHlHA} crossOrigin="anonymous" draggable={false} src="/design06-exact/_assets/blobs/PBsHbr4J9zLLY08q_0.png" />
+                <img loading="lazy" decoding="async" className={styles.dMHlHA} crossOrigin="anonymous" draggable={false} src="/design06-exact/_assets/blobs/PBsHbr4J9zLLY08q_0.png" />
               </div>
             </div>
           </div>

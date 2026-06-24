@@ -17,7 +17,7 @@ function Backdrop() {
               <div className={styles.PcHy7w}>
                 <div className={cx(styles.uk_25A, styles.Ty61NA)}>
                   <div className={styles.Izwocg} data-eid="gift/backdrop-image" style={elStyle(layout["gift/backdrop-image"])}>
-                    <img className={styles._7_i_XA} crossOrigin="anonymous" draggable={false} src="/design06-exact/_assets/media/2a2388e813cb85fb095b9a0c836a0688.jpg" />
+                    <img loading="lazy" decoding="async" className={styles._7_i_XA} crossOrigin="anonymous" draggable={false} src="/design06-exact/_assets/media/2a2388e813cb85fb095b9a0c836a0688.jpg" />
                   </div>
                 </div>
               </div>
@@ -45,7 +45,7 @@ function Illustration() {
           <div className={styles.PcHy7w}>
             <div className={cx(styles.uk_25A, styles.Ty61NA)}>
               <div className={styles.Izwocg} data-eid="gift/illustration-image" style={elStyle(layout["gift/illustration-image"])}>
-                <img className={styles.dMHlHA} crossOrigin="anonymous" draggable={false} src="/design06-exact/_assets/blobs/PB09PH75zdFrcMmz_0.png" />
+                <img loading="lazy" decoding="async" className={styles.dMHlHA} crossOrigin="anonymous" draggable={false} src="/design06-exact/_assets/blobs/PB09PH75zdFrcMmz_0.png" />
               </div>
             </div>
           </div>
@@ -65,7 +65,7 @@ function Sparkle() {
           <div className={styles.PcHy7w}>
             <div className={cx(styles.uk_25A, styles.Ty61NA)}>
               <div className={styles.Izwocg} data-eid="gift/sparkle-image" style={elStyle(layout["gift/sparkle-image"])}>
-                <img className={styles.dMHlHA} crossOrigin="anonymous" draggable={false} src="/design06-exact/_assets/blobs/PB09PH75zdFrcMmz_1.png" />
+                <img loading="lazy" decoding="async" className={styles.dMHlHA} crossOrigin="anonymous" draggable={false} src="/design06-exact/_assets/blobs/PB09PH75zdFrcMmz_1.png" />
               </div>
             </div>
           </div>
@@ -107,7 +107,7 @@ function Title() {
               <div className={cx(styles._2UyCZQ, styles.vkN2Cw, styles.Mb8E_A, styles.e1_zQg)} lang="en">
                 <p className={cx(styles._28USrA, styles.AfeL7g, styles.XN6uKA, styles._4N4NA)} data-eid="gift/title-text" style={elStyle(layout["gift/title-text"])}>
                   <span className={styles.a_GcMg} data-eid="gift/span-1" style={elStyle(layout["gift/span-1"])}>
-                    {"Wedding Gift"}
+                    {"СВАДЕБНЫЙ ПОДАРОК"}
                   </span>
                 </p>
               </div>
@@ -130,15 +130,7 @@ function Paragraph() {
               <div className={cx(styles._2UyCZQ, styles.vkN2Cw, styles.Mb8E_A, styles.e1_zQg)} lang="en">
                 <p className={cx(styles._28USrA, styles.AfeL7g, styles.XN6uKA, styles._4N4NA)} data-eid="gift/paragraph-text" style={elStyle(layout["gift/paragraph-text"])}>
                   <span className={styles.a_GcMg} data-eid="gift/span-2" style={elStyle(layout["gift/span-2"])}>
-                    {"Your presence is the greatest gift of all,"}
-                    <br />
-                    {"and it is something we truly look forward"}
-                    <br />
-                    {"to. If you would like to bless us further, a"}
-                    <br />
-                    {"contribution would mean so much as we"}
-                    <br />
-                    {"begin this new chapter together."}
+                    {"Ваше присутствие — для нас будет самым лучшим подарком. Мы любим цветы, но через несколько дней улетаем и не сможем забрать их ссобой. Если вы хотите сделать подарок, вместо букета можно выбрать что-то, что сохранится на память об этом дне."}
                   </span>
                 </p>
               </div>
@@ -161,7 +153,7 @@ function ButtonLabel() {
               <div className={cx(styles._2UyCZQ, styles.vkN2Cw, styles.Mb8E_A, styles.e1_zQg)} lang="en">
                 <p className={cx(styles._28USrA, styles.AfeL7g, styles.XN6uKA, styles._4N4NA)} data-eid="gift/button-text" style={elStyle(layout["gift/button-text"])}>
                   <span className={styles.a_GcMg} data-eid="gift/span-3" style={elStyle(layout["gift/span-3"])}>
-                    {"Send Gift"}
+                    {""}
                   </span>
                 </p>
               </div>

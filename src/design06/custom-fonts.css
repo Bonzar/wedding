@@ -19,3 +19,12 @@
   font-display: swap;
   src: url("../../assets/fonts/nicoletta-script-sha.otf") format("opentype");
 }
+
+/* RUSJellyka — Love and Passion: кириллическая (RUS) версия скрипта. */
+@font-face {
+  font-family: "Jellyka Love and Passion";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../../assets/fonts/jellyka-love-and-passion.ttf") format("truetype");
+}

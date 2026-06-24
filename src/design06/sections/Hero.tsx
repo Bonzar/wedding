@@ -9,7 +9,7 @@ import { layout } from "./Hero.layout";
 function Backdrop() {
   return (
     <div className={styles.Izwocg} data-eid="hero/backdrop-photo" style={elStyle(layout["hero/backdrop-photo"])}>
-      <img className={styles._7_i_XA} crossOrigin="anonymous" draggable={false} src="/design06-exact/_assets/media/2a2388e813cb85fb095b9a0c836a0688.jpg" />
+      <img decoding="async" className={styles._7_i_XA} crossOrigin="anonymous" draggable={false} src="/design06-exact/_assets/media/2a2388e813cb85fb095b9a0c836a0688.jpg" />
     </div>
   );
 }
@@ -23,7 +23,7 @@ function EngravingFloralRight() {
           <div className={styles.PcHy7w}>
             <div className={cx(styles.uk_25A, styles.Ty61NA)}>
               <div className={styles.Izwocg} data-eid="hero/imgwrap-1" style={elStyle(layout["hero/imgwrap-1"])}>
-                <img className={styles.dMHlHA} crossOrigin="anonymous" draggable={false} src="/design06-exact/_assets/blobs/PBbM6hRVrsx6MjPz_0.svg" />
+                <img decoding="async" className={styles.dMHlHA} crossOrigin="anonymous" draggable={false} src="/design06-exact/_assets/blobs/PBbM6hRVrsx6MjPz_0.svg" />
               </div>
             </div>
           </div>
@@ -50,7 +50,7 @@ function BirdEngraving() {
           <div className={styles.bFnJ2A} data-eid="hero/clip" style={elStyle(layout["hero/clip"])}>
             <div className={cx(styles._4c2rDg, styles.GxUsfw)} data-eid="hero/cliptf" style={elStyle(layout["hero/cliptf"])}>
               <div className={styles.qhHTGg} data-eid="hero/bird-photo" style={elStyle(layout["hero/bird-photo"])}>
-                <img className={styles._7_i_XA} crossOrigin="anonymous" draggable={false} src="/design06-exact/_assets/media/a971da4c4fe6f53b59f2d6f85b0b7c7d.jpg" />
+                <img decoding="async" style={{ objectFit: "cover" }} className={styles._7_i_XA} crossOrigin="anonymous" draggable={false} src="/design06-exact/_assets/media/photo_2026-06-24_12.30.40.jpeg" />
               </div>
             </div>
           </div>
@@ -72,7 +72,7 @@ function EngravingFloralBottomLeft() {
               <div className={styles.PcHy7w}>
                 <div className={cx(styles.uk_25A, styles.Ty61NA)}>
                   <div className={styles.Izwocg} data-eid="hero/imgwrap-2" style={elStyle(layout["hero/imgwrap-2"])}>
-                    <img className={styles.dMHlHA} crossOrigin="anonymous" draggable={false} src="/design06-exact/_assets/blobs/PBbM6hRVrsx6MjPz_1.png" />
+                    <img decoding="async" className={styles.dMHlHA} crossOrigin="anonymous" draggable={false} src="/design06-exact/_assets/blobs/PBbM6hRVrsx6MjPz_1.png" />
                   </div>
                 </div>
               </div>
@@ -96,7 +96,7 @@ function Pretitle() {
               <div className={cx(styles._2UyCZQ, styles.vkN2Cw, styles.Mb8E_A, styles.e1_zQg)} lang="en">
                 <p className={cx(styles._28USrA, styles.AfeL7g, styles.XN6uKA, styles._4N4NA)} data-eid="hero/pretitle-text" style={elStyle(layout["hero/pretitle-text"])}>
                   <span className={styles.a_GcMg} data-eid="hero/span-1" style={elStyle(layout["hero/span-1"])}>
-                    {"The wedding of"}
+                    {"Свадьба"}
                   </span>
                   <span className={cx(styles.a_GcMg, styles.zYq_BQ)} data-eid="hero/span-2" style={elStyle(layout["hero/span-2"])}>
                     {" "}
@@ -122,7 +122,7 @@ function Title() {
               <div className={cx(styles._2UyCZQ, styles.vkN2Cw, styles.Mb8E_A, styles.e1_zQg)} lang="en">
                 <p className={cx(styles._28USrA, styles.AfeL7g, styles.XN6uKA, styles._4N4NA)} data-eid="hero/title-text" style={elStyle(layout["hero/title-text"])}>
                   <span className={styles.a_GcMg} data-eid="hero/span-3" style={elStyle(layout["hero/span-3"])}>
-                    {"Felix & Angel"}
+                    {"Влад & Оля"}
                   </span>
                 </p>
               </div>
@@ -145,7 +145,7 @@ function EngravingFloralBottomRight() {
               <div className={styles.PcHy7w}>
                 <div className={cx(styles.uk_25A, styles.Ty61NA)}>
                   <div className={styles.Izwocg} data-eid="hero/imgwrap-3" style={elStyle(layout["hero/imgwrap-3"])}>
-                    <img className={styles.dMHlHA} crossOrigin="anonymous" draggable={false} src="/design06-exact/_assets/blobs/PBbM6hRVrsx6MjPz_2.png" />
+                    <img decoding="async" className={styles.dMHlHA} crossOrigin="anonymous" draggable={false} src="/design06-exact/_assets/blobs/PBbM6hRVrsx6MjPz_2.png" />
                   </div>
                 </div>
               </div>

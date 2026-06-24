@@ -9,7 +9,7 @@ import { layout } from "./Timeline.layout";
 function BackgroundPhoto() {
   return (
     <div className={styles.Izwocg} data-eid="timeline/background-photo" style={elStyle(layout["timeline/background-photo"])}>
-      <img className={styles._7_i_XA} crossOrigin="anonymous" draggable={false} src="/design06-exact/_assets/media/2a2388e813cb85fb095b9a0c836a0688.jpg" />
+      <img loading="lazy" decoding="async" className={styles._7_i_XA} crossOrigin="anonymous" draggable={false} src="/design06-exact/_assets/media/2a2388e813cb85fb095b9a0c836a0688.jpg" />
     </div>
   );
 }
@@ -25,7 +25,7 @@ function PhotoTop() {
               <div className={styles.PcHy7w}>
                 <div className={cx(styles.uk_25A, styles.Ty61NA)}>
                   <div className={styles.Izwocg} data-eid="timeline/photo-top-img" style={elStyle(layout["timeline/photo-top-img"])}>
-                    <img className={styles.dMHlHA} crossOrigin="anonymous" draggable={false} src="/design06-exact/_assets/blobs/PBGrcDNxzKvrxrJt_0.png" />
+                    <img loading="lazy" decoding="async" className={styles.dMHlHA} crossOrigin="anonymous" draggable={false} src="/design06-exact/_assets/blobs/PBGrcDNxzKvrxrJt_0.png" />
                   </div>
                 </div>
               </div>
@@ -104,7 +104,7 @@ function PhotoBottom() {
               <div className={styles.PcHy7w}>
                 <div className={cx(styles.uk_25A, styles.Ty61NA)} data-eid="timeline/imgbox" style={elStyle(layout["timeline/imgbox"])}>
                   <div className={styles.Izwocg} data-eid="timeline/photo-bottom-img" style={elStyle(layout["timeline/photo-bottom-img"])}>
-                    <img className={styles.dMHlHA} crossOrigin="anonymous" draggable={false} src="/design06-exact/_assets/blobs/PBGrcDNxzKvrxrJt_1.png" />
+                    <img loading="lazy" decoding="async" className={styles.dMHlHA} crossOrigin="anonymous" draggable={false} src="/design06-exact/_assets/blobs/PBGrcDNxzKvrxrJt_1.png" />
                   </div>
                 </div>
               </div>
@@ -128,7 +128,7 @@ function Title() {
               <div className={cx(styles._2UyCZQ, styles.vkN2Cw, styles.Mb8E_A, styles.e1_zQg)} lang="en">
                 <p className={cx(styles._28USrA, styles.AfeL7g, styles.XN6uKA, styles._4N4NA)} data-eid="timeline/title-text" style={elStyle(layout["timeline/title-text"])}>
                   <span className={styles.a_GcMg} data-eid="timeline/span" style={elStyle(layout["timeline/span"])}>
-                    {"wedding timeline"}
+                    {"Как все будет"}
                   </span>
                 </p>
               </div>
@@ -177,7 +177,7 @@ export default function Timeline() {
                       spanEid="timeline/span-1"
                       paraClass={cx(styles._28USrA, styles.GEC0sA, styles.XN6uKA, styles._4N4NA)}
                     >
-                      {"5.00 PM"}
+                      {"17:00"}
                     </TimelineText>
                     <Divider eid="timeline/divider-2" dInner="M1,1L417.9205199940998,1" dOuter="M1,1L417.9205199940998,1" />
                     <Divider eid="timeline/divider-3" dInner="M1,1L417.9205199940998,1" dOuter="M1,1L417.9205199940998,1" />
@@ -192,7 +192,7 @@ export default function Timeline() {
                       spanEid="timeline/span-2"
                       paraClass={cx(styles._28USrA, styles.GEC0sA, styles.XN6uKA, styles._4N4NA)}
                     >
-                      {"10.00 PM"}
+                      {"21:00"}
                     </TimelineText>
                     <TimelineText
                       rootEid="timeline/label-dance-party"
@@ -202,7 +202,7 @@ export default function Timeline() {
                       spanEid="timeline/span-3"
                       paraClass={cx(styles._28USrA, styles.GEC0sA, styles.XN6uKA, styles._4N4NA)}
                     >
-                      {"Dance Party"}
+                      {"Дискотека на танцполе"}
                     </TimelineText>
                     <PhotoBottom />
                     <Title />
@@ -214,7 +214,7 @@ export default function Timeline() {
                       spanEid="timeline/span-4"
                       paraClass={cx(styles._28USrA, styles.GEC0sA, styles.XN6uKA, styles._4N4NA)}
                     >
-                      {"Wedding Ceremony"}
+                      {"Свадебная церемония"}
                     </TimelineText>
                     <TimelineText
                       rootEid="timeline/time-7pm"
@@ -224,7 +224,7 @@ export default function Timeline() {
                       spanEid="timeline/span-5"
                       paraClass={cx(styles._28USrA, styles.GEC0sA, styles.XN6uKA, styles._4N4NA)}
                     >
-                      {"7.00 PM"}
+                      {"19:00"}
                     </TimelineText>
                     <TimelineText
                       rootEid="timeline/label-dinner-reception"
@@ -234,7 +234,7 @@ export default function Timeline() {
                       spanEid="timeline/span-6"
                       paraClass={cx(styles._28USrA, styles.GEC0sA, styles.XN6uKA, styles._4N4NA)}
                     >
-                      {"Dinner Reception"}
+                      {"Ужин в ресторане"}
                     </TimelineText>
                     <TimelineText
                       rootEid="timeline/time-6pm"
@@ -244,7 +244,7 @@ export default function Timeline() {
                       spanEid="timeline/span-7"
                       paraClass={cx(styles._28USrA, styles.TV9a8Q, styles.XN6uKA, styles._4N4NA)}
                     >
-                      {"6.00 PM"}
+                      {"18:00"}
                     </TimelineText>
                     <TimelineText
                       rootEid="timeline/label-photo-session"
@@ -254,7 +254,7 @@ export default function Timeline() {
                       spanEid="timeline/span-8"
                       paraClass={cx(styles._28USrA, styles.TV9a8Q, styles.XN6uKA, styles._4N4NA)}
                     >
-                      {"Photo Session"}
+                      {"Фотосессия"}
                     </TimelineText>
                     <TimelineText
                       rootEid="timeline/label-toast-speeches"
@@ -264,7 +264,7 @@ export default function Timeline() {
                       spanEid="timeline/span-9"
                       paraClass={cx(styles._28USrA, styles.TV9a8Q, styles.XN6uKA, styles._4N4NA)}
                     >
-                      {"Toast & Speeches"}
+                      {"Развлечения и поздравления"}
                     </TimelineText>
                     <TimelineText
                       rootEid="timeline/time-8pm"
@@ -274,7 +274,7 @@ export default function Timeline() {
                       spanEid="timeline/span-10"
                       paraClass={cx(styles._28USrA, styles.TV9a8Q, styles.XN6uKA, styles._4N4NA)}
                     >
-                      {"8.00 PM"}
+                      {"20:00"}
                     </TimelineText>
                   </div>
                 </div>

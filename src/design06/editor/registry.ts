@@ -10,12 +10,13 @@ import { layout as details } from "../sections/Details.layout";
 import { layout as attire } from "../sections/Attire.layout";
 import { layout as gift } from "../sections/Gift.layout";
 import { layout as journey } from "../sections/Journey.layout";
-import { layout as rsvp } from "../sections/Rsvp.layout";
+import { layout as survey } from "../sections/Survey.layout"; // раздел без эталона: редактируемо только интро
 import { layout as closing } from "../sections/Closing.layout";
 
 // slug (eid prefix) → layout object. Slug capitalized = file name (Hero.layout.ts …).
+// Раздел Rsvp (Canva-эталон анкеты) удалён — заменён живым Survey.
 const SECTIONS: Record<string, Record<string, El>> = {
-  hero, calendar, timeline, details, attire, gift, journey, rsvp, closing,
+  hero, calendar, timeline, details, attire, gift, journey, survey, closing,
 };
 
 /** Base (committed 0%) record for an eid, or undefined if unknown. */
@@ -29,18 +30,32 @@ export function sectionOf(eid: string): string {
 /** All eids known to the editor. */
 export const ALL_EIDS: string[] = Object.keys(BASE);
 
+/** Шрифты дизайн-системы обычного лендинга — те же, что в его dev-редакторе.
+ *  `@font-face` грузится глобально из `src/design-system/fonts.css` (см. main.tsx),
+ *  поэтому на `?d06` они уже доступны; здесь лишь добавляем их в пикер. Значения и
+ *  фолбэки — как в `design-system/tokens.css` (--f-script/-body/-label/-num) + Arimo. */
+export const DESIGN_SYSTEM_FONTS: string[] = [
+  '"Great Vibes", cursive',
+  '"PT Serif", "Times New Roman", Georgia, serif',
+  '"Jost", system-ui, sans-serif',
+  '"Arimo", system-ui, sans-serif',
+  '"Special Elite", monospace',
+];
+
 /** Шрифты, добавленные вручную (не из Canva-бандла) и подключённые через custom-fonts.css.
  *  Значение = готовая font-family-строка (имя в кавычках — есть пробелы/цифры; generic-фолбэк). */
 export const CUSTOM_FONTS: string[] = [
   '"English 111 Vivace BT", cursive',
   '"Nicoletta Script SHA", cursive',
+  '"Jellyka Love and Passion", cursive',
 ];
 
-/** Distinct font stacks actually used in the design + добавленные вручную — offered as a
- *  picker so the font field isn't a free-text typo trap (e.g. "Ariel" silently falling back). */
+/** Distinct font stacks actually used in the design + дизайн-система + добавленные вручную —
+ *  offered as a picker so the font field isn't a free-text typo trap (e.g. "Ariel" falling back). */
 export const FONTS: string[] = [
   ...new Set([
     ...Object.values(BASE).map((r) => r.font).filter((f): f is string => !!f),
+    ...DESIGN_SYSTEM_FONTS,
     ...CUSTOM_FONTS,
   ]),
 ];

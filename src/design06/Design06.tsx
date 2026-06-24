@@ -20,9 +20,10 @@ import type { Addition } from "./additions";
 import { useAdditions } from "./editor/additionsStore"; // слой добавленных в редакторе элементов
 import { activePalette, applyPalette, currentPalette, teardownPalette } from "./palette"; // акцентный цвет (перекраска текста+иллюстраций)
 
-// Визуальный редактор — только dev и только по ?d06&edit. Отдельный чанк (lazy), в прод
-// не грузится. Когда не смонтирован — рендер = база 0% (правок DOM нет). См. editor/.
-const Editor = lazy(() => import("./editor/Editor"));
+// Визуальный редактор — только dev и только по ?edit. В прод-сборке import.meta.env.DEV
+// статически false → тернарник сворачивается, и Rollup вообще не эмитит чанк редактора
+// (его JS+CSS не попадают в deploy). Когда не смонтирован — рендер = база 0%. См. editor/.
+const Editor = import.meta.env.DEV ? lazy(() => import("./editor/Editor")) : null;
 
 // Из Canva-стайлшитов линком оставляем ТОЛЬКО шрифты (design-fonts.css). Утилиты-классы —
 // в canva.module.css, переменные/keyframes — в canva-base.css. Остальные Canva-<link> убраны.
@@ -56,7 +57,7 @@ function AddedEl({ a }: { a: Addition }) {
   }
   return (
     <div data-eid={`add/${a.id}`} className="d06-add d06-add-img" style={{ ...style, overflow: "hidden" }}>
-      {a.src && <img src={a.src} draggable={false} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />}
+      {a.src && <img src={a.src} draggable={false} loading="lazy" decoding="async" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />}
     </div>
   );
 }
@@ -151,7 +152,7 @@ export default function Design06() {
           <div style={{ width: REF_WIDTH, zoom: scale }}>{page}</div>
         </div>
       )}
-      {editMode && (
+      {editMode && Editor && (
         <Suspense fallback={null}>
           <Editor scale={scale} />
         </Suspense>
