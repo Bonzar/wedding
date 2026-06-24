@@ -26,9 +26,8 @@ type Drag =
   | { kind: "field"; eid: string; dir: string; w0: number; h0: number; k: number; cx: number; cy: number; start: El; scale0: number; handle0: { x: number; y: number }; cScreen: { x: number; y: number } }
   | ({ kind: "wh"; eid: string; dir: string; start: El } & RotBox)
   | ({
-      kind: "prop"; eid: string; dir: string; target: "framePhoto" | "scale" | "photo";
-      scale0: number; pw0: number; ph0: number; photoEid: string | null; photoStart: El | null;
-      handle0: { x: number; y: number }; start: El;
+      kind: "prop"; eid: string; dir: string; target: "image" | "scale" | "photo";
+      scale0: number; handle0: { x: number; y: number }; start: El;
     } & RotBox)
   | null;
 
@@ -306,26 +305,22 @@ export default function Editor({ scale }: { scale: number }) {
         return;
       }
       if (drag?.kind === "prop") {
-        // free aspect (Option/Alt) on an image → resize the crop frame only (no photo)
-        if (drag.target === "framePhoto" && e.altKey) {
+        // image + Option/Alt → свободные пропорции = ресайз рамки-обрезки (кроп), без масштаба
+        if (drag.target === "image" && e.altKey) {
           writeDraft(drag.eid, { ...drag.start, ...whCompute(drag, e) });
           return;
         }
         const d0 = dist(drag.handle0.x, drag.handle0.y, drag.cScreen.x, drag.cScreen.y) || 1;
         const k = Math.max(0.05, dist(e.clientX, e.clientY, drag.cScreen.x, drag.cScreen.y) / d0);
-        if (drag.target === "scale") {
-          writeDraft(drag.eid, { ...drag.start, scale: drag.scale0 * k }); // uniform, about center
-          return;
-        }
-        const nw = drag.w0 * k, nh = drag.h0 * k;
         if (drag.target === "photo") {
           // zoom the photo about its own centre inside the fixed crop
+          const nw = drag.w0 * k, nh = drag.h0 * k;
           writeDraft(drag.eid, { ...drag.start, w: nw, h: nh, x: (drag.start.x ?? 0) + (drag.w0 - nw) / 2, y: (drag.start.y ?? 0) + (drag.h0 - nh) / 2 });
           return;
         }
-        // framePhoto: scale frame + photo together about centre (proportional)
-        writeDraft(drag.eid, { ...drag.start, w: nw, h: nh, x: drag.cParent.x - nw / 2, y: drag.cParent.y - nh / 2 });
-        if (drag.photoEid && drag.photoStart) writeDraft(drag.photoEid, { ...drag.photoStart, w: drag.pw0 * k, h: drag.ph0 * k });
+        // image (default) и кнопка → равномерный scale всего объекта about centre: весь
+        // подмост (рамка + клипнутое фото + узор) масштабируется разом, пропорции целы
+        writeDraft(drag.eid, { ...drag.start, scale: drag.scale0 * k });
         return;
       }
       if (inChrome(e.target)) return;
@@ -440,12 +435,10 @@ export default function Editor({ scale }: { scale: number }) {
     } else if (t.mode === "wh") {
       dragRef.current = { kind: "wh", eid: t.resizeEid, dir, start: rec, ...rotBox };
     } else {
-      const photoStart = t.photoEid ? merged(t.photoEid) : null;
       dragRef.current = {
         kind: "prop", eid: t.resizeEid, dir,
-        target: t.mode === "image" ? "framePhoto" : t.mode === "scale" ? "scale" : "photo",
-        scale0: rec.scale ?? 1, pw0: photoStart?.w ?? 0, ph0: photoStart?.h ?? 0,
-        photoEid: t.photoEid, photoStart, handle0, start: rec, ...rotBox,
+        target: t.mode === "image" ? "image" : t.mode === "scale" ? "scale" : "photo",
+        scale0: rec.scale ?? 1, handle0, start: rec, ...rotBox,
       };
     }
   };
