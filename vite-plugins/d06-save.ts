@@ -16,7 +16,7 @@ const SECT = join(ROOT, "src", "design06", "sections");
 const MEDIA = join(ROOT, "public", "design06-exact", "_assets", "media");
 
 const FIELD_ORDER = [
-  "x", "y", "w", "h", "rot", "scale",
+  "x", "y", "w", "h", "rot", "scale", "sx", "sy",
   "font", "fontSize", "letterSpacing", "lineHeight", "textAlign", "textTransform", "color",
 ];
 

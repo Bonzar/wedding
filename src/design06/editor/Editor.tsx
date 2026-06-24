@@ -23,11 +23,11 @@ type Mode = "image" | "text" | "scale" | "wh" | "photo";
 type RotBox = { rot: number; w0: number; h0: number; cParent: { x: number; y: number }; cScreen: { x: number; y: number } };
 type Drag =
   | { kind: "move"; eid: string; cx: number; cy: number; start: El; moved: boolean; clipBox: string | null; clipDone: boolean }
-  | { kind: "field"; eid: string; dir: string; w0: number; h0: number; k: number; cx: number; cy: number; start: El; scale0: number; handle0: { x: number; y: number }; cScreen: { x: number; y: number } }
+  | { kind: "field"; eid: string; dir: string; w0: number; h0: number; k: number; cx: number; cy: number; start: El; scale0: number; handle0: { x: number; y: number }; cScreen: { x: number; y: number }; pEid: string | null; wrapDone: boolean }
   | ({ kind: "wh"; eid: string; dir: string; start: El } & RotBox)
   | ({
       kind: "prop"; eid: string; dir: string; target: "image" | "scale" | "photo";
-      scale0: number; handle0: { x: number; y: number }; start: El;
+      scale0: number; sx0: number; sy0: number; handle0: { x: number; y: number }; start: El;
     } & RotBox)
   | null;
 
@@ -294,7 +294,13 @@ export default function Editor({ scale }: { scale: number }) {
           writeDraft(drag.eid, { ...drag.start, scale: drag.scale0 * k });
           return;
         }
-        // edge → field w/h (область переноса строк), flow-positioned + scaled, no rotation
+        // edge → field w/h (область переноса строк). Заголовки часто white-space:nowrap →
+        // включаем перенос на самом <p>, иначе ширина поля ни на что не влияет.
+        if (drag.pEid && !drag.wrapDone) {
+          drag.wrapDone = true;
+          const pr = merged(drag.pEid);
+          writeDraft(drag.pEid, { ...pr, raw: { ...(pr.raw ?? {}), whiteSpace: "normal" } });
+        }
         const dw = drag.dir.includes("e") ? (e.clientX - drag.cx) / drag.k : drag.dir.includes("w") ? -(e.clientX - drag.cx) / drag.k : 0;
         const dh = drag.dir.includes("s") ? (e.clientY - drag.cy) / drag.k : drag.dir.includes("n") ? -(e.clientY - drag.cy) / drag.k : 0;
         writeDraft(drag.eid, { ...drag.start, w: Math.max(1, drag.w0 + dw), h: Math.max(1, drag.h0 + dh) });
@@ -305,22 +311,30 @@ export default function Editor({ scale }: { scale: number }) {
         return;
       }
       if (drag?.kind === "prop") {
-        // image + Option/Alt → свободные пропорции = ресайз рамки-обрезки (кроп), без масштаба
-        if (drag.target === "image" && e.altKey) {
-          writeDraft(drag.eid, { ...drag.start, ...whCompute(drag, e) });
+        // Option/Alt → свободные пропорции: неравномерный масштаб (растяжение по перетаскиваемой
+        // оси). Истинный «кроп-кадр» — внутренняя обёртка без записи (overflow:hidden), её отдельно
+        // не адресовать, поэтому даём видимое растяжение через scale(sx, sy) всего объекта.
+        if (drag.target !== "photo" && e.altKey) {
+          const ux = { x: Math.cos(drag.rot), y: Math.sin(drag.rot) }, uy = { x: -Math.sin(drag.rot), y: Math.cos(drag.rot) };
+          const h0x = (drag.handle0.x - drag.cScreen.x) * ux.x + (drag.handle0.y - drag.cScreen.y) * ux.y;
+          const h0y = (drag.handle0.x - drag.cScreen.x) * uy.x + (drag.handle0.y - drag.cScreen.y) * uy.y;
+          const p1x = (e.clientX - drag.cScreen.x) * ux.x + (e.clientY - drag.cScreen.y) * ux.y;
+          const p1y = (e.clientX - drag.cScreen.x) * uy.x + (e.clientY - drag.cScreen.y) * uy.y;
+          const kx = Math.abs(h0x) > 5 ? p1x / h0x : 1, ky = Math.abs(h0y) > 5 ? p1y / h0y : 1;
+          writeDraft(drag.eid, { ...drag.start, scale: undefined, sx: Math.max(0.05, drag.sx0 * kx), sy: Math.max(0.05, drag.sy0 * ky) });
           return;
         }
         const d0 = dist(drag.handle0.x, drag.handle0.y, drag.cScreen.x, drag.cScreen.y) || 1;
         const k = Math.max(0.05, dist(e.clientX, e.clientY, drag.cScreen.x, drag.cScreen.y) / d0);
         if (drag.target === "photo") {
-          // zoom the photo about its own centre inside the fixed crop
+          if (e.altKey) { writeDraft(drag.eid, { ...drag.start, ...whCompute(drag, e) }); return; } // свободно — растянуть кадр по оси
           const nw = drag.w0 * k, nh = drag.h0 * k;
           writeDraft(drag.eid, { ...drag.start, w: nw, h: nh, x: (drag.start.x ?? 0) + (drag.w0 - nw) / 2, y: (drag.start.y ?? 0) + (drag.h0 - nh) / 2 });
           return;
         }
         // image (default) и кнопка → равномерный scale всего объекта about centre: весь
         // подмост (рамка + клипнутое фото + узор) масштабируется разом, пропорции целы
-        writeDraft(drag.eid, { ...drag.start, scale: drag.scale0 * k });
+        writeDraft(drag.eid, { ...drag.start, sx: undefined, sy: undefined, scale: drag.scale0 * k });
         return;
       }
       if (inChrome(e.target)) return;
@@ -400,11 +414,11 @@ export default function Editor({ scale }: { scale: number }) {
     const r = node.getBoundingClientRect();
     const center = { cx: r.left + r.width / 2, cy: r.top + r.height / 2 };
     if (!isObject(rec)) return { ...center, vw: r.width, vh: r.height, rot: 0 };
-    const el = rec.scale ?? 1;
+    const elx = rec.sx ?? rec.scale ?? 1, ely = rec.sy ?? rec.scale ?? 1;
     return {
       ...center,
-      vw: (rec.w != null ? rec.w * el : r.width / scale) * scale,
-      vh: (rec.h != null ? rec.h * el : r.height / scale) * scale,
+      vw: (rec.w != null ? rec.w * elx : r.width / scale) * scale,
+      vh: (rec.h != null ? rec.h * ely : r.height / scale) * scale,
       rot: rec.rot ?? 0,
     };
   }, [scale]);
@@ -431,14 +445,15 @@ export default function Editor({ scale }: { scale: number }) {
       cParent: { x: (rec.x ?? 0) + (rec.w ?? 0) / 2, y: (rec.y ?? 0) + (rec.h ?? 0) / 2 }, cScreen,
     };
     if (t.mode === "text") {
-      dragRef.current = { kind: "field", eid: t.resizeEid, dir, w0: rec.w ?? 0, h0: rec.h ?? 0, k: (rec.scale ?? 1) * scale, cx: e.clientX, cy: e.clientY, start: rec, scale0: rec.scale ?? 1, handle0, cScreen };
+      const pEid = nodeFor(t.resizeEid)?.querySelector("p")?.getAttribute("data-eid") ?? null;
+      dragRef.current = { kind: "field", eid: t.resizeEid, dir, w0: rec.w ?? 0, h0: rec.h ?? 0, k: (rec.scale ?? 1) * scale, cx: e.clientX, cy: e.clientY, start: rec, scale0: rec.scale ?? 1, handle0, cScreen, pEid, wrapDone: false };
     } else if (t.mode === "wh") {
       dragRef.current = { kind: "wh", eid: t.resizeEid, dir, start: rec, ...rotBox };
     } else {
       dragRef.current = {
         kind: "prop", eid: t.resizeEid, dir,
         target: t.mode === "image" ? "image" : t.mode === "scale" ? "scale" : "photo",
-        scale0: rec.scale ?? 1, handle0, start: rec, ...rotBox,
+        scale0: rec.scale ?? 1, sx0: rec.sx ?? rec.scale ?? 1, sy0: rec.sy ?? rec.scale ?? 1, handle0, start: rec, ...rotBox,
       };
     }
   };
