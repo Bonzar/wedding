@@ -215,6 +215,10 @@ export default function Editor({ scale }: { scale: number }) {
         origContentRef.current[wrapEid] = { ...origContentRef.current[wrapEid], src: imgUnder(wrapEid)?.getAttribute("src") ?? "" };
       setContent((c) => ({ ...c, [wrapEid]: { ...c[wrapEid], src: uj.path } })); // чистый путь — для Save/.tsx
       setImgSrc(wrapEid, `${uj.path}?v=${Date.now()}`); // превью — cache-bust
+      // оригиналы рендерятся с object-fit:fill (были обрезаны точно под рамку) → новое фото
+      // другого аспекта оно бы «плющило». Заполняем рамку без искажения (cover, обрезая лишнее).
+      const img = imgUnder(wrapEid);
+      if (img) img.style.objectFit = "cover";
       setTick((t) => t + 1);
     } catch (err) {
       // eslint-disable-next-line no-alert
@@ -446,7 +450,7 @@ export default function Editor({ scale }: { scale: number }) {
     for (const eid of dirtyContent) {
       const o = origContentRef.current[eid] ?? {};
       if (o.text != null) setText(eid, o.text);
-      if (o.src != null) setImgSrc(eid, o.src);
+      if (o.src != null) { setImgSrc(eid, o.src); const img = imgUnder(eid); if (img) img.style.objectFit = ""; } // вернуть class-овый fill
     }
     setDrafts({});
     setContent({});

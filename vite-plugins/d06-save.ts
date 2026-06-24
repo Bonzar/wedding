@@ -100,6 +100,18 @@ function patchSrc(src: string, eid: string, value: string): string | null {
   return src.slice(0, at) + `src=${JSON.stringify(value)}` + src.slice(at + m[0].length);
 }
 
+// Ensure the <img> (first after data-eid=<eid>) renders a replaced photo without distortion:
+// originals use object-fit:fill (pre-cropped), an arbitrary-aspect upload would stretch.
+function patchImgFit(src: string, eid: string): string {
+  const ki = src.indexOf(`data-eid="${eid}"`);
+  if (ki === -1) return src;
+  const imgIdx = src.indexOf("<img", ki);
+  if (imgIdx === -1) return src;
+  const end = tagEnd(src, imgIdx);
+  if (end === -1 || src.slice(imgIdx, end).includes("style=")) return src; // не трогаем уже стилизованный
+  return src.slice(0, imgIdx + 4) + ` style={{ objectFit: "cover" }}` + src.slice(imgIdx + 4);
+}
+
 type StyleChange = { eid: string; record: Record<string, unknown> };
 type ContentChange = { eid: string; text?: string; src?: string };
 
@@ -153,7 +165,7 @@ export function d06Save(): Plugin {
             if (c.src != null) {
               const n = patchSrc(src, c.eid, c.src);
               if (n == null) return json(res, 422, { ok: false, error: `img not found: ${c.eid}` });
-              src = n;
+              src = patchImgFit(n, c.eid); // заполнять рамку без искажения
             }
             await writeFile(file, src);
           }
