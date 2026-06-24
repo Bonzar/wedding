@@ -17,6 +17,7 @@ export type El = {
   // текст
   font?: string; // font-family
   fontSize?: number; // px — в Canva это CSS-переменная --H97cbQ
+  fontWeight?: CSSProperties["fontWeight"]; // 100–900 или "normal"/"bold"
   letterSpacing?: string; // напр. "0em"
   lineHeight?: string; // напр. "119px"
   textAlign?: CSSProperties["textAlign"];
@@ -53,6 +54,7 @@ export function elStyle(r: El, opts?: { keepInk?: boolean }): CSSProperties {
   if (tf.length) s.transform = tf.join(" ");
   if (r.font != null) s.fontFamily = r.font;
   if (r.fontSize != null) s["--H97cbQ"] = `${r.fontSize}px`; // Canva-конвенция размера текста
+  if (r.fontWeight != null) s.fontWeight = r.fontWeight;
   if (r.letterSpacing != null) s.letterSpacing = r.letterSpacing;
   if (r.lineHeight != null) s.lineHeight = r.lineHeight;
   if (r.textAlign != null) s.textAlign = r.textAlign;

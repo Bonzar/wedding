@@ -5,7 +5,7 @@
 import { elStyle, type El } from "../layout";
 
 const KNOWN_KEYS = [
-  "width", "height", "transform", "fontFamily", "letterSpacing", "lineHeight",
+  "width", "height", "transform", "fontFamily", "fontWeight", "letterSpacing", "lineHeight",
   "textAlign", "textTransform", "color", "clipPath", "whiteSpace", "display", "zIndex",
 ] as const;
 

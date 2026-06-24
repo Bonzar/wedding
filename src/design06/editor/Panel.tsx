@@ -63,6 +63,29 @@ export function Panel(p: Props) {
       />
     </label>
   );
+  // Насыщенность — стандартные ступени 100–900 (+ «авто», когда вес не задан и берётся из шрифта).
+  const weightField = (target: string, rec: El) => {
+    const cur = num(rec.fontWeight);
+    const opts = ["100", "200", "300", "400", "500", "600", "700", "800", "900"];
+    return (
+      <label className="d06e-f" key="fontWeight">
+        <span>Насыщенность</span>
+        <select
+          value={cur}
+          onChange={(e) => p.onField(target, "fontWeight", e.target.value === "" ? undefined : e.target.value)}
+        >
+          <option value="">— авто —</option>
+          {cur && !opts.includes(cur) && <option value={cur}>{cur}</option>}
+          {opts.map((w) => (
+            <option key={w} value={w}>
+              {w}
+            </option>
+          ))}
+        </select>
+      </label>
+    );
+  };
+
   // Шрифт — нативный <select> (а не input+datalist): всегда показывает ВСЕ опции
   // независимо от текущего значения и не «съезжает». Текущее значение, если его нет
   // в списке (легаси/ручная правка), добавляется первым пунктом, чтобы не потерялось.
@@ -153,6 +176,7 @@ export function Panel(p: Props) {
                 </label>
               )}
               {fontField(p.textEid, p.textDraft)}
+              {weightField(p.textEid, p.textDraft)}
               {numField("fontSize", "Кегль px", p.textEid, p.textDraft)}
               {textField("letterSpacing", "Трекинг", p.textEid, p.textDraft, "0em")}
               {textField("lineHeight", "Интерлиньяж", p.textEid, p.textDraft, "89px")}

@@ -19,7 +19,7 @@ export const layout: Record<string, El> = {
   "calendar/pretitle-text": { font: "\"Jost\", system-ui, sans-serif", fontSize: 55, letterSpacing: "0em", lineHeight: "119px", textTransform: "uppercase", color: "rgb(53, 80, 116)", raw: { "--gixK-A": "0", "--kJ5CrQ": "0", "--zPlnxA": "none", "listStyleType": "none", "whiteSpace": "normal" } },
   "calendar/span-1": { color: "rgb(53, 80, 116)", raw: { "fontSize": "1em", "fontWeight": "700", "fontStyle": "normal", "fontKerning": "none", "textDecorationLine": "none", "textDecorationThickness": "initial", "textDecorationStyle": "initial" } },
   "calendar/span-2": { color: "rgb(53, 80, 116)", raw: { "fontSize": "1em", "fontWeight": "200", "fontStyle": "normal", "fontKerning": "none", "textDecorationLine": "none", "textDecorationThickness": "initial", "textDecorationStyle": "initial" } },
-  "calendar/engraving-mid": { x: 1616.943727450786, y: 431.56612813197944, w: 1052.41, h: 1048.58, scale: 0.9472158773002285, raw: { "touchAction": "pan-x pan-y pinch-zoom" } },
+  "calendar/engraving-mid": { x: 1616.943727450786, y: 431.56612813197944, w: 1052.41, h: 1048.58, scale: 0.9472158773002285, raw: { "touchAction": "pan-x pan-y pinch-zoom", "display": "none" } },
   "calendar/engraving-mid-img": { x: 0, y: 0, w: 1052.41, h: 629.1793080023655, rot: 0 },
   "calendar/box-4": { h: 1048.58, w: 1052.41, scale: 1, raw: { "position": "absolute", "top": "0px", "left": "0px", "transformOrigin": "0px 0px", "pointerEvents": "none" } },
   "calendar/grid": { x: 428.345602019069, y: 575.453493481595, w: 912.074, h: 429.63874282557276, raw: { "touchAction": "pan-x pan-y pinch-zoom" } },
