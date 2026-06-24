@@ -373,7 +373,7 @@ function Caption1() {
               <div className={cx(styles._2UyCZQ, styles.vkN2Cw, styles.Mb8E_A, styles.e1_zQg)} lang="en">
                 <p className={cx(styles._28USrA, styles.AfeL7g, styles.XN6uKA, styles._4N4NA)} data-eid="journey/para-2" style={elStyle(layout["journey/para-2"])}>
                   <span className={styles.a_GcMg} data-eid="journey/caption-1-text" style={elStyle(layout["journey/caption-1-text"])}>
-                    {"чтобы познакомиться Влад  догонял Олю бегом, настолько она была красивая"}
+                    {"наше знакомсчтво началось с "}
                   </span>
                 </p>
               </div>
@@ -396,7 +396,7 @@ function Caption2() {
               <div className={cx(styles._2UyCZQ, styles.vkN2Cw, styles.Mb8E_A, styles.e1_zQg)} lang="en">
                 <p className={cx(styles._28USrA, styles.AfeL7g, styles.XN6uKA, styles._4N4NA)} data-eid="journey/para-3" style={elStyle(layout["journey/para-3"])}>
                   <span className={styles.a_GcMg} data-eid="journey/caption-2-text" style={elStyle(layout["journey/caption-2-text"])}>
-                    {"мы вместе много путешествовали, пережили, работали, отдыхали и много-много всего обсуждали"}
+                    {"вместе мы много путешествовали, работали, отдыхали и много-много всего обсуждали"}
                   </span>
                 </p>
               </div>

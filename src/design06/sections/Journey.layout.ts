@@ -21,7 +21,7 @@ export const layout: Record<string, El> = {
   "journey/block-3": { w: 596.337, h: 386.314, x: 606.337, y: 589.471, raw: { "touchAction": "pan-x pan-y pinch-zoom" } },
   "journey/imgwrap-3": { w: 596.337, h: 397.92, x: 0, y: -5.80289, rot: 0 },
   "journey/box-4": { h: 386.314, w: 596.337, scale: 1, raw: { "position": "absolute", "top": "0px", "left": "0px", "transformOrigin": "0px 0px", "pointerEvents": "none" } },
-  "journey/block-4": { w: 596.337, h: 386.314, x: 606.337, y: 985.785, raw: { "touchAction": "pan-x pan-y pinch-zoom" } },
+  "journey/block-4": { x: 606.337, y: 985.785, w: 596.337, h: 386.314, raw: { "touchAction": "pan-x pan-y pinch-zoom", "zIndex": 9999, "display": "none" } },
   "journey/imgwrap-4": { x: -80.62623851133213, y: 1.430016195786834, w: 700.2912599981245, h: 466.011805675911, rot: 0 },
   "journey/box-5": { h: 386.314, w: 596.337, scale: 1, raw: { "position": "absolute", "top": "0px", "left": "0px", "transformOrigin": "0px 0px", "pointerEvents": "none" } },
   "journey/engraving-1": { w: 947.958, h: 305.453, x: 414.021, y: 2566.77, raw: { "touchAction": "pan-x pan-y pinch-zoom" } },

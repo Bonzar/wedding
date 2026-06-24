@@ -52,6 +52,7 @@ export default function Calendar() {
                   <EngravingMid />
                   <CalendarGrid />
                   <EngravingLeaf2 />
+                  <Map />
                   <MapsButton />
                   <MonthHeading />
                   <LocationHeading />
@@ -439,6 +440,31 @@ function EngravingLeaf2() {
           style={elStyle(layout["calendar/box-41"])}
         />
       </div>
+    </div>
+  );
+}
+
+// Встроенная карта Yandex (виджет «Три кедра»). Занимает пустое поле между адресом
+// и кнопкой «Яндекс Карты». Позиция/размер — в Calendar.layout.ts (data-eid), как у всех элементов.
+function Map() {
+  return (
+    <div
+      className={cx(styles.DF_utQ, styles._682gpw, styles._0xkaeQ)}
+      data-eid="calendar/map"
+      style={elStyle(layout["calendar/map"])}
+    >
+      <iframe
+        title="Карта — Сочи, Три кедра"
+        src="https://yandex.ru/map-widget/v1/?um=constructor%3Acac75de5edf5273bae52f678d421076b55368f6fadced06b0eb9da0f89586e99&source=constructor"
+        loading="lazy"
+        style={{
+          display: "block",
+          width: "100%",
+          height: "100%",
+          border: "2px solid var(--d06-ink, rgb(53, 80, 116))",
+          borderRadius: 16,
+        }}
+      />
     </div>
   );
 }
