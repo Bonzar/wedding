@@ -4,6 +4,7 @@ import { cx } from "../cx";
 import { elStyle } from "../layout";
 import styles from "../canva.module.css";
 import { layout } from "./Gift.layout";
+import { assetUrl } from "../assetUrl";
 
 // Фоновая иллюстрация-гравюра (повёрнутое фото на всю секцию).
 function Backdrop() {
@@ -17,7 +18,7 @@ function Backdrop() {
               <div className={styles.PcHy7w}>
                 <div className={cx(styles.uk_25A, styles.Ty61NA)}>
                   <div className={styles.Izwocg} data-eid="gift/backdrop-image" style={elStyle(layout["gift/backdrop-image"])}>
-                    <img loading="lazy" decoding="async" className={styles._7_i_XA} crossOrigin="anonymous" draggable={false} src="/design06-exact/_assets/media/2a2388e813cb85fb095b9a0c836a0688.jpg" />
+                    <img loading="lazy" decoding="async" className={styles._7_i_XA} crossOrigin="anonymous" draggable={false} src={assetUrl("/design06-exact/_assets/media/2a2388e813cb85fb095b9a0c836a0688.jpg")} />
                   </div>
                 </div>
               </div>
@@ -45,7 +46,7 @@ function Illustration() {
           <div className={styles.PcHy7w}>
             <div className={cx(styles.uk_25A, styles.Ty61NA)}>
               <div className={styles.Izwocg} data-eid="gift/illustration-image" style={elStyle(layout["gift/illustration-image"])}>
-                <img loading="lazy" decoding="async" className={styles.dMHlHA} crossOrigin="anonymous" draggable={false} src="/design06-exact/_assets/blobs/PB09PH75zdFrcMmz_0.png" />
+                <img loading="lazy" decoding="async" className={styles.dMHlHA} crossOrigin="anonymous" draggable={false} src={assetUrl("/design06-exact/_assets/blobs/PB09PH75zdFrcMmz_0.png")} />
               </div>
             </div>
           </div>
@@ -65,7 +66,7 @@ function Sparkle() {
           <div className={styles.PcHy7w}>
             <div className={cx(styles.uk_25A, styles.Ty61NA)}>
               <div className={styles.Izwocg} data-eid="gift/sparkle-image" style={elStyle(layout["gift/sparkle-image"])}>
-                <img loading="lazy" decoding="async" className={styles.dMHlHA} crossOrigin="anonymous" draggable={false} src="/design06-exact/_assets/blobs/PB09PH75zdFrcMmz_1.png" />
+                <img loading="lazy" decoding="async" className={styles.dMHlHA} crossOrigin="anonymous" draggable={false} src={assetUrl("/design06-exact/_assets/blobs/PB09PH75zdFrcMmz_1.png")} />
               </div>
             </div>
           </div>

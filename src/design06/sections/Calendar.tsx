@@ -5,6 +5,7 @@ import { cx } from "../cx";
 import { elStyle } from "../layout";
 import styles from "../canva.module.css";
 import { layout } from "./Calendar.layout";
+import { assetUrl } from "../assetUrl";
 import { useCountdown } from "@/hooks/useCountdown";
 import { WEDDING_DATE_ISO } from "@/content/wedding";
 
@@ -92,7 +93,7 @@ function Backdrop() {
                 className={styles._7_i_XA}
                 crossOrigin="anonymous"
                 draggable={false}
-                src="/design06-exact/_assets/media/2a2388e813cb85fb095b9a0c836a0688.jpg"
+                src={assetUrl("/design06-exact/_assets/media/2a2388e813cb85fb095b9a0c836a0688.jpg")}
               />
             </div>
           </div>
@@ -122,7 +123,7 @@ function EngravingTop() {
                   className={styles.dMHlHA}
                   crossOrigin="anonymous"
                   draggable={false}
-                  src="/design06-exact/_assets/blobs/PBtLyKJDZDgGk7P1_0.png"
+                  src={assetUrl("/design06-exact/_assets/blobs/PBtLyKJDZDgGk7P1_0.png")}
                 />
               </div>
             </div>
@@ -218,7 +219,7 @@ function EngravingMid() {
                   className={styles.dMHlHA}
                   crossOrigin="anonymous"
                   draggable={false}
-                  src="/design06-exact/_assets/blobs/PBtLyKJDZDgGk7P1_1.png"
+                  src={assetUrl("/design06-exact/_assets/blobs/PBtLyKJDZDgGk7P1_1.png")}
                 />
               </div>
             </div>
@@ -433,7 +434,7 @@ function EngravingLeaf2() {
                   className={styles.dMHlHA}
                   crossOrigin="anonymous"
                   draggable={false}
-                  src="/design06-exact/_assets/blobs/PBtLyKJDZDgGk7P1_3.png"
+                  src={assetUrl("/design06-exact/_assets/blobs/PBtLyKJDZDgGk7P1_3.png")}
                 />
               </div>
             </div>

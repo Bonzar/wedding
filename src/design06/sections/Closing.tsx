@@ -4,6 +4,7 @@ import { cx } from "../cx";
 import { elStyle } from "../layout";
 import styles from "../canva.module.css";
 import { layout } from "./Closing.layout";
+import { assetUrl } from "../assetUrl";
 
 // Однотонная белая подложка под текстурой.
 function Backdrop() {
@@ -14,7 +15,7 @@ function Backdrop() {
 function BackdropImage() {
   return (
     <div className={styles.Izwocg} data-eid="closing/backdropImage" style={elStyle(layout["closing/backdropImage"])}>
-      <img loading="lazy" decoding="async" className={styles._7_i_XA} crossOrigin="anonymous" draggable={false} src="/design06-exact/_assets/media/2a2388e813cb85fb095b9a0c836a0688.jpg" />
+      <img loading="lazy" decoding="async" className={styles._7_i_XA} crossOrigin="anonymous" draggable={false} src={assetUrl("/design06-exact/_assets/media/2a2388e813cb85fb095b9a0c836a0688.jpg")} />
     </div>
   );
 }
@@ -30,7 +31,7 @@ function Engraving() {
               <div className={styles.PcHy7w}>
                 <div className={cx(styles.uk_25A, styles.Ty61NA)}>
                   <div className={styles.Izwocg} data-eid="closing/engravingImage" style={elStyle(layout["closing/engravingImage"])}>
-                    <img loading="lazy" decoding="async" className={styles.dMHlHA} crossOrigin="anonymous" draggable={false} src="/design06-exact/_assets/blobs/PB9GyzXqcqH056Yr_0.png" />
+                    <img loading="lazy" decoding="async" className={styles.dMHlHA} crossOrigin="anonymous" draggable={false} src={assetUrl("/design06-exact/_assets/blobs/PB9GyzXqcqH056Yr_0.png")} />
                   </div>
                 </div>
               </div>

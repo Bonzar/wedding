@@ -16,6 +16,7 @@ import { cx } from "../cx";
 import { elStyle } from "../layout";
 import styles from "../canva.module.css";
 import { layout } from "./Survey.layout";
+import { assetUrl } from "../assetUrl";
 import { useRsvp } from "@/stores/context";
 import { SURVEY_INTRO } from "@/content/wedding";
 
@@ -100,7 +101,7 @@ function BodyText() {
               <div className={cx(styles._2UyCZQ, styles.vkN2Cw, styles.Mb8E_A, styles.e1_zQg)} lang="ru">
                 <p className={cx(styles._28USrA, styles.AfeL7g, styles.XN6uKA, styles._4N4NA)} data-eid="survey/body-p" style={elStyle(layout["survey/body-p"])}>
                   <span className={styles.a_GcMg} data-eid="survey/body-span" style={elStyle(layout["survey/body-span"])}>
-                    {SURVEY_INTRO.text}
+                    {"Пожалуйста, ответьте на несколько вопросов, чтобы подтвердить своё присутствие, до 10 августа 2026. Ваш ответ очень поможет нам в подготовке к свадьбе."}
                   </span>
                 </p>
               </div>
@@ -181,7 +182,7 @@ export default function Survey() {
       id="survey"
       style={{
         backgroundColor: "var(--paper)",
-        backgroundImage: "url(/design06-exact/_assets/media/2a2388e813cb85fb095b9a0c836a0688.jpg)",
+        backgroundImage: `url(${assetUrl("/design06-exact/_assets/media/2a2388e813cb85fb095b9a0c836a0688.jpg")})`,
         backgroundSize: "cover",
         backgroundPosition: "center",
         backgroundRepeat: "no-repeat",

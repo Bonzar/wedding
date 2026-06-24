@@ -4,6 +4,7 @@ import { cx } from "../cx";
 import { elStyle } from "../layout";
 import styles from "../canva.module.css";
 import { layout } from "./Details.layout";
+import { assetUrl } from "../assetUrl";
 
 function BackgroundPhoto() {
   return (
@@ -12,7 +13,7 @@ function BackgroundPhoto() {
       <div className={styles.PcHy7w}>
         <div className={cx(styles.uk_25A, styles.Ty61NA)}>
           <div className={styles.Izwocg} data-eid="details/bg-photo" style={elStyle(layout["details/bg-photo"])}>
-            <img loading="lazy" decoding="async" className={styles._7_i_XA} crossOrigin="anonymous" draggable={false} src="/design06-exact/_assets/media/2a2388e813cb85fb095b9a0c836a0688.jpg" />
+            <img loading="lazy" decoding="async" className={styles._7_i_XA} crossOrigin="anonymous" draggable={false} src={assetUrl("/design06-exact/_assets/media/2a2388e813cb85fb095b9a0c836a0688.jpg")} />
           </div>
         </div>
       </div>
@@ -52,7 +53,7 @@ function AccommodationHeading() {
               <div className={cx(styles._2UyCZQ, styles.vkN2Cw, styles.Mb8E_A, styles.e1_zQg)} lang="en">
                 <p className={cx(styles._28USrA, styles._2ENCSQ, styles.XN6uKA, styles._4N4NA)} data-eid="details/accommodation-heading-text" style={elStyle(layout["details/accommodation-heading-text"])}>
                   <span className={styles.a_GcMg} data-eid="details/span-2" style={elStyle(layout["details/span-2"])}>
-                    {"Accommodation"}
+                    {"Расположение"}
                   </span>
                   <span className={cx(styles.a_GcMg, styles.zYq_BQ)} data-eid="details/span-3" style={elStyle(layout["details/span-3"])}>
                     {" "}
@@ -77,7 +78,7 @@ function AccommodationParagraph() {
               <div className={cx(styles._2UyCZQ, styles.vkN2Cw, styles.e1_zQg)} lang="en">
                 <p className={cx(styles._28USrA, styles._2ENCSQ, styles.XN6uKA, styles._4N4NA)} data-eid="details/accommodation-paragraph-text" style={elStyle(layout["details/accommodation-paragraph-text"])}>
                   <span className={styles.a_GcMg} data-eid="details/span-4" style={elStyle(layout["details/span-4"])}>
-                    {"For your convenience, rooms have been reserved at Bali Resort with special wedding rates. Please mention “Felix & Angel Wedding” when booking to receive the discounted rate."}
+                    {"Для вашего удобства для остановки выбирайте места проживания в центральном районе города Сочи.\n      Мы советуем остановиться неподалеку от ЖД вокзала, так вам будет комфортно во время поездки, и все будет в пешой доступности."}
                   </span>
                 </p>
               </div>
@@ -99,7 +100,7 @@ function TransportationHeading() {
               <div className={cx(styles._2UyCZQ, styles.vkN2Cw, styles.Mb8E_A, styles.e1_zQg)} lang="en">
                 <p className={cx(styles._28USrA, styles._2ENCSQ, styles.XN6uKA, styles._4N4NA)} data-eid="details/transportation-heading-text" style={elStyle(layout["details/transportation-heading-text"])}>
                   <span className={styles.a_GcMg} data-eid="details/span-5" style={elStyle(layout["details/span-5"])}>
-                    {"Transportation"}
+                    {"Как добраться"}
                   </span>
                   <span className={cx(styles.a_GcMg, styles.zYq_BQ)} data-eid="details/span-6" style={elStyle(layout["details/span-6"])}>
                     {" "}
@@ -124,7 +125,7 @@ function TransportationParagraph() {
               <div className={cx(styles._2UyCZQ, styles.vkN2Cw, styles.e1_zQg)} lang="en">
                 <p className={cx(styles._28USrA, styles._2ENCSQ, styles.XN6uKA, styles._4N4NA)} data-eid="details/transportation-paragraph-text" style={elStyle(layout["details/transportation-paragraph-text"])}>
                   <span className={styles.a_GcMg} data-eid="details/span-7" style={elStyle(layout["details/span-7"])}>
-                    {"For your convenience, the venue is about 30 minutes from the airport or train station by taxi or rideshare. A complimentary shuttle service will be available for guests staying at Bali Resort, and ample on-site parking is provided for those who prefer to drive."}
+                    {"Если вы никогда не были в Сочи, то спешим вас предупредить, аэропорт находится в отдалении от центрального района. Проще всего добраться до него будет на электричке прямо от Аэропорта, или на такси, однако в час пик могут быть большие пробки."}
                   </span>
                 </p>
               </div>
@@ -144,7 +145,7 @@ function EngravingPhoto() {
           <div className={styles.PcHy7w}>
             <div className={cx(styles.uk_25A, styles.Ty61NA)}>
               <div className={styles.Izwocg} data-eid="details/engraving-photo" style={elStyle(layout["details/engraving-photo"])}>
-                <img loading="lazy" decoding="async" className={styles.dMHlHA} crossOrigin="anonymous" draggable={false} src="/design06-exact/_assets/blobs/PBsHbr4J9zLLY08q_0.png" />
+                <img loading="lazy" decoding="async" className={styles.dMHlHA} crossOrigin="anonymous" draggable={false} src={assetUrl("/design06-exact/_assets/blobs/PBsHbr4J9zLLY08q_0.png")} />
               </div>
             </div>
           </div>

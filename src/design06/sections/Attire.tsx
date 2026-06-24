@@ -4,6 +4,7 @@ import { cx } from "../cx";
 import { elStyle } from "../layout";
 import styles from "../canva.module.css";
 import { layout } from "./Attire.layout";
+import { assetUrl } from "../assetUrl";
 
 // Сплошная белая подложка секции.
 function Backdrop() {
@@ -14,7 +15,7 @@ function Backdrop() {
 function Photo() {
   return (
     <div className={styles.Izwocg} data-eid="attire/photo" style={elStyle(layout["attire/photo"])}>
-      <img loading="lazy" decoding="async" className={styles._7_i_XA} crossOrigin="anonymous" draggable={false} src="/design06-exact/_assets/media/2a2388e813cb85fb095b9a0c836a0688.jpg" />
+      <img loading="lazy" decoding="async" className={styles._7_i_XA} crossOrigin="anonymous" draggable={false} src={assetUrl("/design06-exact/_assets/media/2a2388e813cb85fb095b9a0c836a0688.jpg")} />
     </div>
   );
 }
@@ -28,7 +29,7 @@ function AttireIconLarge() {
           <div className={styles.PcHy7w}>
             <div className={cx(styles.uk_25A, styles.Ty61NA)}>
               <div className={styles.Izwocg} data-eid="attire/imgwrap-1" style={elStyle(layout["attire/imgwrap-1"])}>
-                <img loading="lazy" decoding="async" className={styles.dMHlHA} crossOrigin="anonymous" draggable={false} src="/design06-exact/_assets/blobs/PBL8ZPfjvBzXjMPd_0.svg" />
+                <img loading="lazy" decoding="async" className={styles.dMHlHA} crossOrigin="anonymous" draggable={false} src={assetUrl("/design06-exact/_assets/blobs/PBL8ZPfjvBzXjMPd_0.svg")} />
               </div>
             </div>
           </div>
@@ -48,7 +49,7 @@ function AttireIconSmall() {
           <div className={styles.PcHy7w}>
             <div className={cx(styles.uk_25A, styles.Ty61NA)}>
               <div className={styles.Izwocg} data-eid="attire/imgwrap-2" style={elStyle(layout["attire/imgwrap-2"])}>
-                <img loading="lazy" decoding="async" className={styles.dMHlHA} crossOrigin="anonymous" draggable={false} src="/design06-exact/_assets/blobs/PBL8ZPfjvBzXjMPd_1.svg" />
+                <img loading="lazy" decoding="async" className={styles.dMHlHA} crossOrigin="anonymous" draggable={false} src={assetUrl("/design06-exact/_assets/blobs/PBL8ZPfjvBzXjMPd_1.svg")} />
               </div>
             </div>
           </div>
@@ -93,11 +94,7 @@ function Paragraph() {
               <div className={cx(styles._2UyCZQ, styles.vkN2Cw, styles.Mb8E_A, styles.e1_zQg)} lang="en">
                 <p className={cx(styles._28USrA, styles.AfeL7g, styles.XN6uKA, styles._4N4NA)} data-eid="attire/paragraph-text" style={elStyle(layout["attire/paragraph-text"])}>
                   <span className={styles.a_GcMg} data-eid="attire/span-2" style={elStyle(layout["attire/span-2"])}>
-                    {"We invite our guests to dress in semi-formal attire—"}
-                    <br />
-                    {"cocktail dresses or elegant outfits for ladies, and a shirt"}
-                    <br />
-                    {"with dress pants for gentlemen."}
+                    {"Мы просим наших гостей прийти в полуформальной одежде: коктейльные платья или элегантные наряды для дам и рубашки с брюками для джентльменов."}
                   </span>
                 </p>
               </div>

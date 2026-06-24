@@ -4,6 +4,7 @@ import { cx } from "../cx";
 import { elStyle } from "../layout";
 import styles from "../canva.module.css";
 import { layout } from "./Journey.layout";
+import { assetUrl } from "../assetUrl";
 
 // Полноэкранное фоновое фото (повёрнуто на 90°), лежит под всем коллажем.
 function BackdropPhoto() {
@@ -17,7 +18,7 @@ function BackdropPhotoImage() {
     <div className={styles.PcHy7w}>
       <div className={cx(styles.uk_25A, styles.Ty61NA)}>
         <div className={styles.Izwocg} data-eid="journey/backdrop-photo" style={elStyle(layout["journey/backdrop-photo"])}>
-          <img loading="lazy" decoding="async" className={styles._7_i_XA} crossOrigin="anonymous" draggable={false} src="/design06-exact/_assets/media/2a2388e813cb85fb095b9a0c836a0688.jpg" />
+          <img loading="lazy" decoding="async" className={styles._7_i_XA} crossOrigin="anonymous" draggable={false} src={assetUrl("/design06-exact/_assets/media/2a2388e813cb85fb095b9a0c836a0688.jpg")} />
         </div>
       </div>
     </div>
@@ -35,7 +36,7 @@ function PhotoCollage() {
               <div className={styles.PcHy7w}>
                 <div className={cx(styles.uk_25A, styles.Ty61NA)}>
                   <div className={styles.Izwocg} data-eid="journey/imgwrap-1" style={elStyle(layout["journey/imgwrap-1"])}>
-                    <img loading="lazy" decoding="async" style={{ objectFit: "cover" }} className={styles._7_i_XA} crossOrigin="anonymous" draggable={false} src="/design06-exact/_assets/media/photo_2026-06-24_12.30.54.jpeg" />
+                    <img loading="lazy" decoding="async" style={{ objectFit: "cover" }} className={styles._7_i_XA} crossOrigin="anonymous" draggable={false} src={assetUrl("/design06-exact/_assets/media/photo_2026-06-24_12.30.54.jpeg")} />
                   </div>
                 </div>
               </div>
@@ -49,7 +50,7 @@ function PhotoCollage() {
               <div className={styles.PcHy7w}>
                 <div className={cx(styles.uk_25A, styles.Ty61NA)}>
                   <div className={styles.Izwocg} data-eid="journey/imgwrap-2" style={elStyle(layout["journey/imgwrap-2"])}>
-                    <img loading="lazy" decoding="async" style={{ objectFit: "cover" }} className={styles._7_i_XA} crossOrigin="anonymous" draggable={false} src="/design06-exact/_assets/media/photo_2026-06-24_12.30.50.jpeg" />
+                    <img loading="lazy" decoding="async" style={{ objectFit: "cover" }} className={styles._7_i_XA} crossOrigin="anonymous" draggable={false} src={assetUrl("/design06-exact/_assets/media/photo_2026-06-24_12.30.50.jpeg")} />
                   </div>
                 </div>
               </div>
@@ -63,7 +64,7 @@ function PhotoCollage() {
               <div className={styles.PcHy7w}>
                 <div className={cx(styles.uk_25A, styles.Ty61NA)}>
                   <div className={styles.Izwocg} data-eid="journey/imgwrap-3" style={elStyle(layout["journey/imgwrap-3"])}>
-                    <img loading="lazy" decoding="async" style={{ objectFit: "cover" }} className={styles._7_i_XA} crossOrigin="anonymous" draggable={false} src="/design06-exact/_assets/media/photo_2026-06-24_12.30.53.jpeg" />
+                    <img loading="lazy" decoding="async" style={{ objectFit: "cover" }} className={styles._7_i_XA} crossOrigin="anonymous" draggable={false} src={assetUrl("/design06-exact/_assets/media/photo_2026-06-24_12.30.53.jpeg")} />
                   </div>
                 </div>
               </div>
@@ -77,7 +78,7 @@ function PhotoCollage() {
               <div className={styles.PcHy7w}>
                 <div className={cx(styles.uk_25A, styles.Ty61NA)}>
                   <div className={styles.Izwocg} data-eid="journey/imgwrap-4" style={elStyle(layout["journey/imgwrap-4"])}>
-                    <img loading="lazy" decoding="async" style={{ objectFit: "cover" }} className={styles._7_i_XA} crossOrigin="anonymous" draggable={false} src="/design06-exact/_assets/media/photo_2026-06-24_12.30.56.jpeg" />
+                    <img loading="lazy" decoding="async" style={{ objectFit: "cover" }} className={styles._7_i_XA} crossOrigin="anonymous" draggable={false} src={assetUrl("/design06-exact/_assets/media/photo_2026-06-24_12.30.56.jpeg")} />
                   </div>
                 </div>
               </div>
@@ -114,7 +115,7 @@ function Engraving2() {
           <div className={styles.PcHy7w}>
             <div className={cx(styles.uk_25A, styles.Ty61NA)}>
               <div className={styles.Izwocg} data-eid="journey/imgwrap-6" style={elStyle(layout["journey/imgwrap-6"])}>
-                <img loading="lazy" decoding="async" className={styles.dMHlHA} crossOrigin="anonymous" draggable={false} src="/design06-exact/_assets/blobs/PBYbv3X7MfRLX7B4_1.png" />
+                <img loading="lazy" decoding="async" className={styles.dMHlHA} crossOrigin="anonymous" draggable={false} src={assetUrl("/design06-exact/_assets/blobs/PBYbv3X7MfRLX7B4_1.png")} />
               </div>
             </div>
           </div>
@@ -133,7 +134,7 @@ function Engraving3() {
           <div className={styles.PcHy7w}>
             <div className={cx(styles.uk_25A, styles.Ty61NA)}>
               <div className={styles.Izwocg} data-eid="journey/imgwrap-7" style={elStyle(layout["journey/imgwrap-7"])}>
-                <img loading="lazy" decoding="async" className={styles.dMHlHA} crossOrigin="anonymous" draggable={false} src="/design06-exact/_assets/blobs/PBYbv3X7MfRLX7B4_2.png" />
+                <img loading="lazy" decoding="async" className={styles.dMHlHA} crossOrigin="anonymous" draggable={false} src={assetUrl("/design06-exact/_assets/blobs/PBYbv3X7MfRLX7B4_2.png")} />
               </div>
             </div>
           </div>
@@ -152,7 +153,7 @@ function Engraving4() {
           <div className={styles.PcHy7w}>
             <div className={cx(styles.uk_25A, styles.Ty61NA)}>
               <div className={styles.Izwocg} data-eid="journey/imgwrap-8" style={elStyle(layout["journey/imgwrap-8"])}>
-                <img loading="lazy" decoding="async" className={styles.dMHlHA} crossOrigin="anonymous" draggable={false} src="/design06-exact/_assets/blobs/PBYbv3X7MfRLX7B4_3.png" />
+                <img loading="lazy" decoding="async" className={styles.dMHlHA} crossOrigin="anonymous" draggable={false} src={assetUrl("/design06-exact/_assets/blobs/PBYbv3X7MfRLX7B4_3.png")} />
               </div>
             </div>
           </div>
@@ -171,7 +172,7 @@ function Engraving5() {
           <div className={styles.PcHy7w}>
             <div className={cx(styles.uk_25A, styles.Ty61NA)}>
               <div className={styles.Izwocg} data-eid="journey/imgwrap-9" style={elStyle(layout["journey/imgwrap-9"])}>
-                <img loading="lazy" decoding="async" className={styles.dMHlHA} crossOrigin="anonymous" draggable={false} src="/design06-exact/_assets/blobs/PBYbv3X7MfRLX7B4_4.png" />
+                <img loading="lazy" decoding="async" className={styles.dMHlHA} crossOrigin="anonymous" draggable={false} src={assetUrl("/design06-exact/_assets/blobs/PBYbv3X7MfRLX7B4_4.png")} />
               </div>
             </div>
           </div>
@@ -190,7 +191,7 @@ function Engraving6() {
           <div className={styles.PcHy7w}>
             <div className={cx(styles.uk_25A, styles.Ty61NA)} data-eid="journey/imgbox" style={elStyle(layout["journey/imgbox"])}>
               <div className={styles.Izwocg} data-eid="journey/imgwrap-10" style={elStyle(layout["journey/imgwrap-10"])}>
-                <img loading="lazy" decoding="async" className={styles.dMHlHA} crossOrigin="anonymous" draggable={false} src="/design06-exact/_assets/blobs/PBYbv3X7MfRLX7B4_5.png" />
+                <img loading="lazy" decoding="async" className={styles.dMHlHA} crossOrigin="anonymous" draggable={false} src={assetUrl("/design06-exact/_assets/blobs/PBYbv3X7MfRLX7B4_5.png")} />
               </div>
             </div>
           </div>
@@ -217,7 +218,7 @@ function CirclePhoto1() {
           <div className={styles.bFnJ2A} data-eid="journey/clip-1" style={elStyle(layout["journey/clip-1"])}>
             <div className={cx(styles._4c2rDg, styles.GxUsfw)} data-eid="journey/cliptf-1" style={elStyle(layout["journey/cliptf-1"])}>
               <div className={styles.qhHTGg} data-eid="journey/circle-photo-1-img" style={elStyle(layout["journey/circle-photo-1-img"])}>
-                <img loading="lazy" decoding="async" style={{ objectFit: "cover" }} className={styles._7_i_XA} crossOrigin="anonymous" draggable={false} src="/design06-exact/_assets/media/photo_2026-06-24_12.31.09.jpeg" />
+                <img loading="lazy" decoding="async" style={{ objectFit: "cover" }} className={styles._7_i_XA} crossOrigin="anonymous" draggable={false} src={assetUrl("/design06-exact/_assets/media/photo_2026-06-24_12.31.09.jpeg")} />
               </div>
             </div>
           </div>
@@ -243,7 +244,7 @@ function CirclePhoto2() {
           <div className={styles.bFnJ2A} data-eid="journey/clip-2" style={elStyle(layout["journey/clip-2"])}>
             <div className={cx(styles._4c2rDg, styles.GxUsfw)} data-eid="journey/cliptf-2" style={elStyle(layout["journey/cliptf-2"])}>
               <div className={styles.qhHTGg} data-eid="journey/circle-photo-2-img" style={elStyle(layout["journey/circle-photo-2-img"])}>
-                <img loading="lazy" decoding="async" style={{ objectFit: "cover" }} className={styles._7_i_XA} crossOrigin="anonymous" draggable={false} src="/design06-exact/_assets/media/photo_2026-06-24_12.30.50.jpeg" />
+                <img loading="lazy" decoding="async" style={{ objectFit: "cover" }} className={styles._7_i_XA} crossOrigin="anonymous" draggable={false} src={assetUrl("/design06-exact/_assets/media/photo_2026-06-24_12.30.50.jpeg")} />
               </div>
             </div>
           </div>
@@ -269,7 +270,7 @@ function CirclePhoto3() {
           <div className={styles.bFnJ2A} data-eid="journey/clip-3" style={elStyle(layout["journey/clip-3"])}>
             <div className={cx(styles._4c2rDg, styles.GxUsfw)} data-eid="journey/cliptf-3" style={elStyle(layout["journey/cliptf-3"])}>
               <div className={styles.qhHTGg} data-eid="journey/circle-photo-3-img" style={elStyle(layout["journey/circle-photo-3-img"])}>
-                <img loading="lazy" decoding="async" style={{ objectFit: "cover" }} className={styles._7_i_XA} crossOrigin="anonymous" draggable={false} src="/design06-exact/_assets/media/photo_2026-06-24_12.31.05.jpeg" />
+                <img loading="lazy" decoding="async" style={{ objectFit: "cover" }} className={styles._7_i_XA} crossOrigin="anonymous" draggable={false} src={assetUrl("/design06-exact/_assets/media/photo_2026-06-24_12.31.05.jpeg")} />
               </div>
             </div>
           </div>
@@ -289,7 +290,7 @@ function Engraving7() {
           <div className={styles.PcHy7w}>
             <div className={cx(styles.uk_25A, styles.Ty61NA)}>
               <div className={styles.Izwocg} data-eid="journey/imgwrap-11" style={elStyle(layout["journey/imgwrap-11"])}>
-                <img loading="lazy" decoding="async" className={styles.dMHlHA} crossOrigin="anonymous" draggable={false} src="/design06-exact/_assets/blobs/PBYbv3X7MfRLX7B4_6.png" />
+                <img loading="lazy" decoding="async" className={styles.dMHlHA} crossOrigin="anonymous" draggable={false} src={assetUrl("/design06-exact/_assets/blobs/PBYbv3X7MfRLX7B4_6.png")} />
               </div>
             </div>
           </div>
@@ -308,7 +309,7 @@ function Engraving8() {
           <div className={styles.PcHy7w}>
             <div className={cx(styles.uk_25A, styles.Ty61NA)}>
               <div className={styles.Izwocg} data-eid="journey/imgwrap-12" style={elStyle(layout["journey/imgwrap-12"])}>
-                <img loading="lazy" decoding="async" className={styles.dMHlHA} crossOrigin="anonymous" draggable={false} src="/design06-exact/_assets/blobs/PBYbv3X7MfRLX7B4_7.png" />
+                <img loading="lazy" decoding="async" className={styles.dMHlHA} crossOrigin="anonymous" draggable={false} src={assetUrl("/design06-exact/_assets/blobs/PBYbv3X7MfRLX7B4_7.png")} />
               </div>
             </div>
           </div>
@@ -327,7 +328,7 @@ function Engraving9() {
           <div className={styles.PcHy7w}>
             <div className={cx(styles.uk_25A, styles.Ty61NA)}>
               <div className={styles.Izwocg} data-eid="journey/imgwrap-13" style={elStyle(layout["journey/imgwrap-13"])}>
-                <img loading="lazy" decoding="async" className={styles.dMHlHA} crossOrigin="anonymous" draggable={false} src="/design06-exact/_assets/blobs/PBYbv3X7MfRLX7B4_8.png" />
+                <img loading="lazy" decoding="async" className={styles.dMHlHA} crossOrigin="anonymous" draggable={false} src={assetUrl("/design06-exact/_assets/blobs/PBYbv3X7MfRLX7B4_8.png")} />
               </div>
             </div>
           </div>
