@@ -455,11 +455,9 @@ const FRAME_BORDER = `${cqw(2)} solid var(--d06-ink, rgb(53, 80, 116))`; // d07:
 const FRAME_RADIUS = cqw(16);
 
 // «Три кедра», кафе (Сочи, Ривьерский пер., 5Б; oid=1040306482) — из короткой ссылки
-// yandex.ru/maps/-/CTQNvQK3. Порядок координат [lat, lon]. Фото — og:image карточки орга.
-const VENUE_CENTER: [number, number] = [43.58792, 39.715244];
-const VENUE_POINT: [number, number] = [43.587809, 39.714851];
-const VENUE_PHOTO = "https://avatars.mds.yandex.net/get-altay/8075227/2a00000185785826ec50ffb29dbde139f8e3/L_height";
-const VENUE_ORG_URL = "https://yandex.ru/maps/org/1040306482/";
+// yandex.ru/maps/-/CTQNvQK3. Порядок координат [lat, lon]. Карточку показываем СИСТЕМНУЮ
+// (нативный POI организации Яндекса), без кастомных меток/балунов.
+const VENUE_CENTER: [number, number] = [43.587809, 39.714851];
 
 // Ленивая загрузка скрипта Яндекс-карт 2.1 (один раз на страницу). v2.1 пробуем без ключа.
 let ymapsReady: Promise<unknown> | null = null;
@@ -505,30 +503,13 @@ function Map() {
       .then((ymaps) => {
         if (dead || !mapRef.current) return;
         const Y = ymaps as unknown as {
-          Map: new (...a: unknown[]) => { behaviors: { disable: (n: string) => void }; geoObjects: { add: (o: unknown) => void }; destroy: () => void };
-          Placemark: new (...a: unknown[]) => unknown;
-          templateLayoutFactory: { createClass: (s: string) => unknown };
+          Map: new (...a: unknown[]) => { behaviors: { disable: (n: string) => void }; destroy: () => void };
         };
-        const m = new Y.Map(mapRef.current, { center: VENUE_CENTER, zoom: 17, controls: ["zoomControl"] }, { suppressMapOpenBlock: true, yandexMapDisablePoiInteractivity: true });
+        // Системная карточка организации: нативный POI «Три кедра» интерактивен (НЕ выключаем
+        // yandexMapDisablePoiInteractivity) → тап по нему открывает СИСТЕМНУЮ карточку Яндекса
+        // с фото/инфо. Никаких кастомных меток/балунов.
+        const m = new Y.Map(mapRef.current, { center: VENUE_CENTER, zoom: 17, controls: ["zoomControl"] }, { suppressMapOpenBlock: true });
         m.behaviors.disable("scrollZoom"); // скролл страницы не зумит карту
-        // Кастомная метка: кружок с ФОТО кафе + подпись (не системный пин). По тапу — балун с фото и ссылкой.
-        const iconLayout = Y.templateLayoutFactory.createClass(
-          '<div style="transform:translate(-50%,-100%);text-align:center;pointer-events:auto">' +
-            `<div style="width:56px;height:56px;border-radius:50%;border:3px solid #355074;overflow:hidden;background:#fff;box-shadow:0 2px 8px rgba(53,80,116,.45);margin:0 auto"><img src="${VENUE_PHOTO}" style="width:100%;height:100%;object-fit:cover;display:block"/></div>` +
-            '<div style="margin-top:3px;font:600 13px/1.1 \'Jost\',system-ui,sans-serif;color:#355074;white-space:nowrap;text-shadow:0 1px 2px #fff,0 0 3px #fff">Три кедра</div>' +
-          '</div>',
-        );
-        const pm = new Y.Placemark(
-          VENUE_POINT,
-          {
-            hintContent: "«Три кедра», кафе",
-            balloonContentHeader: "«Три кедра», кафе",
-            balloonContentBody: `<img src="${VENUE_PHOTO}" style="width:220px;max-width:60vw;border-radius:8px;display:block"/><div style="margin-top:6px;color:#355074">Сочи, Ривьерский пер., 5Б</div>`,
-            balloonContentFooter: `<a href="${VENUE_ORG_URL}" target="_blank" rel="noopener nofollow">Открыть в Яндекс Картах</a>`,
-          },
-          { iconLayout, iconShape: { type: "Circle", coordinates: [0, -28], radius: 28 } },
-        );
-        m.geoObjects.add(pm);
         map = m;
       })
       .catch(() => {});
