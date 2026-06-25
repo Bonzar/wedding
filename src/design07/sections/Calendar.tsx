@@ -490,7 +490,7 @@ function Map() {
       <iframe
         title="Карта — Сочи, Три кедра"
         src="https://yandex.ru/map-widget/v1/?um=constructor%3Acac75de5edf5273bae52f678d421076b55368f6fadced06b0eb9da0f89586e99&source=constructor"
-        loading="lazy"
+        loading="eager"
         style={{ display: "block", width: `${NW}px`, height: `${NH}px`, border: "none", transform: `scale(${scale})`, transformOrigin: "top left" }}
       />
     </div>
