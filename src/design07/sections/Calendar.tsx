@@ -1,6 +1,6 @@
 // design06 section Calendar (Canva id PBtLyKJDZDgGk7P1). Структура + утилиты-классы — база (0%).
 // Редактируемые стили вынесены в Calendar.layout.ts и применяются по data-eid (Approach A2).
-import type { CSSProperties } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { cx } from "../cx";
 import { elStyle, cqw } from "../layout";
 import styles from "../canva.module.css";
@@ -454,12 +454,31 @@ const FRAME_BORDER = `${cqw(2)} solid var(--d06-ink, rgb(53, 80, 116))`; // d07:
 const FRAME_RADIUS = cqw(16);
 
 function Map() {
+  const boxRef = useRef<HTMLDivElement>(null);
+  const base = layout["calendar/map"];
+  const NW = base.w ?? 1369.63; // нативный размер карты (px макета)
+  const NH = base.h ?? 584.11;
+  // Контролы Яндекс-виджета — фикс-px ВНУТРИ iframe и сами не масштабируются с маленьким iframe
+  // (оттого на узком экране кнопки огромные). Рендерим iframe в НАТИВНОМ размере и плавно сжимаем
+  // под cqw-бокс через transform: scale (ResizeObserver — непрерывно, без media-query-прыжка) →
+  // карта и кнопки уменьшаются пропорционально всему листу.
+  const [scale, setScale] = useState(1);
+  useEffect(() => {
+    const box = boxRef.current;
+    if (!box) return;
+    const apply = () => setScale(box.clientWidth / NW);
+    apply();
+    const ro = new ResizeObserver(apply);
+    ro.observe(box);
+    return () => ro.disconnect();
+  }, [NW]);
   return (
     <div
+      ref={boxRef}
       className={cx(styles.DF_utQ, styles._682gpw, styles._0xkaeQ)}
       data-eid="calendar/map"
       style={{
-        ...elStyle(layout["calendar/map"]),
+        ...elStyle(base),
         border: FRAME_BORDER,
         borderRadius: FRAME_RADIUS,
         overflow: "hidden",
@@ -470,7 +489,7 @@ function Map() {
         title="Карта — Сочи, Три кедра"
         src="https://yandex.ru/map-widget/v1/?um=constructor%3Acac75de5edf5273bae52f678d421076b55368f6fadced06b0eb9da0f89586e99&source=constructor"
         loading="lazy"
-        style={{ display: "block", width: "100%", height: "100%", border: "none" }}
+        style={{ display: "block", width: `${NW}px`, height: `${NH}px`, border: "none", transform: `scale(${scale})`, transformOrigin: "top left" }}
       />
     </div>
   );

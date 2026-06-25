@@ -16,6 +16,7 @@ import type { El } from "../layout";
 import { applyEl, imgUnder, nodeFor, resetEl, setImgSrc, setText, textOf } from "./apply";
 import { BASE, hasGeometry, hasTypography, isField, isObject, isSection } from "./registry";
 import { addStore } from "./additionsStore";
+import { SECTION_SLUGS } from "../sections";
 import { Panel, type FieldKey } from "./Panel";
 import { PalettePicker } from "./PalettePicker";
 import { activePalette, applyPalette } from "../palette";
@@ -302,12 +303,32 @@ export default function Editor({ scale }: { scale: number }) {
     return { x: (window.innerWidth / 2 - left) / scale, y: (window.innerHeight / 2 - top) / scale };
   }, [scale]);
 
+  // Секция под точкой экрана → slug + её верх/левый в координатах канвы. i-я section.rGeu6w в
+  // DOM == SECTION_SLUGS[i] (в edit-режиме baseline off → все 9 на месте). Новый элемент крепим
+  // к секции под центром вьюпорта: его x/y станут ОТНОСИТЕЛЬНЫМИ секции → поедет вместе с ней.
+  const sectionAtScreen = useCallback((screenX: number, screenY: number) => {
+    const layer = document.querySelector(".d06-add-layer") ?? document.querySelector(".KYQZFA");
+    const lr = layer?.getBoundingClientRect();
+    if (!lr) return null;
+    const secs = [...document.querySelectorAll<HTMLElement>("section.rGeu6w")];
+    for (let i = 0; i < secs.length; i++) {
+      const r = secs[i].getBoundingClientRect();
+      if (screenX >= r.left && screenX <= r.right && screenY >= r.top && screenY <= r.bottom && SECTION_SLUGS[i])
+        return { slug: SECTION_SLUGS[i] as string, topCanvas: (r.top - lr.top) / scale, leftCanvas: (r.left - lr.left) / scale };
+    }
+    return null;
+  }, [scale]);
+
   const addText = useCallback(() => {
     const { x, y } = canvasPoint();
     const id = newId();
-    addStore.add({ id, kind: "text", x: x - 200, y: y - 30, w: 400, h: 60, fontSize: 40, color: "rgb(53, 80, 116)", lineHeight: "1.25", text: "Новый текст" });
+    const sec = sectionAtScreen(window.innerWidth / 2, window.innerHeight / 2);
+    const tpl = { id, kind: "text" as const, w: 400, h: 60, fontSize: 40, color: "rgb(53, 80, 116)", lineHeight: "1.25", text: "Новый текст" };
+    addStore.add(sec
+      ? { ...tpl, section: sec.slug, x: x - sec.leftCanvas - 200, y: y - sec.topCanvas - 30 }
+      : { ...tpl, x: x - 200, y: y - 30 });
     setSelected(`add/${id}`); setTick((t) => t + 1);
-  }, [canvasPoint]);
+  }, [canvasPoint, sectionAtScreen]);
 
   const fileRef = useRef<HTMLInputElement>(null);
   const addImageFile = useCallback(async (file: File) => {
@@ -319,9 +340,12 @@ export default function Editor({ scale }: { scale: number }) {
     const w = 420, h = Math.max(1, Math.round(w * dims.h / dims.w));
     const { x, y } = canvasPoint();
     const id = newId();
-    addStore.add({ id, kind: "image", x: x - w / 2, y: y - h / 2, w, h, src: path });
+    const sec = sectionAtScreen(window.innerWidth / 2, window.innerHeight / 2);
+    addStore.add(sec
+      ? { id, kind: "image", section: sec.slug, x: x - sec.leftCanvas - w / 2, y: y - sec.topCanvas - h / 2, w, h, src: path }
+      : { id, kind: "image", x: x - w / 2, y: y - h / 2, w, h, src: path });
     setSelected(`add/${id}`); setTick((t) => t + 1);
-  }, [uploadFile, canvasPoint]);
+  }, [uploadFile, canvasPoint, sectionAtScreen]);
 
   // копия одного объекта как свободный addition (в тех же экранных координатах); возвращает add-eid
   const copyOne = useCallback((eid: string): string | null => {
@@ -710,6 +734,7 @@ export default function Editor({ scale }: { scale: number }) {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
+          design: "design07", // писать правки в src/design07/* (а не design06) — см. vite-plugins/d06-save.ts
           changes: dirty.map((eid) => ({ eid, record: drafts[eid] })),
           content: dirtyContent.map((eid) => ({ eid, ...content[eid] })),
           additions: addStore.list(),
