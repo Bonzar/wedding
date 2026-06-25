@@ -119,7 +119,10 @@ function ColorSwatch({ eid, innerEid, frameEid, fillEid, clipId }: { eid: string
               </clipPath>
             </defs>
           </svg>
-          <div className={styles.bFnJ2A} data-eid={fillEid} style={elStyle(layout[fillEid], { keepInk: true })} />
+          {/* d07: вместо SVG-клипа (userSpaceOnUse 256px — НЕ масштабируется, на узкой ширине
+              кружок превращался в «треугольник») — CSS circle(50%): вписанный круг, масштабируется
+              с элементом. На квадратном 256px-боксе идентичен исходному → натив 0% цел. */}
+          <div className={styles.bFnJ2A} data-eid={fillEid} style={{ ...elStyle(layout[fillEid], { keepInk: true }), clipPath: "circle(50%)" }} />
         </div>
       </div>
     </div>

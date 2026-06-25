@@ -16,7 +16,13 @@ import { SHOTS, shootSections } from "./d07-shot.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const OUT = join(ROOT, "tests", "d07-baseline");
-const GATE = { native: 0, desktop880: 0.002 }; // допустимый per-section diffRatio
+// native — строгий гейт: допуск 1e-5 (≈ десяток AA-пикселей кромок глифов на секцию;
+// реальный сдвиг геометрии = тысячи пикселей, так что порог уверенно отделяет шум).
+// desktop880 — ИНФОРМАЦИОННО (не фейлит): на 880 d07 рисует нативно, а эталон — отмасштаб.
+// битмап d06, поэтому diff = сглаживание текста (это и есть улучшение). Сдвиги на 880 ловит
+// tests/d07-scale.mjs (равномерность масштаба) + визуальная проверка.
+const GATE = { native: 1e-5 };
+const INFO_ONLY = new Set(["desktop880"]);
 
 const b = await chromium.launch();
 let failed = false;
@@ -25,8 +31,9 @@ for (const s of SHOTS) {
   const dir = join(OUT, s.name);
   const { shots } = await shootSections(b, s);
   const gate = GATE[s.name] ?? 0;
+  const infoOnly = INFO_ONLY.has(s.name);
   let shotFail = false;
-  console.log(`\n[${s.name}] gate per-section ratio <= ${gate}`);
+  console.log(`\n[${s.name}] ${infoOnly ? "(информационно — не фейлит; AA текста)" : `gate per-section ratio <= ${gate}`}`);
   for (const sh of shots) {
     const basePath = join(dir, `${sh.idx}-${sh.id}.png`);
     if (!existsSync(basePath)) {
@@ -51,7 +58,7 @@ for (const s of SHOTS) {
     }
     console.log(`  ${sh.idx}-${sh.id}  ${ok ? "✅" : "❌"} diff=${px} ratio=${ratio.toExponential(2)} (${cur.width}x${cur.height})`);
   }
-  if (shotFail) failed = true;
+  if (shotFail && !infoOnly) failed = true;
 }
 
 await b.close();

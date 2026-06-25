@@ -44,7 +44,7 @@ function Divider({ eid, dInner, dOuter }: { eid: string; dInner: string; dOuter:
   return (
     <div className={cx(styles.DF_utQ, styles._682gpw)} data-eid={eid} style={elStyle(layout[eid])}>
       <div className={styles.V7MmMA} data-eid={`${eid}-box`} style={elStyle(layout[`${eid}-box`])}>
-        <svg className={styles.Fe_H_Q} data-eid={`${eid}-svg`} style={elStyle(layout[`${eid}-svg`])}>
+        <svg className={styles.Fe_H_Q} data-eid={`${eid}-svg`} viewBox={`0 0 ${layout[`${eid}-svg`].w ?? 0} ${layout[`${eid}-svg`].h ?? 0}`} preserveAspectRatio="none" style={elStyle(layout[`${eid}-svg`])}>
           <path className={styles._682gpw} d={dInner} strokeLinecap="butt" strokeWidth="2" fill="none" pointerEvents="auto" opacity="0" data-eid={`${eid}-path`} style={elStyle(layout[`${eid}-path`])} />
           <g>
             <path d={dOuter} strokeLinecap="round" strokeWidth="2" fill="none" pointerEvents="none" />

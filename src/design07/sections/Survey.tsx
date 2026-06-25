@@ -13,7 +13,7 @@
 // иначе он добавил бы высоту и сломал полностраничный пиксель-дифф (tools/_verify_d06.mjs).
 import { observer } from "mobx-react-lite";
 import { cx } from "../cx";
-import { elStyle } from "../layout";
+import { elStyle, cqw } from "../layout";
 import styles from "../canva.module.css";
 import { layout } from "./Survey.layout";
 import { assetUrl } from "../assetUrl";
@@ -27,15 +27,13 @@ const INK = "var(--d06-ink, rgb(53, 80, 116))";
 // Декоративная веточка-разделитель (НЕ редактируемая — без data-eid).
 const Sprig = ({ size }: { size: number }) => (
   <svg
-    width={size}
-    height={size}
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"
     strokeWidth="1.3"
     strokeLinecap="round"
     aria-hidden="true"
-    style={{ flex: "0 0 auto" }}
+    style={{ flex: "0 0 auto", width: cqw(size), height: cqw(size) }}
   >
     <path d="M12 21V7" />
     <path d="M12 12c-3 0-5-2-5-5 3 0 5 2 5 5z" />
@@ -129,14 +127,14 @@ const GuestList = observer(function GuestList() {
 
   if (rsvp.listState !== "ready") {
     return (
-      <p style={{ fontFamily: '"PT Serif", Georgia, serif', fontSize: 34, lineHeight: 1.6, color: "var(--ink-muted)", maxWidth: 1100, margin: "0 auto" }}>
+      <p style={{ fontFamily: '"PT Serif", Georgia, serif', fontSize: cqw(34), lineHeight: 1.6, color: "var(--ink-muted)", maxWidth: cqw(1100), margin: "0 auto" }}>
         {NOTE[rsvp.listState]}
       </p>
     );
   }
 
   return (
-    <div aria-live="polite" style={{ display: "flex", flexDirection: "column", maxWidth: 1040, margin: "0 auto", textAlign: "left" }}>
+    <div aria-live="polite" style={{ display: "flex", flexDirection: "column", maxWidth: cqw(1040), margin: "0 auto", textAlign: "left" }}>
       {rsvp.guests.map((g) => (
         <button
           key={g.guestId}
@@ -146,22 +144,22 @@ const GuestList = observer(function GuestList() {
           style={{
             display: "flex",
             alignItems: "center",
-            gap: 28,
+            gap: cqw(28),
             width: "100%",
             background: "none",
             border: "none",
-            borderBottom: "1px solid var(--line)",
-            padding: "32px 8px",
+            borderBottom: `${cqw(1)} solid var(--line)`,
+            padding: `${cqw(32)} ${cqw(8)}`,
             cursor: "pointer",
             textAlign: "left",
             color: INK,
           }}
         >
           <Sprig size={44} />
-          <span style={{ flex: 1, fontFamily: '"Jost", system-ui, sans-serif', fontWeight: 300, fontSize: 34, letterSpacing: "0.02em", color: "var(--ink-strong)" }}>
+          <span style={{ flex: 1, fontFamily: '"Jost", system-ui, sans-serif', fontWeight: 300, fontSize: cqw(34), letterSpacing: "0.02em", color: "var(--ink-strong)" }}>
             Опрос для гостя: <b style={{ fontWeight: 500 }}>{g.name}</b>
           </span>
-          <span style={{ fontFamily: '"Jost", system-ui, sans-serif', fontSize: 28, color: g.answered ? INK : "var(--ink-muted)", textDecoration: "underline", textUnderlineOffset: 4 }}>
+          <span style={{ fontFamily: '"Jost", system-ui, sans-serif', fontSize: cqw(28), color: g.answered ? INK : "var(--ink-muted)", textDecoration: "underline", textUnderlineOffset: 4 }}>
             {g.answered ? "(отвечено)" : "(ответить)"}
           </span>
         </button>
@@ -189,16 +187,16 @@ export default function Survey() {
       }}
     >
       {/* Канва интро: relative-контейнер, внутри — абсолютные редактируемые объекты. */}
-      <div style={{ position: "relative", width: 1776, height: 700, margin: "0 auto" }}>
+      <div style={{ position: "relative", width: cqw(1776), height: cqw(700), margin: "0 auto" }}>
         <Eyebrow />
         <Title />
-        <div style={{ position: "absolute", left: "50%", top: 352, transform: "translateX(-50%)", color: INK }}>
+        <div style={{ position: "absolute", left: "50%", top: cqw(352), transform: "translateX(-50%)", color: INK }}>
           <Sprig size={56} />
         </div>
         <BodyText />
       </div>
       {/* Список гостей — интерактив, вне редактируемого слоя. */}
-      <div style={{ width: 1776, boxSizing: "border-box", padding: "0 138px 168px", margin: "0 auto", textAlign: "center" }}>
+      <div style={{ width: cqw(1776), boxSizing: "border-box", padding: `0 ${cqw(138)} ${cqw(168)}`, margin: "0 auto", textAlign: "center" }}>
         <GuestList />
       </div>
     </section>

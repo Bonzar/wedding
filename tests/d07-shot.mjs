@@ -21,7 +21,9 @@ export async function shootSections(browser, shot) {
   // setFixedTime (НЕ install): фиксируем только Date.now()/new Date() → стабильные цифры
   // обратного отсчёта (Calendar), но РЕАЛЬНЫЕ таймеры/rAF работают, поэтому lazy-load фото
   // (IntersectionObserver) грузит детерминированно. install() фейкает таймеры и ломал lazy.
-  await page.clock.setFixedTime(new Date("2026-06-25T12:00:00Z"));
+  // Время съёмки = D07_CLOCK (для проверки, что diff ЛОВИТ таймер: сдвинул время → секция
+  // Calendar обязана дать ненулевой diff). Эталон и verify должны браться с ОДНИМ D07_CLOCK.
+  await page.clock.setFixedTime(new Date(process.env.D07_CLOCK || "2026-06-25T12:00:00Z"));
   await page.goto(BASE + "/" + shot.query, { waitUntil: "load", timeout: 60000 });
   // d07 грузится лениво (Suspense) — дождаться монтирования секций перед запросом хэндлов.
   await page.waitForSelector("section.rGeu6w", { timeout: 30000 });

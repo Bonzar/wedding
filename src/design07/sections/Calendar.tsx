@@ -2,7 +2,7 @@
 // Редактируемые стили вынесены в Calendar.layout.ts и применяются по data-eid (Approach A2).
 import type { CSSProperties } from "react";
 import { cx } from "../cx";
-import { elStyle } from "../layout";
+import { elStyle, cqw } from "../layout";
 import styles from "../canva.module.css";
 import { layout } from "./Calendar.layout";
 import { useEffect, useState } from "react";
@@ -331,8 +331,7 @@ function CalendarGrid() {
                       >
                         <svg
                           viewBox="0 0 150 136"
-                          width="150"
-                          height="136"
+                          style={{ width: cqw(150), height: cqw(136) }}
                           fill="none"
                           xmlns="http://www.w3.org/2000/svg"
                         >
@@ -458,8 +457,8 @@ function EngravingLeaf2() {
 const MAP_IMG_SRC = assetUrl("/design06-exact/_assets/media/map-tri-kedra.png");
 const MAP_LINK = "https://yandex.ru/maps/-/CTQNvQK3";
 
-const FRAME_BORDER = "2px solid var(--d06-ink, rgb(53, 80, 116))";
-const FRAME_RADIUS = 16;
+const FRAME_BORDER = `${cqw(2)} solid var(--d06-ink, rgb(53, 80, 116))`; // d07: рамка в cqw (масштабируется)
+const FRAME_RADIUS = cqw(16);
 
 // Размер задаётся в редакторе под десктоп (calendar/map). Но на узких экранах весь лист
 // 1776px ужимается под ширину экрана, поэтому крупная карта забирает почти всю ширину и
@@ -546,7 +545,9 @@ function MapsButton() {
           <div
             className={styles.bFnJ2A}
             data-eid="calendar/maps-button-pill"
-            style={elStyle(layout["calendar/maps-button-pill"])}
+            /* d07: SVG-клип-пилюля (userSpaceOnUse px) → CSS inset(round 9999px): пилюля при
+               любом размере; на нативе радиус=½ высоты = идентичен исходному → 0% цел. */
+            style={{ ...elStyle(layout["calendar/maps-button-pill"]), clipPath: "inset(0 round 9999px)" }}
           />
         </div>
       </div>
@@ -780,19 +781,20 @@ const pad2 = (n: number) => String(n).padStart(2, "0");
 // в стилистике секции: Jost, чернильный rgb(53,80,116), формат ДД : ЧЧ : ММ : СС.
 function Countdown() {
   const { days, hours, minutes, seconds } = useCountdown(WEDDING_DATE_ISO);
+  // d07: размеры в cqw (масштаб на уровне лайаута), иначе на узкой ширине отсчёт не уменьшается.
   const num: CSSProperties = {
     fontFamily: '"Jost", system-ui, sans-serif',
     fontWeight: 300,
-    fontSize: 58,
+    fontSize: cqw(58),
     lineHeight: 1,
     color: "var(--d06-ink, rgb(53, 80, 116))",
     fontVariantNumeric: "tabular-nums",
   };
   const label: CSSProperties = {
-    marginTop: 12,
+    marginTop: cqw(12),
     fontFamily: '"Jost", system-ui, sans-serif',
     fontWeight: 400,
-    fontSize: 26,
+    fontSize: cqw(26),
     letterSpacing: "0.1em",
     textTransform: "uppercase",
     color: "color-mix(in srgb, var(--d06-ink, rgb(53, 80, 116)) 78%, transparent)",
@@ -801,9 +803,9 @@ function Countdown() {
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    minWidth: 120,
+    minWidth: cqw(120),
   };
-  const sep: CSSProperties = { ...num, color: "color-mix(in srgb, var(--d06-ink, rgb(53, 80, 116)) 32%, transparent)", padding: "0 1px" };
+  const sep: CSSProperties = { ...num, color: "color-mix(in srgb, var(--d06-ink, rgb(53, 80, 116)) 32%, transparent)", padding: `0 ${cqw(1)}` };
   return (
     <div
       className={cx(styles.DF_utQ, styles._682gpw, styles._0xkaeQ)}

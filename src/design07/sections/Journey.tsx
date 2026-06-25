@@ -1,7 +1,7 @@
 // design06 section Journey (Canva id PBYbv3X7MfRLX7B4). Структура + утилиты-классы — база (0%).
 // Редактируемые стили вынесены в Journey.layout.ts и применяются по data-eid (Approach A2).
 import { cx } from "../cx";
-import { elStyle } from "../layout";
+import { elStyle, cqw } from "../layout";
 import styles from "../canva.module.css";
 import { layout } from "./Journey.layout";
 import { assetUrl } from "../assetUrl";
@@ -97,9 +97,9 @@ function LoveStory() {
   return (
     <div className={cx(styles.DF_utQ, styles._682gpw, styles._0xkaeQ)} data-eid="journey/lovestory" style={elStyle(layout["journey/lovestory"])}>
       <div data-eid="journey/lovestory-text" style={elStyle(layout["journey/lovestory-text"])}>
-        <div style={{ marginLeft: "0px" }}>{"История любви"}</div>
-        <div style={{ marginLeft: "90px" }}>{"История любви"}</div>
-        <div style={{ marginLeft: "180px" }}>{"История любви"}</div>
+        <div style={{ marginLeft: cqw(0) }}>{"История любви"}</div>
+        <div style={{ marginLeft: cqw(90) }}>{"История любви"}</div>
+        <div style={{ marginLeft: cqw(180) }}>{"История любви"}</div>
       </div>
     </div>
   );
@@ -215,7 +215,8 @@ function CirclePhoto1() {
               </clipPath>
             </defs>
           </svg>
-          <div className={styles.bFnJ2A} data-eid="journey/clip-1" style={elStyle(layout["journey/clip-1"])}>
+          {/* d07: rect-клип == бокс → CSS inset(0) (масштабируется; натив идентичен). */}
+          <div className={styles.bFnJ2A} data-eid="journey/clip-1" style={{ ...elStyle(layout["journey/clip-1"]), clipPath: "inset(0)" }}>
             <div className={cx(styles._4c2rDg, styles.GxUsfw)} data-eid="journey/cliptf-1" style={elStyle(layout["journey/cliptf-1"])}>
               <div className={styles.qhHTGg} data-eid="journey/circle-photo-1-img" style={elStyle(layout["journey/circle-photo-1-img"])}>
                 <img loading="lazy" decoding="async" style={{ objectFit: "cover" }} className={styles._7_i_XA} crossOrigin="anonymous" draggable={false} src={assetUrl("/design06-exact/_assets/media/photo_2026-06-24_12.31.09.jpeg")} />
@@ -241,7 +242,7 @@ function CirclePhoto2() {
               </clipPath>
             </defs>
           </svg>
-          <div className={styles.bFnJ2A} data-eid="journey/clip-2" style={elStyle(layout["journey/clip-2"])}>
+          <div className={styles.bFnJ2A} data-eid="journey/clip-2" style={{ ...elStyle(layout["journey/clip-2"]), clipPath: "inset(0)" }}>
             <div className={cx(styles._4c2rDg, styles.GxUsfw)} data-eid="journey/cliptf-2" style={elStyle(layout["journey/cliptf-2"])}>
               <div className={styles.qhHTGg} data-eid="journey/circle-photo-2-img" style={elStyle(layout["journey/circle-photo-2-img"])}>
                 <img loading="lazy" decoding="async" style={{ objectFit: "cover" }} className={styles._7_i_XA} crossOrigin="anonymous" draggable={false} src={assetUrl("/design06-exact/_assets/media/photo_2026-06-24_12.30.50.jpeg")} />
@@ -267,7 +268,7 @@ function CirclePhoto3() {
               </clipPath>
             </defs>
           </svg>
-          <div className={styles.bFnJ2A} data-eid="journey/clip-3" style={elStyle(layout["journey/clip-3"])}>
+          <div className={styles.bFnJ2A} data-eid="journey/clip-3" style={{ ...elStyle(layout["journey/clip-3"]), clipPath: "inset(0)" }}>
             <div className={cx(styles._4c2rDg, styles.GxUsfw)} data-eid="journey/cliptf-3" style={elStyle(layout["journey/cliptf-3"])}>
               <div className={styles.qhHTGg} data-eid="journey/circle-photo-3-img" style={elStyle(layout["journey/circle-photo-3-img"])}>
                 <img loading="lazy" decoding="async" style={{ objectFit: "cover" }} className={styles._7_i_XA} crossOrigin="anonymous" draggable={false} src={assetUrl("/design06-exact/_assets/media/photo_2026-06-24_12.31.05.jpeg")} />

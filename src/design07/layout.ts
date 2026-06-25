@@ -36,6 +36,28 @@ const inkVar = (v: unknown): unknown => (isInk(v) ? `var(--d06-ink, ${INK})` : v
 // цветовые свойства, которые в этом макете несут «чернила» (текст + svg-разделители/заливки)
 const INK_KEYS = ["color", "background", "backgroundColor", "fill", "stroke", "borderColor"] as const;
 
+// --- d07: масштаб НА УРОВНЕ ЛАЙАУТА через контейнерные единицы cqw (вместо глобального
+// transform/zoom/meta-хака d06). Лист снят на нативной ширине 1776px; каждый px переводим в
+// cqw = 1% ширины контейнера-листа (.d07-root, container-type:inline-size). При контейнере
+// ровно 1776px → 1cqw = 17.76px → cqw разрешается обратно в исходные px (натив 0%). При 880px
+// → ×880/1776, как scale(880/1776) у d06. Браузер тайлит длинную страницу как обычно → нет
+// гигантского GPU-слоя (iOS jetsam) и lazy-load снова работает. См. Design07.tsx / EDITOR.
+const REF_WIDTH = 1776;
+const K = 100 / REF_WIDTH; // px → cqw
+// Конвертирует все вхождения `<число>px` (вкл. дроби/экспоненту/знак) в `<число>cqw`.
+// Прочее (deg, unitless scale, em, url, цвета) не трогает. ПОЛНАЯ точность (без округления):
+// px*K*(1776/100) === px в double-арифметике, поэтому на контейнере 1776 cqw разрешается ровно
+// в исходные px (натив 0%). Округление (toFixed) копило −0.008px на секцию и давало +1px в
+// растеризации скриншота из-за дробного верха следующей секции.
+const PX_RE = /(-?(?:\d+\.?\d*|\.\d+)(?:e[-+]?\d+)?)px/gi;
+const px2cqw = (v: string): string => v.replace(PX_RE, (_, n) => `${parseFloat(n) * K}cqw`);
+
+// Публичный хелпер для КОМПОНЕНТОВ, которые рисуют кастомный контент НЕ через elStyle
+// (Calendar-отсчёт, SVG-иконки, рамка карты, поля Journey/Survey…). В d06 их хардкод-px
+// масштабировал глобальный transform; в d07 transform'а нет, поэтому такие px ОБЯЗАНЫ быть в
+// cqw, иначе не масштабируются при сужении. cqw(58) → "3.26…cqw" (на 1776 = 58px).
+export const cqw = (px: number): string => `${px * K}cqw`;
+
 // keepInk=true — НЕ проводить чернила через палитру (для фиксированных образцов цвета:
 // кружки-сэмплы дресс-кода Attire должны показывать СВОИ цвета, а не цвет палитры).
 export function elStyle(r: El, opts?: { keepInk?: boolean }): CSSProperties {
@@ -60,5 +82,10 @@ export function elStyle(r: El, opts?: { keepInk?: boolean }): CSSProperties {
   if (r.textAlign != null) s.textAlign = r.textAlign;
   if (r.textTransform != null) s.textTransform = r.textTransform;
   if (r.color != null) s.color = ink(r.color) as CSSProperties["color"];
+  // d07: единым проходом переводим ВСЕ px-значения стиля (width/height/transform/--H97cbQ/
+  // lineHeight + любые px в raw: top/left/margin/padding/transformOrigin/translate...) в cqw.
+  // Цвета/ink-var/deg/scale/em — без px-токенов, остаются как есть.
+  const out = s as Record<string, unknown>;
+  for (const k in out) if (typeof out[k] === "string") out[k] = px2cqw(out[k] as string);
   return s;
 }

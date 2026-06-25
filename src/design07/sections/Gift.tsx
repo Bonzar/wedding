@@ -90,7 +90,8 @@ function ButtonPill() {
               </clipPath>
             </defs>
           </svg>
-          <div className={styles.bFnJ2A} data-eid="gift/button-pill-fill" style={elStyle(layout["gift/button-pill-fill"])} />
+          {/* d07: SVG-клип-пилюля → CSS inset(round 9999px) (масштабируется; натив идентичен). */}
+          <div className={styles.bFnJ2A} data-eid="gift/button-pill-fill" style={{ ...elStyle(layout["gift/button-pill-fill"]), clipPath: "inset(0 round 9999px)" }} />
         </div>
       </div>
     </div>

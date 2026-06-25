@@ -48,7 +48,10 @@ function BirdEngraving() {
               </clipPath>
             </defs>
           </svg>
-          <div className={styles.bFnJ2A} data-eid="hero/clip" style={elStyle(layout["hero/clip"])}>
+          {/* d07: SVG-клип-прямоугольник (== бокс элемента, userSpaceOnUse px) → CSS inset(0):
+              клип по боксу, масштабируется с cqw; на нативе идентичен → 0% цел. Без него фото
+              птицы вылезало бы за рамку на узкой ширине (клип 256px не уменьшался). */}
+          <div className={styles.bFnJ2A} data-eid="hero/clip" style={{ ...elStyle(layout["hero/clip"]), clipPath: "inset(0)" }}>
             <div className={cx(styles._4c2rDg, styles.GxUsfw)} data-eid="hero/cliptf" style={elStyle(layout["hero/cliptf"])}>
               <div className={styles.qhHTGg} data-eid="hero/bird-photo" style={elStyle(layout["hero/bird-photo"])}>
                 <img decoding="async" style={{ objectFit: "cover" }} className={styles._7_i_XA} crossOrigin="anonymous" draggable={false} src={assetUrl("/design06-exact/_assets/media/photo_2026-06-24_12.30.40.jpeg")} />
