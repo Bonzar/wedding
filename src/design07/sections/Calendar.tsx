@@ -456,12 +456,14 @@ const FRAME_RADIUS = cqw(16);
 function Map() {
   const boxRef = useRef<HTMLDivElement>(null);
   const base = layout["calendar/map"];
-  const NW = base.w ?? 1369.63; // нативный размер карты (px макета)
-  const NH = base.h ?? 584.11;
+  // Референс рендера iframe = ширина карты на ДЕСКТОП-листе (880/1776 от нативной): на десктопе
+  // box≈этому → scale 1 → контролы нативного размера (как нужно). На более узком — box меньше →
+  // scale<1 → пропорционально меньше. (Брали натив 1776 → на десктопе было ×0.5, слишком мелко.)
+  const NW = (base.w ?? 1369.63) * (880 / 1776);
+  const NH = (base.h ?? 584.11) * (880 / 1776);
   // Контролы Яндекс-виджета — фикс-px ВНУТРИ iframe и сами не масштабируются с маленьким iframe
-  // (оттого на узком экране кнопки огромные). Рендерим iframe в НАТИВНОМ размере и плавно сжимаем
-  // под cqw-бокс через transform: scale (ResizeObserver — непрерывно, без media-query-прыжка) →
-  // карта и кнопки уменьшаются пропорционально всему листу.
+  // (оттого на узком экране кнопки огромные). Рендерим iframe в референс-размере и плавно сжимаем
+  // под cqw-бокс через transform: scale (ResizeObserver — непрерывно, без media-query-прыжка).
   const [scale, setScale] = useState(1);
   useEffect(() => {
     const box = boxRef.current;
