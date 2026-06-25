@@ -33,6 +33,11 @@ const cssHrefs: string[] = (JSON.parse(headLinksRaw) as string[]).filter((h) => 
 
 const REF_WIDTH = 1776; // нативная ширина листа = база координат (1 канва-юнит = 1 px на 1776)
 const MAX_WIDTH = 880; // макс. ширина листа на десктопе (центрируется)
+// Оверскан мобилы (как в d06): на узких экранах (≤MAX_WIDTH) cqw-контейнер делаем ШИРЕ экрана
+// в MOBILE_OVERSCAN раз → 1cqw больше → контент крупнее, а поля-подложка по краям уходят под
+// обрез (внешняя обёртка центрирует и режет overflow-x:clip). 1.25 → срез ~12.5% с каждой
+// стороны. На десктопе (>MAX_WIDTH) оверскана нет — лист 880 целиком по центру.
+const MOBILE_OVERSCAN = 1.25;
 const PAGE_BG = "#faf7f0"; // кремовый тон полей по краям листа (вместо белого)
 const EDIT_BAR = 36; // высота тулбара редактора
 const EDIT_PANEL = 300; // зарезервировано справа под инспектор (панель 280 + зазор)
@@ -134,17 +139,41 @@ export default function Design07() {
   );
 
   // Контейнер-лист: container-type:inline-size → 1cqw = 1% его ширины (вся cqw-вёрстка резолвится
-  // относительно него). Натив = 1776px (cqw == px). Edit = (100% − панель), лист слева. Иначе —
-  // min(100%, 880) по центру. overflow-x:clip срезает bleed фоновых фото (нет гориз. скролла).
-  const rootStyle: CSSProperties = {
+  // относительно него). Базовые поля общие; ширина/обёртка зависят от режима (ниже).
+  const baseRoot: CSSProperties = {
     containerType: "inline-size",
-    width: editMode ? `calc(100% - ${EDIT_PANEL}px)` : noScale ? `${REF_WIDTH}px` : `min(100%, ${MAX_WIDTH}px)`,
-    margin: editMode ? `${EDIT_BAR}px 0 0 0` : "0 auto",
     boxSizing: "border-box",
-    overflowX: editMode ? "visible" : "clip",
+    flexShrink: 0, // в оверскан-режиме лист шире flex-обёртки — не давать ему сжаться (иначе оверскан гаснет)
     opacity: fontsReady ? 1 : 0,
     transition: "opacity .2s ease",
   };
+
+  // noScale — контейнер ровно 1776 (cqw==px, 0%-гейт). editMode — (100% − панель), лист слева,
+  // без оверскана. Иначе — оверскан-режим: класс .d07-overscan (ширина задаётся media-query в
+  // <style> ниже: десктоп 880; ≤880 → MOBILE_OVERSCAN*100 vw), а внешняя flex-обёртка центрирует
+  // широкий лист и режет края (overflow-x:clip) — так контент крупнее на мобиле, как в d06.
+  let sheet: JSX.Element;
+  if (noScale) {
+    sheet = (
+      <div className="d07-root" style={{ ...baseRoot, width: `${REF_WIDTH}px` }}>
+        {page}
+      </div>
+    );
+  } else if (editMode) {
+    sheet = (
+      <div className="d07-root" style={{ ...baseRoot, width: `calc(100% - ${EDIT_PANEL}px)`, margin: `${EDIT_BAR}px 0 0 0`, overflowX: "visible" }}>
+        {page}
+      </div>
+    );
+  } else {
+    sheet = (
+      <div style={{ display: "flex", justifyContent: "center", width: "100%", overflowX: "clip" }}>
+        <div className="d07-root d07-overscan" style={baseRoot}>
+          {page}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -153,11 +182,10 @@ export default function Design07() {
       ))}
       <style dangerouslySetInnerHTML={{ __html: overrideCss }} />
       {/* Поля по краям — основным (кремовым) цветом, а не белым; точечный сброс протечки
-          `section{}` из base.css приложения. Перебивает html,body{background:#fff} из override.css. */}
-      <style>{`html,body{background:${PAGE_BG}}.yIDCqA section.rGeu6w{padding:0;position:static;overflow:visible}${noMedia ? ".yIDCqA img{display:none!important}" : ""}`}</style>
-      <div className="d07-root" style={rootStyle}>
-        {page}
-      </div>
+          `section{}` из base.css приложения. Перебивает html,body{background:#fff} из override.css.
+          Оверскан мобилы: десктоп — лист MAX_WIDTH; ≤MAX_WIDTH — шире экрана ×MOBILE_OVERSCAN. */}
+      <style>{`html,body{background:${PAGE_BG}}.yIDCqA section.rGeu6w{padding:0;position:static;overflow:visible}.d07-overscan{width:${MAX_WIDTH}px}@media (max-width:${MAX_WIDTH}px){.d07-overscan{width:${MOBILE_OVERSCAN * 100}vw}}${noMedia ? ".yIDCqA img{display:none!important}" : ""}`}</style>
+      {sheet}
       {editMode && Editor && (
         <Suspense fallback={null}>
           <Editor scale={editScale} />
