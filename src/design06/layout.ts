@@ -36,6 +36,22 @@ const inkVar = (v: unknown): unknown => (isInk(v) ? `var(--d06-ink, ${INK})` : v
 // цветовые свойства, которые в этом макете несут «чернила» (текст + svg-разделители/заливки)
 const INK_KEYS = ["color", "background", "backgroundColor", "fill", "stroke", "borderColor"] as const;
 
+// Авто-масштаб без transform/zoom. Каждый размер задаётся в «дизайн-пикселях», а на рендере
+// любое `Npx` превращается в `calc(N * var(--d06u, 1px))`, где --d06u — масштабированный пиксель
+// (контейнер ставит `--d06u: calc(100cqw / 1776)`). Фолбэк `1px`: пока --d06u не задан (натив,
+// ?noscale, вне design06-контейнера) calc = N·1px = Npx → пиксель-в-пиксель с рефом (0%).
+// ВАЖНО: имя НЕ `--u` — он уже занят глобально (RSVP-форма, calc(100cqw/440)); нужен свой.
+const PX_RE = /(-?\d*\.?\d+(?:e[+-]?\d+)?)px/gi;
+const scalePx = (v: unknown): unknown =>
+  typeof v === "string" ? v.replace(PX_RE, (_m, n: string) => `calc(${n} * var(--d06u, 1px))`) : v;
+// Стрингификация числа без научной нотации (артефакты вроде -1.42e-14 → 0), ≤4 знаков (субпиксель).
+const pxn = (n: number): number => (Math.abs(n) < 1e-4 ? 0 : Math.round(n * 1e4) / 1e4);
+
+// Хелпер для хардкод-px в компонентах (SVG-атрибуты, инлайн-стили), которые НЕ идут через
+// elStyle: u(58) → "calc(58 * var(--d06u, 1px))". Масштабируется так же, как всё остальное;
+// фолбэк 1px → на нативе = 58px (0%).
+export const u = (n: number): string => `calc(${pxn(n)} * var(--d06u, 1px))`;
+
 // keepInk=true — НЕ проводить чернила через палитру (для фиксированных образцов цвета:
 // кружки-сэмплы дресс-кода Attire должны показывать СВОИ цвета, а не цвет палитры).
 export function elStyle(r: El, opts?: { keepInk?: boolean }): CSSProperties {
@@ -44,21 +60,24 @@ export function elStyle(r: El, opts?: { keepInk?: boolean }): CSSProperties {
   // raw-вхождения чернил (fill/stroke/background векторных фигур) — на палитру-переменную
   const sr = s as Record<string, unknown>;
   for (const k of INK_KEYS) if (sr[k] != null) sr[k] = ink(sr[k]);
-  if (r.w != null) s.width = `${r.w}px`;
-  if (r.h != null) s.height = `${r.h}px`;
+  if (r.w != null) s.width = `${pxn(r.w)}px`;
+  if (r.h != null) s.height = `${pxn(r.h)}px`;
   const tf: string[] = [];
-  if (r.x != null || r.y != null) tf.push(`translate(${r.x ?? 0}px, ${r.y ?? 0}px)`);
+  if (r.x != null || r.y != null) tf.push(`translate(${pxn(r.x ?? 0)}px, ${pxn(r.y ?? 0)}px)`);
   if (r.rot != null) tf.push(`rotate(${r.rot}deg)`);
   if (r.sx != null || r.sy != null) tf.push(`scale(${r.sx ?? 1}, ${r.sy ?? 1})`); // неравномерный приоритетнее
   else if (r.scale != null) tf.push(`scale(${r.scale})`);
   if (tf.length) s.transform = tf.join(" ");
   if (r.font != null) s.fontFamily = r.font;
-  if (r.fontSize != null) s["--H97cbQ"] = `${r.fontSize}px`; // Canva-конвенция размера текста
+  if (r.fontSize != null) s["--H97cbQ"] = `${pxn(r.fontSize)}px`; // Canva-конвенция размера текста
   if (r.fontWeight != null) s.fontWeight = r.fontWeight;
   if (r.letterSpacing != null) s.letterSpacing = r.letterSpacing;
   if (r.lineHeight != null) s.lineHeight = r.lineHeight;
   if (r.textAlign != null) s.textAlign = r.textAlign;
   if (r.textTransform != null) s.textTransform = r.textTransform;
   if (r.color != null) s.color = ink(r.color) as CSSProperties["color"];
+  // Финальный проход: все px-значения (структурные + raw: top/left/lineHeight/transform/
+  // transformOrigin/…) → calc(N·var(--u,1px)). Одна точка — 9 layout-файлов не трогаем.
+  for (const k in sr) sr[k] = scalePx(sr[k]);
   return s;
 }

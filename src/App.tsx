@@ -1,24 +1,24 @@
 import { lazy, Suspense } from "react";
-import Design06 from "@/design06/Design06";
+import Design07 from "@/design07/Design07";
 
-// d07 — экспериментальная адаптивная вёрстка (cqw вместо глобального transform/scale).
-// Живёт за ?d07 и грузится ЛЕНИВО: её глобальный Canva-CSS (canva-base/custom-fonts)
-// и module-CSS подтягиваются только на ?d07, прод-рендер d06 остаётся нетронутым.
-const Design07 = lazy(() => import("@/design07/Design07"));
+// d06 — прежний дизайн (пиксель-снимок со скейлером на transform). Теперь это fallback за
+// ?d06 и грузится ЛЕНИВО: его глобальный Canva-CSS и module-CSS подтягиваются только на ?d06,
+// прод-рендер d07 (дефолт) остаётся нетронутым.
+const Design06 = lazy(() => import("@/design06/Design06"));
 
 /**
- * Корневой компонент приложения. По умолчанию — design06 (пиксель-точный лист со своим
- * скейлером, палитрой и анкетой RSVP). За `?d07` — экспериментальный design07.
+ * Корневой компонент приложения. По умолчанию — design07 (адаптивная cqw-вёрстка: масштаб на
+ * уровне лайаута, без transform/zoom/meta). За `?d06` — прежний design06 (fallback).
  * Поведенческие флаги (`?noscale`, `?baseline`, dev-only `?edit`) читаются внутри дизайна.
  */
 export function App() {
-  const isD07 = typeof window !== "undefined" && new URLSearchParams(window.location.search).has("d07");
-  if (isD07) {
+  const isD06 = typeof window !== "undefined" && new URLSearchParams(window.location.search).has("d06");
+  if (isD06) {
     return (
       <Suspense fallback={null}>
-        <Design07 />
+        <Design06 />
       </Suspense>
     );
   }
-  return <Design06 />;
+  return <Design07 />;
 }
