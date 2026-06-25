@@ -215,7 +215,7 @@ export default function Timeline() {
                       spanEid="timeline/span-4"
                       paraClass={cx(styles._28USrA, styles.GEC0sA, styles.XN6uKA, styles._4N4NA)}
                     >
-                      {"Свадебная церемония"}
+                      {"Сбор гостей"}
                     </TimelineText>
                     <TimelineText
                       rootEid="timeline/time-7pm"
@@ -255,7 +255,7 @@ export default function Timeline() {
                       spanEid="timeline/span-8"
                       paraClass={cx(styles._28USrA, styles.TV9a8Q, styles.XN6uKA, styles._4N4NA)}
                     >
-                      {"Фотосессия"}
+                      {"Начало программы"}
                     </TimelineText>
                     <TimelineText
                       rootEid="timeline/label-toast-speeches"

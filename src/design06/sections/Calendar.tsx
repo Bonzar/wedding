@@ -5,6 +5,8 @@ import { cx } from "../cx";
 import { elStyle } from "../layout";
 import styles from "../canva.module.css";
 import { layout } from "./Calendar.layout";
+import { ErrorBoundary } from "../ErrorBoundary";
+import { useState } from "react";
 import { assetUrl } from "../assetUrl";
 import { useCountdown } from "@/hooks/useCountdown";
 import { WEDDING_DATE_ISO } from "@/content/wedding";
@@ -447,24 +449,32 @@ function EngravingLeaf2() {
 // Встроенная карта Yandex (виджет «Три кедра»). Занимает пустое поле между адресом
 // и кнопкой «Яндекс Карты». Позиция/размер — в Calendar.layout.ts (data-eid), как у всех элементов.
 function Map() {
+  const [failed, setFailed] = useState(false);
   return (
     <div
       className={cx(styles.DF_utQ, styles._682gpw, styles._0xkaeQ)}
       data-eid="calendar/map"
       style={elStyle(layout["calendar/map"])}
     >
-      <iframe
-        title="Карта — Сочи, Три кедра"
-        src="https://yandex.ru/map-widget/v1/?um=constructor%3Acac75de5edf5273bae52f678d421076b55368f6fadced06b0eb9da0f89586e99&source=constructor"
-        loading="lazy"
-        style={{
-          display: "block",
-          width: "100%",
-          height: "100%",
-          border: "2px solid var(--d06-ink, rgb(53, 80, 116))",
-          borderRadius: 16,
-        }}
-      />
+      {/* Эмбед карты обёрнут в ErrorBoundary: любой сбой рендера не валит страницу.
+          onError ловит сетевую/загрузочную ошибку самого iframe и прячет его. */}
+      <ErrorBoundary fallback={null}>
+        {!failed && (
+          <iframe
+            title="Карта — Сочи, Три кедра"
+            src="https://yandex.ru/map-widget/v1/?um=constructor%3Acac75de5edf5273bae52f678d421076b55368f6fadced06b0eb9da0f89586e99&source=constructor"
+            loading="lazy"
+            onError={() => setFailed(true)}
+            style={{
+              display: "block",
+              width: "100%",
+              height: "100%",
+              border: "2px solid var(--d06-ink, rgb(53, 80, 116))",
+              borderRadius: 16,
+            }}
+          />
+        )}
+      </ErrorBoundary>
     </div>
   );
 }
