@@ -33,6 +33,18 @@ const cssHrefs: string[] = (JSON.parse(headLinksRaw) as string[]).filter((h) => 
 
 const REF_WIDTH = 1776; // нативная ширина листа = база координат (1 канва-юнит = 1 px на 1776)
 const MAX_WIDTH = 880; // макс. ширина листа на десктопе (центрируется)
+// Оверскан мобилы (как в d06): на узких экранах cqw-контейнер делаем ШИРЕ экрана → 1cqw больше →
+// контент крупнее, а поля-подложка по краям уходят под обрез (внешняя обёртка центрирует и режет
+// overflow-x:clip). Оверскан ПЛАВНО спадает 1.25→1.0 между OVERSCAN_FULL_AT и MAX_WIDTH (без
+// media-query — через min() линейных кусков по vw):
+//   ≤OVERSCAN_FULL_AT → ×MOBILE_OVERSCAN ; OVERSCAN_FULL_AT→MAX_WIDTH линейно к full ; ≥MAX_WIDTH → лист целиком.
+const MOBILE_OVERSCAN = 1.25;
+const OVERSCAN_FULL_AT = 440; // ширина (px), при которой оверскан = максимум
+// Линейный кусок, соединяющий (OVERSCAN_FULL_AT, MOBILE_OVERSCAN*OVERSCAN_FULL_AT) и (MAX_WIDTH, MAX_WIDTH).
+const OS_SLOPE = (MAX_WIDTH - MOBILE_OVERSCAN * OVERSCAN_FULL_AT) / (MAX_WIDTH - OVERSCAN_FULL_AT);
+const OS_INTERCEPT = MOBILE_OVERSCAN * OVERSCAN_FULL_AT - OS_SLOPE * OVERSCAN_FULL_AT;
+// Фактор оверскана = width/vw = 0.75 + OS_INTERCEPT/vw → гладко спадает к 1.0 на MAX_WIDTH.
+const OVERSCAN_WIDTH = `min(${MOBILE_OVERSCAN * 100}vw, calc(${OS_SLOPE * 100}vw + ${OS_INTERCEPT}px), ${MAX_WIDTH}px)`;
 const PAGE_BG = "#faf7f0"; // кремовый тон полей по краям листа (вместо белого)
 const EDIT_BAR = 36; // высота тулбара редактора
 const EDIT_PANEL = 300; // зарезервировано справа под инспектор (панель 280 + зазор)
@@ -134,17 +146,41 @@ export default function Design07() {
   );
 
   // Контейнер-лист: container-type:inline-size → 1cqw = 1% его ширины (вся cqw-вёрстка резолвится
-  // относительно него). Натив = 1776px (cqw == px). Edit = (100% − панель), лист слева. Иначе —
-  // min(100%, 880) по центру. overflow-x:clip срезает bleed фоновых фото (нет гориз. скролла).
-  const rootStyle: CSSProperties = {
+  // относительно него). Базовые поля общие; ширина/обёртка зависят от режима (ниже).
+  const baseRoot: CSSProperties = {
     containerType: "inline-size",
-    width: editMode ? `calc(100% - ${EDIT_PANEL}px)` : noScale ? `${REF_WIDTH}px` : `min(100%, ${MAX_WIDTH}px)`,
-    margin: editMode ? `${EDIT_BAR}px 0 0 0` : "0 auto",
     boxSizing: "border-box",
-    overflowX: editMode ? "visible" : "clip",
+    flexShrink: 0, // в оверскан-режиме лист шире flex-обёртки — не давать ему сжаться (иначе оверскан гаснет)
     opacity: fontsReady ? 1 : 0,
     transition: "opacity .2s ease",
   };
+
+  // noScale — контейнер ровно 1776 (cqw==px, 0%-гейт). editMode — (100% − панель), лист слева,
+  // без оверскана. Иначе — оверскан-режим: класс .d07-overscan (ширина задаётся media-query в
+  // <style> ниже: десктоп 880; ≤880 → MOBILE_OVERSCAN*100 vw), а внешняя flex-обёртка центрирует
+  // широкий лист и режет края (overflow-x:clip) — так контент крупнее на мобиле, как в d06.
+  let sheet: JSX.Element;
+  if (noScale) {
+    sheet = (
+      <div className="d07-root" style={{ ...baseRoot, width: `${REF_WIDTH}px` }}>
+        {page}
+      </div>
+    );
+  } else if (editMode) {
+    sheet = (
+      <div className="d07-root" style={{ ...baseRoot, width: `calc(100% - ${EDIT_PANEL}px)`, margin: `${EDIT_BAR}px 0 0 0`, overflowX: "visible" }}>
+        {page}
+      </div>
+    );
+  } else {
+    sheet = (
+      <div style={{ display: "flex", justifyContent: "center", width: "100%", overflowX: "clip" }}>
+        <div className="d07-root" style={{ ...baseRoot, width: OVERSCAN_WIDTH }}>
+          {page}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -155,9 +191,7 @@ export default function Design07() {
       {/* Поля по краям — основным (кремовым) цветом, а не белым; точечный сброс протечки
           `section{}` из base.css приложения. Перебивает html,body{background:#fff} из override.css. */}
       <style>{`html,body{background:${PAGE_BG}}.yIDCqA section.rGeu6w{padding:0;position:static;overflow:visible}${noMedia ? ".yIDCqA img{display:none!important}" : ""}`}</style>
-      <div className="d07-root" style={rootStyle}>
-        {page}
-      </div>
+      {sheet}
       {editMode && Editor && (
         <Suspense fallback={null}>
           <Editor scale={editScale} />

@@ -2,7 +2,7 @@
 // Редактируемые стили вынесены в Calendar.layout.ts и применяются по data-eid (Approach A2).
 import type { CSSProperties } from "react";
 import { cx } from "../cx";
-import { elStyle } from "../layout";
+import { elStyle, u } from "../layout";
 import styles from "../canva.module.css";
 import { layout } from "./Calendar.layout";
 import { useEffect, useState } from "react";
@@ -331,8 +331,8 @@ function CalendarGrid() {
                       >
                         <svg
                           viewBox="0 0 150 136"
-                          width="150"
-                          height="136"
+                          width="100%"
+                          height="100%"
                           fill="none"
                           xmlns="http://www.w3.org/2000/svg"
                         >
@@ -538,8 +538,11 @@ function MapsButton() {
         >
           <svg className={styles._7KaXww}>
             <defs>
-              <clipPath id="__id27">
-                <path d="M128.0000000300142,0L1033.7485942066182,0C1104.4410421613297,0 1161.7485942366325,57.3075520753027 1161.7485942366325,128.0000000300142C1161.7485942366325,198.69244798472567 1104.4410421613297,255.99999994281853 1033.7485942066182,255.99999994281853L128.0000000300142,255.99999994281853C57.3075520753027,255.99999994281853 0,198.69244798472567 0,128.0000000300142C0,57.3075520753027 57.3075520753027,0 128.0000000300142,0Z" />
+              {/* objectBoundingBox: координаты нормированы в доли (÷1161.7486 по x, ÷256 по y).
+                  userSpaceOnUse-пилюля 1161×256 не масштабировалась → на 880 fill кнопки ~80px
+                  показывал лишь кусок → кривая форма. Равномерный масштаб бокса сохраняет пилюлю. */}
+              <clipPath id="__id27" clipPathUnits="objectBoundingBox">
+                <path d="M0.110179,0L0.889808,0C0.950662,0 1,0.223857 1,0.5C1,0.776142 0.950662,1 0.889808,1L0.110179,1C0.049330,1 0,0.776142 0,0.5C0,0.223857 0.049330,0 0.110179,0Z" />
               </clipPath>
             </defs>
           </svg>
@@ -783,16 +786,16 @@ function Countdown() {
   const num: CSSProperties = {
     fontFamily: '"Jost", system-ui, sans-serif',
     fontWeight: 300,
-    fontSize: 58,
+    fontSize: u(58), // через --d06u (хардкод-px мимо elStyle → масштабируется как всё)
     lineHeight: 1,
     color: "var(--d06-ink, rgb(53, 80, 116))",
     fontVariantNumeric: "tabular-nums",
   };
   const label: CSSProperties = {
-    marginTop: 12,
+    marginTop: u(12),
     fontFamily: '"Jost", system-ui, sans-serif',
     fontWeight: 400,
-    fontSize: 26,
+    fontSize: u(26),
     letterSpacing: "0.1em",
     textTransform: "uppercase",
     color: "color-mix(in srgb, var(--d06-ink, rgb(53, 80, 116)) 78%, transparent)",
@@ -801,9 +804,9 @@ function Countdown() {
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    minWidth: 120,
+    minWidth: u(120),
   };
-  const sep: CSSProperties = { ...num, color: "color-mix(in srgb, var(--d06-ink, rgb(53, 80, 116)) 32%, transparent)", padding: "0 1px" };
+  const sep: CSSProperties = { ...num, color: "color-mix(in srgb, var(--d06-ink, rgb(53, 80, 116)) 32%, transparent)", padding: `0 ${u(1)}` };
   return (
     <div
       className={cx(styles.DF_utQ, styles._682gpw, styles._0xkaeQ)}

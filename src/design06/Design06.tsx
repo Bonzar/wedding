@@ -8,14 +8,14 @@
 //
 // Mounted behind ?d06 (see App.tsx) so the Canva global CSS never touches the app.
 
-import { lazy, Suspense, useEffect, useRef, useState, type CSSProperties } from "react";
+import { lazy, Suspense, useEffect, useState, type CSSProperties } from "react";
 import "./canva-base.css"; // Canva :root/тема-переменные + @keyframes (грузится только на ?d06)
 import "./custom-fonts.css"; // доп. (не-Canva) шрифты из assets/fonts (грузится только на ?d06)
 import overrideCss from "./_generated/override.css?raw";
 import headLinksRaw from "./_generated/head-links.json?raw";
 import { DESIGN06_SECTIONS } from "./sections";
 import { RsvpModal } from "@/rsvp/components/RsvpModal"; // анкета гостя для раздела Survey (портал в body, rem)
-import { elStyle } from "./layout";
+import { elStyle, u } from "./layout";
 import { assetUrl } from "./assetUrl";
 import type { Addition } from "./additions";
 import { useAdditions } from "./editor/additionsStore"; // слой добавленных в редакторе элементов
@@ -56,7 +56,7 @@ function AddedEl({ a }: { a: Addition }) {
   const style: CSSProperties = { ...base, position: "absolute", pointerEvents: "auto" };
   if (a.kind === "text") {
     return (
-      <div data-eid={`add/${a.id}`} className="d06-add d06-add-text" style={{ ...style, fontSize: a.fontSize ? `${a.fontSize}px` : undefined }}>
+      <div data-eid={`add/${a.id}`} className="d06-add d06-add-text" style={{ ...style, fontSize: a.fontSize ? u(a.fontSize) : undefined }}>
         {a.text}
       </div>
     );
@@ -78,8 +78,6 @@ export default function Design06() {
   // --- Отладочные флаги для бисекта краша на iOS (включаются ?d06&<flag>) ---
   const noMedia = params.has("nomedia"); // не рисовать картинки → тест: декод/память картинок виноваты?
   const onlyN = parseInt(params.get("only") || "0", 10) || 0; // рендерить только первые N секций (?only=2)
-  const useZoom = params.has("zoom"); // масштаб через zoom вместо transform: scale() (тест GPU-слоя)
-  const forceVp = params.has("fvp"); // форсировать vp-режим независимо от UA (тест в desktop-превью)
   const [scale, setScale] = useState(1);
   // Шрифты (Canva + кастомные скрипты) грузятся с font-display:swap: пока их нет,
   // текст рисуется фолбэком с другими метриками глифов → при подмене высота листа
@@ -87,44 +85,7 @@ export default function Design06() {
   // шрифтов и проявляем плавно — первый видимый кадр уже с финальным начертанием.
   // Safety-таймаут (3с) гарантирует, что лист не останется скрытым, если шрифт упал.
   const [fontsReady, setFontsReady] = useState(noScale);
-  // Натуральная (немасштабированная) высота листа — нужна, т.к. лист масштабируется через
-  // transform: scale() (а не zoom), а transform не влияет на поток: без явной высоты обёртки
-  // под листом осталась бы пустота на полную высоту 1:1. См. рендер ниже.
-  const [natHeight, setNatHeight] = useState(0);
-  const innerRef = useRef<HTMLDivElement>(null);
   const adds = useAdditions();
-  // Мобила? Детект по userAgent (мобильная ОС), а НЕ по ширине. Почему: vp-режим ставит
-  // <meta viewport width=1776>, который «shrink-to-fit» (ужимает лист под экран) РАБОТАЕТ
-  // ТОЛЬКО на мобильной ОС. В обычном узком окне десктопа эта мета не ужимает → лист 1776px →
-  // горизонтальный скролл. Детект по clientWidth ловил и узкое окно десктопа = поломка.
-  // UA-детект включает vp-режим только там, где он корректен: real iOS/Android, а также Safari
-  // responsive mode и Chrome device mode (они подменяют UA на мобильный). Десктоп (любая ширина,
-  // включая узкое окно) → transform, который масштабирует верно. UA не меняется → флипа нет.
-  const [isMobile] = useState(() => typeof navigator !== "undefined" && /iphone|ipad|ipod|android/i.test(navigator.userAgent));
-  // На мобиле масштабируем НЕ через transform: scale() — он держит весь лист 1776×~15000 в
-  // одном гигантском GPU-слое, и iOS убивает GPU-процесс по памяти (jetsam highwater;
-  // подтверждено: ?noscale краша нет). Вместо этого масштабируем ВЬЮПОРТОМ: рендерим лист
-  // нативно и сжимаем под экран через <meta viewport width=1776>. Браузерный зум тайлится как
-  // обычная страница (без огромного слоя), текст в нативных координатах (нет CSS-zoom-бага iOS).
-  // Десктоп оставляем на transform — там памяти хватает.
-  const mobileVp = !noScale && !editMode && (isMobile || forceVp);
-  useEffect(() => {
-    if (typeof document === "undefined") return;
-    const meta = document.querySelector('meta[name="viewport"]');
-    if (!meta) return;
-    if (mobileVp) {
-      // ВАЖНО: одной width=1776 мало — современные браузеры БОЛЬШЕ НЕ делают авто-shrink-to-fit,
-      // лист 1776 показывается в натуре → горизонтальный скролл. Поэтому initial-scale задаём
-      // ЯВНО = ширина_устройства / 1776 (лист точно вписывается по ширине). Ширину устройства
-      // читаем сейчас — мета ещё дефолтная (device-width), значит clientWidth = реальная ширина.
-      const dw = document.documentElement.clientWidth;
-      const s = dw > 0 ? dw / REF_WIDTH : 1;
-      meta.setAttribute("content", `width=${REF_WIDTH}, initial-scale=${s.toFixed(4)}`);
-    } else {
-      meta.setAttribute("content", "width=device-width, initial-scale=1");
-    }
-    return () => meta.setAttribute("content", "width=device-width, initial-scale=1");
-  }, [mobileVp]);
 
   useEffect(() => {
     if (noScale) return;
@@ -146,20 +107,6 @@ export default function Design06() {
     window.addEventListener("resize", calc);
     return () => window.removeEventListener("resize", calc);
   }, [noScale, editMode]);
-
-  // Измеряем немасштабированную высоту контента (offsetHeight не учитывает transform → отдаёт
-  // высоту листа в координатах 1776px). Высоту видимого бокса считаем как natHeight*scale.
-  // ResizeObserver ловит догрузку картинок/шрифтов, меняющую высоту листа.
-  useEffect(() => {
-    if (noScale) return;
-    const inner = innerRef.current;
-    if (!inner) return;
-    const measure = () => setNatHeight(inner.offsetHeight);
-    measure();
-    const ro = new ResizeObserver(measure);
-    ro.observe(inner);
-    return () => ro.disconnect();
-  }, [noScale]);
 
   // Проявляем лист, когда шрифты догрузились (см. fontsReady выше). noScale рендерит сразу.
   useEffect(() => {
@@ -213,7 +160,7 @@ export default function Design06() {
         </main>
       </div>
       {(editMode || adds.length > 0) && (
-        <div className="d06-add-layer" style={{ position: "absolute", top: 0, left: 0, width: REF_WIDTH, height: "100%", pointerEvents: "none" }}>
+        <div className="d06-add-layer" style={{ position: "absolute", top: 0, left: 0, width: u(REF_WIDTH), height: "100%", pointerEvents: "none" }}>
           {adds.map((a) => (
             <AddedEl key={a.id} a={a} />
           ))}
@@ -237,43 +184,48 @@ export default function Design06() {
       {noScale ? (
         page
       ) : editMode ? (
-        // Левое выравнивание + отступы под тулбар и панель, чтобы инспектор не перекрывал лист.
-        // Масштабируем через transform: scale() (не zoom — iOS Safari ломает раскладку текста
-        // при zoom, см. WebKit bug). transform-origin: top left + бокс с уже масштабированными
-        // размерами (REF_WIDTH*scale × natHeight*scale), чтобы поток занимал ровно видимый лист.
+        // Редактор — на том же --d06u, что и прод (transform убран → нет гигантского слоя).
+        // Отличие от прод-пути: ширина не капается на 880, а равна доступному месту
+        // (окно − панель инспектора) = REF_WIDTH*scale, поэтому 100cqw=REF_WIDTH*scale и
+        // --d06u=scale. На экране геометрия идентична прежнему transform-режиму (тот же
+        // getBoundingClientRect), поэтому математика drag/resize/snap в Editor.tsx не меняется.
         <div style={{ paddingTop: EDIT_BAR, boxSizing: "border-box", opacity: fontsReady ? 1 : 0, transition: "opacity .2s ease" }}>
-          <div style={{ width: REF_WIDTH * scale, height: natHeight * scale }}>
-            <div ref={innerRef} style={{ width: REF_WIDTH, transform: `scale(${scale})`, transformOrigin: "top left" }}>
-              {page}
-            </div>
+          <div
+            className="d06-fit"
+            style={
+              {
+                containerType: "inline-size",
+                "--d06u": `calc(100cqw / ${REF_WIDTH})`,
+                width: REF_WIDTH * scale,
+                overflowX: "clip",
+              } as CSSProperties
+            }
+          >
+            {page}
           </div>
-        </div>
-      ) : mobileVp ? (
-        // Мобила: нативный рендер, масштаб — браузерным вьюпортом (см. mobileVp выше). Без
-        // transform/zoom → нет гигантского GPU-слоя и нет iOS-zoom-бага. width=REF_WIDTH +
-        // overflow-x:clip обрезают bleed фоновых фото за край листа (раньше это делала
-        // масштаб-обёртка), чтобы не было горизонтального скролла. fontsReady — без мигания шрифта.
-        <div style={{ width: REF_WIDTH, overflowX: "clip", opacity: fontsReady ? 1 : 0, transition: "opacity .2s ease" }}>{page}</div>
-      ) : useZoom ? (
-        // ЭКСПЕРИМЕНТ (?d06&zoom): масштаб через zoom, а НЕ transform: scale().
-        // zoom масштабирует саму раскладку и НЕ создаёт один гигантский композитный слой
-        // (виновник jetsam-kill GPU-процесса), поэтому не должен ронять вкладку. Бокс
-        // натуральной высоты не нужен — zoom уже сжимает поток. Риск: старый iOS-баг с
-        // наездом абсолютного текста — это и проверяем на устройстве.
-        <div style={{ display: "flex", justifyContent: "center", width: "100%", overflow: "hidden", opacity: fontsReady ? 1 : 0, transition: "opacity .2s ease" }}>
-          <div style={{ width: REF_WIDTH, zoom: scale }}>{page}</div>
         </div>
       ) : (
-        // Масштабируем через transform: scale() вместо zoom: iOS Safari при zoom неверно
-        // пересчитывает позиции absolute-текста (наезжает друг на друга), хотя Chrome/DevTools
-        // рендерит верно. transform-origin: top left, а внешний бокс зажат под видимый размер
-        // листа (REF_WIDTH*scale × natHeight*scale) — иначе под листом пустота на высоту 1:1.
-        <div style={{ display: "flex", justifyContent: "center", width: "100%", overflow: "hidden", opacity: fontsReady ? 1 : 0, transition: "opacity .2s ease" }}>
-          <div style={{ width: REF_WIDTH * scale, height: natHeight * scale }}>
-            <div ref={innerRef} style={{ width: REF_WIDTH, transform: `scale(${scale})`, transformOrigin: "top left" }}>
-              {page}
-            </div>
-          </div>
+        // АВТО-МАСШТАБ без transform/zoom/viewport-меты. Контейнер задаёт --d06u = «1 дизайн-
+        // пиксель под текущую ширину» (calc(100cqw / 1776)); elStyle уже выражает все px как
+        // calc(N*var(--d06u)), поэтому лист САМ раскладывается в нужном размере — нет гигантского
+        // GPU-слоя (нет iOS-краша), нет zoom-бага, высоту мерить не нужно (поток сам).
+        // container-type — чтобы cqw считался от ширины .d06-fit. Десктоп: max 880 по центру;
+        // мобила: на всю ширину. overflow-x:clip срезает bleed фонов за край листа.
+        <div
+          className="d06-fit"
+          style={
+            {
+              containerType: "inline-size",
+              "--d06u": `calc(100cqw / ${REF_WIDTH})`,
+              width: `min(100%, ${MAX_WIDTH}px)`,
+              margin: "0 auto",
+              overflowX: "clip",
+              opacity: fontsReady ? 1 : 0,
+              transition: "opacity .2s ease",
+            } as CSSProperties
+          }
+        >
+          {page}
         </div>
       )}
       {editMode && Editor && (

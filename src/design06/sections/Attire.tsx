@@ -114,8 +114,11 @@ function ColorSwatch({ eid, innerEid, frameEid, fillEid, clipId }: { eid: string
         <div className={styles.hWv4NA} data-eid={frameEid} style={elStyle(layout[frameEid])}>
           <svg className={styles._7KaXww}>
             <defs>
-              <clipPath id={clipId}>
-                <path d="M128,0C57.30755202165845,0 0,57.30755202165844 0,128C0,198.69244797834153 57.307552021658424,256 128,256C198.69244797834153,256 256,198.6924479783416 256,128C256,57.30755202165848 198.6924479783416,0 128,0Z" />
+              {/* objectBoundingBox (координаты 0–1 = доли бокса) → круг масштабируется
+                  вместе с fill. userSpaceOnUse-версия (256-круг) не масштабировалась →
+                  на 880 fill ~127px показывал лишь сектор 256-круга = четвертькруг. */}
+              <clipPath id={clipId} clipPathUnits="objectBoundingBox">
+                <path d="M0.5,0C0.223857,0 0,0.223857 0,0.5C0,0.776142 0.223857,1 0.5,1C0.776142,1 1,0.776142 1,0.5C1,0.223857 0.776142,0 0.5,0Z" />
               </clipPath>
             </defs>
           </svg>
