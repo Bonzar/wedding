@@ -287,7 +287,7 @@ export const layout: Record<string, El> = {
   "calendar/box-41": { h: 483.354, w: 484.177, scale: 1, raw: { "position": "absolute", "top": "0px", "left": "0px", "transformOrigin": "0px 0px", "pointerEvents": "none" } },
   // Встроенная карта Yandex — в пустом поле между адресом (низ ~1905) и кнопкой (верх 2340).
   // Соотношение ~533:395; ширина по центру канвы 1776.
-  "calendar/map": { x: 216.56351095395866, y: 1937.8173334935504, w: 1369.631102066644, h: 584.1125095178868, raw: { "touchAction": "pan-x pan-y pinch-zoom" } },
+  "calendar/map": { x: 216.56351095395866, y: 1937.8173334935504, w: 1369.631102066644, h: 584.1125095178868, raw: { "touchAction": "pan-x pan-y pinch-zoom", "zIndex": 9999 } },
   "calendar/maps-button": { x: 691.5215090682196, y: 2428.9554831578566, w: 402.689, h: 88.7355, raw: { "touchAction": "pan-x pan-y pinch-zoom" } },
   "calendar/box-42": { h: 88.7355, w: 402.689, scale: 1, raw: { "position": "absolute", "top": "0px", "left": "0px", "transformOrigin": "0px 0px" } },
   "calendar/mask": { w: 402.689, h: 88.7355, raw: { "marginLeft": "0px", "marginTop": "0px" } },

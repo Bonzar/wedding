@@ -12,7 +12,6 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
-const SECT = join(ROOT, "src", "design06", "sections");
 const MEDIA = join(ROOT, "public", "design06-exact", "_assets", "media");
 
 const FIELD_ORDER = [
@@ -132,16 +131,20 @@ export function d06Save(): Plugin {
       server.middlewares.use("/__d06/save", async (req, res) => {
         if (req.method !== "POST") return json(res, 405, { ok: false, error: "POST only" });
         try {
-          const { changes = [], content = [], additions = null, palette } = JSON.parse(await readBody(req)) as {
-            changes?: StyleChange[]; content?: ContentChange[]; additions?: unknown[] | null; palette?: string | null;
+          const { changes = [], content = [], additions = null, palette, design } = JSON.parse(await readBody(req)) as {
+            changes?: StyleChange[]; content?: ContentChange[]; additions?: unknown[] | null; palette?: string | null; design?: string;
           };
           if (!changes.length && !content.length && !additions && palette === undefined)
             return json(res, 400, { ok: false, error: "nothing to save" });
 
+          // Целевой дизайн: редактор шлёт design ("design06"|"design07"). Дефолт design06 (совместимость).
+          const dRoot = join(ROOT, "src", design === "design07" ? "design07" : "design06");
+          const dSect = join(dRoot, "sections");
+
           // STYLE → <Section>.layout.ts (record patched by key)
           const byLayout = new Map<string, StyleChange[]>();
           for (const ch of changes) {
-            const file = join(SECT, `${cap(ch.eid.split("/")[0])}.layout.ts`);
+            const file = join(dSect, `${cap(ch.eid.split("/")[0])}.layout.ts`);
             (byLayout.get(file) ?? byLayout.set(file, []).get(file)!).push(ch);
           }
           for (const [file, list] of byLayout) {
@@ -156,7 +159,7 @@ export function d06Save(): Plugin {
 
           // CONTENT → <Section>.tsx (text expression / img src patched by data-eid)
           for (const c of content) {
-            const file = join(SECT, `${cap(c.eid.split("/")[0])}.tsx`);
+            const file = join(dSect, `${cap(c.eid.split("/")[0])}.tsx`);
             let src = await readFile(file, "utf8");
             if (c.text != null) {
               const n = patchText(src, c.eid, c.text);
@@ -171,19 +174,19 @@ export function d06Save(): Plugin {
             await writeFile(file, src);
           }
 
-          // ADDED elements → src/design06/additions.ts (заменяем массив, шапку/тип сохраняем)
+          // ADDED elements → src/<design>/additions.ts (заменяем массив, шапку/тип сохраняем)
           if (Array.isArray(additions)) {
-            const file = join(ROOT, "src", "design06", "additions.ts");
+            const file = join(dRoot, "additions.ts");
             const src = await readFile(file, "utf8");
             const marker = "export const additions: Addition[] =";
             const head = src.includes(marker) ? src.slice(0, src.indexOf(marker)) : src + "\n";
             await writeFile(file, `${head}${marker} ${JSON.stringify(additions, null, 2)};\n`);
           }
 
-          // PALETTE → src/design06/paletteState.ts (один экспорт; шапку-комментарий сохраняем).
+          // PALETTE → src/<design>/paletteState.ts (один экспорт; шапку-комментарий сохраняем).
           // null = вернуть базовые «чернила». На проде применяется, пикер — только dev.
           if (palette !== undefined) {
-            const file = join(ROOT, "src", "design06", "paletteState.ts");
+            const file = join(dRoot, "paletteState.ts");
             const src = await readFile(file, "utf8");
             const marker = "export const activePalette: string | null =";
             const head = src.includes(marker) ? src.slice(0, src.indexOf(marker)) : src + "\n";

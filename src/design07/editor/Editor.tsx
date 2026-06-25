@@ -710,6 +710,7 @@ export default function Editor({ scale }: { scale: number }) {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
+          design: "design07", // писать правки в src/design07/* (а не design06) — см. vite-plugins/d06-save.ts
           changes: dirty.map((eid) => ({ eid, record: drafts[eid] })),
           content: dirtyContent.map((eid) => ({ eid, ...content[eid] })),
           additions: addStore.list(),

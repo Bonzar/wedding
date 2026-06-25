@@ -1,11 +1,10 @@
 // design06 section Calendar (Canva id PBtLyKJDZDgGk7P1). Структура + утилиты-классы — база (0%).
 // Редактируемые стили вынесены в Calendar.layout.ts и применяются по data-eid (Approach A2).
-import type { CSSProperties } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { cx } from "../cx";
 import { elStyle, cqw } from "../layout";
 import styles from "../canva.module.css";
 import { layout } from "./Calendar.layout";
-import { useEffect, useState } from "react";
 import { assetUrl } from "../assetUrl";
 import { useCountdown } from "@/hooks/useCountdown";
 import { WEDDING_DATE_ISO } from "@/content/wedding";
@@ -444,77 +443,56 @@ function EngravingLeaf2() {
   );
 }
 
-// Карта места («Три кедра»). Занимает пустое поле между адресом и кнопкой «Яндекс Карты».
-// Позиция/размер — в Calendar.layout.ts (data-eid="calendar/map").
+// Карта места («Три кедра»). Интерактивный виджет Яндекс-карт (constructor, растровые тайлы).
+// Позиция/размер — в Calendar.layout.ts (data-eid="calendar/map"); масштаб через cqw, как у всей
+// вёрстки (без JS-ресайза по ширине окна — он давал «media-query»-прыжок).
 //
-// ВАЖНО: живой WebGL-виджет Яндекс-карты роняет вкладку на iOS (краш рендер-процесса →
-// «A problem repeatedly occurred» при появлении карты в скролле). Ни вынос iframe из
-// transform-канвы, ни сжатие картинок страницы не помогли — поэтому отказались от живого
-// виджета в пользу СТАТИЧНОЙ КАРТИНКИ: обычный <img> (никакого WebGL/iframe), который
-// гарантированно не падает. Тап по карте открывает полные интерактивные Яндекс-карты.
-// Статика — локальный PNG (скачан с Яндекс Static Maps по координатам места), лежит в
-// ассетах: никакой внешней зависимости/referer/устаревания, ~0.8 МБ в памяти.
-const MAP_IMG_SRC = assetUrl("/design06-exact/_assets/media/map-tri-kedra.png");
-const MAP_LINK = "https://yandex.ru/maps/-/CTQNvQK3";
-
+// Ранее виджет заменяли статичной картинкой из-за iOS-краша «A problem repeatedly occurred»,
+// но реальной причиной оказалась ПАМЯТЬ от глобального transform-слоя (d06), а НЕ сам виджет.
+// В d07 (cqw, без transform) краша нет → возвращаем живой интерактивный виджет.
 const FRAME_BORDER = `${cqw(2)} solid var(--d06-ink, rgb(53, 80, 116))`; // d07: рамка в cqw (масштабируется)
 const FRAME_RADIUS = cqw(16);
 
-// Размер задаётся в редакторе под десктоп (calendar/map). Но на узких экранах весь лист
-// 1776px ужимается под ширину экрана, поэтому крупная карта забирает почти всю ширину и
-// «доминирует». На мобиле уменьшаем карту на MAP_MOBILE_SCALE от заданного, держа центр.
-// Порог = 880 (как MAX_WIDTH в Design06: ≤880 лист = весь экран, >880 — поля по бокам).
-const MAP_MOBILE_BP = 880;
-const MAP_MOBILE_SCALE = 0.6;
-
 function Map() {
-  const [vw, setVw] = useState(() => (typeof window !== "undefined" ? window.innerWidth : 1280));
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const onResize = () => setVw(window.innerWidth);
-    window.addEventListener("resize", onResize);
-    return () => window.removeEventListener("resize", onResize);
-  }, []);
-
-  // Геометрия: на мобиле уменьшаем от заданного в редакторе, держим центр.
+  const boxRef = useRef<HTMLDivElement>(null);
   const base = layout["calendar/map"];
-  const f = vw <= MAP_MOBILE_BP ? MAP_MOBILE_SCALE : 1;
-  const bw = (base.w ?? 0) * f;
-  const bh = (base.h ?? 0) * f;
-  const holderEl =
-    f === 1
-      ? base
-      : { ...base, w: bw, h: bh, x: (base.x ?? 0) + ((base.w ?? 0) - bw) / 2, y: (base.y ?? 0) + ((base.h ?? 0) - bh) / 2 };
-
+  // Референс рендера iframe = ширина карты на ДЕСКТОП-листе (880/1776 от нативной): на десктопе
+  // box≈этому → scale 1 → контролы нативного размера (как нужно). На более узком — box меньше →
+  // scale<1 → пропорционально меньше. (Брали натив 1776 → на десктопе было ×0.5, слишком мелко.)
+  const NW = (base.w ?? 1369.63) * (880 / 1776);
+  const NH = (base.h ?? 584.11) * (880 / 1776);
+  // Контролы Яндекс-виджета — фикс-px ВНУТРИ iframe и сами не масштабируются с маленьким iframe
+  // (оттого на узком экране кнопки огромные). Рендерим iframe в референс-размере и плавно сжимаем
+  // под cqw-бокс через transform: scale (ResizeObserver — непрерывно, без media-query-прыжка).
+  const [scale, setScale] = useState(1);
+  useEffect(() => {
+    const box = boxRef.current;
+    if (!box) return;
+    const apply = () => setScale(box.clientWidth / NW);
+    apply();
+    const ro = new ResizeObserver(apply);
+    ro.observe(box);
+    return () => ro.disconnect();
+  }, [NW]);
   return (
     <div
+      ref={boxRef}
       className={cx(styles.DF_utQ, styles._682gpw, styles._0xkaeQ)}
       data-eid="calendar/map"
       style={{
-        ...elStyle(holderEl),
+        ...elStyle(base),
         border: FRAME_BORDER,
         borderRadius: FRAME_RADIUS,
         overflow: "hidden",
         background: "color-mix(in srgb, var(--d06-ink, rgb(53, 80, 116)) 6%, transparent)",
       }}
     >
-      <a
-        href={MAP_LINK}
-        target="_blank"
-        rel="noopener nofollow"
-        draggable={false}
-        aria-label="Открыть карту — Сочи, Три кедра"
-        style={{ display: "block", width: "100%", height: "100%" }}
-      >
-        <img
-          src={MAP_IMG_SRC}
-          alt="Карта — Сочи, Центральный район, Три кедра"
-          loading="lazy"
-          decoding="async"
-          draggable={false}
-          style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-        />
-      </a>
+      <iframe
+        title="Карта — Сочи, Три кедра"
+        src="https://yandex.ru/map-widget/v1/?um=constructor%3Acac75de5edf5273bae52f678d421076b55368f6fadced06b0eb9da0f89586e99&source=constructor"
+        loading="eager"
+        style={{ display: "block", width: `${NW}px`, height: `${NH}px`, border: "none", transform: `scale(${scale})`, transformOrigin: "top left" }}
+      />
     </div>
   );
 }
