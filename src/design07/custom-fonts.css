@@ -1,0 +1,30 @@
+/* design06 — дополнительные (не-Canva) шрифты, добавленные вручную.
+   Бинарники лежат в assets/fonts/ (как и шрифты дизайн-системы); Vite их бандлит и
+   хэширует по относительному url(). Импортируется в Design06.tsx → грузится только на ?d06.
+   Имена семейств — человекочитаемые, доступны в редакторе через FONTS-пикер (editor/registry.ts).
+   Имена в кавычках: «English 111 Vivace BT» содержит токен-цифру (111), без кавычек невалиден. */
+
+@font-face {
+  font-family: "English 111 Vivace BT";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../../assets/fonts/english-111-vivace-bt.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "Nicoletta Script SHA";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../../assets/fonts/nicoletta-script-sha.otf") format("opentype");
+}
+
+/* RUSJellyka — Love and Passion: кириллическая (RUS) версия скрипта. */
+@font-face {
+  font-family: "Jellyka Love and Passion";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../../assets/fonts/jellyka-love-and-passion.ttf") format("truetype");
+}
