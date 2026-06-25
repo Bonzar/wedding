@@ -36,12 +36,37 @@ const cssHrefs: string[] = (JSON.parse(headLinksRaw) as string[]).filter((h) => 
 // ?d06&noscale отключает скейлер (масштаб 1:1) — для пиксельного сравнения с эталоном.
 const REF_WIDTH = 1776;
 const MAX_WIDTH = 880;
+// Оверскан для мобилы: лист, вписанный в экран ровно по ширине, выглядит мелко.
+// Масштабируем чуть сильнее (1.0 = как раньше, целиком; 1.12 = крупнее на 12%), а поля
+// по краям уходят под обрез — обёртка центрирует и режет симметрично (overflow:hidden).
+// 1.12 → срезается ~5.4% ширины с каждой стороны (только поля-подложка, не контент).
+const MOBILE_OVERSCAN = 1.25;
 // Основной (кремовый) тон бумаги-подложки — средний цвет текстуры hero-backdrop.
 // Им заливаются поля по краям экрана за пределами листа (контент остаётся ≤ MAX_WIDTH),
 // чтобы вместо белых полос фон всегда был основным цветом. См. inline-<style> ниже.
 const PAGE_BG = "#faf7f0";
 const EDIT_BAR = 36; // высота тулбара редактора
 const EDIT_PANEL = 300; // зарезервировано справа под инспектор (панель 280 + зазор)
+
+// content-visibility: auto на секциях — браузер пропускает рендер/растеризацию/декод
+// картинок офф-скрин секций. Критично для мобилы: весь лист 1776×~15000 живёт в одном
+// scaled-слое; без этого все ~9 секций декодируются и держатся в памяти разом, и быстрый
+// скролл переращивает гигантский слой → краш рендера на iOS. contain-intrinsic-size = РЕАЛЬНАЯ
+// высота секции (canvas px), поэтому offsetHeight/замер высоты листа не меняется (без прыжков
+// скролла). [id, высота frame] из *.layout.ts. Survey пропущен (живой RSVP, переменная высота).
+const SECTION_HEIGHTS: [string, number][] = [
+  ["PBbM6hRVrsx6MjPz", 1412], // Hero
+  ["PBtLyKJDZDgGk7P1", 2699], // Calendar
+  ["PBGrcDNxzKvrxrJt", 1840], // Timeline
+  ["PBsHbr4J9zLLY08q", 1554], // Details
+  ["PBL8ZPfjvBzXjMPd", 969], // Attire
+  ["PB09PH75zdFrcMmz", 1172], // Gift
+  ["PBYbv3X7MfRLX7B4", 4488], // Journey
+  ["PB9GyzXqcqH056Yr", 1131], // Closing
+];
+const CV_CSS = SECTION_HEIGHTS.map(
+  ([id, h]) => `#${id}{content-visibility:auto;contain-intrinsic-size:${REF_WIDTH}px ${h}px}`,
+).join("");
 
 // Один добавленный элемент (текст или картинка). Простой absolute-бокс в координатах канвы,
 // data-eid `add/<id>` → редактор адресует его как обычный объект. pointer-events:auto, чтобы
@@ -71,6 +96,12 @@ export default function Design06() {
   const baseline = params.has("baseline");
   const editMode = import.meta.env.DEV && params.has("edit");
   const [scale, setScale] = useState(1);
+  // Шрифты (Canva + кастомные скрипты) грузятся с font-display:swap: пока их нет,
+  // текст рисуется фолбэком с другими метриками глифов → при подмене высота листа
+  // меняется и весь макет «прыгает». Поэтому держим лист скрытым до готовности
+  // шрифтов и проявляем плавно — первый видимый кадр уже с финальным начертанием.
+  // Safety-таймаут (3с) гарантирует, что лист не останется скрытым, если шрифт упал.
+  const [fontsReady, setFontsReady] = useState(noScale);
   // Натуральная (немасштабированная) высота листа — нужна, т.к. лист масштабируется через
   // transform: scale() (а не zoom), а transform не влияет на поток: без явной высоты обёртки
   // под листом осталась бы пустота на полную высоту 1:1. См. рендер ниже.
@@ -84,7 +115,15 @@ export default function Design06() {
     // иначе обычная логика: ≤880 под ширину, >880 фикс 880.
     const calc = () => {
       const w = document.documentElement.clientWidth;
-      setScale((editMode ? w - EDIT_PANEL : Math.min(w, MAX_WIDTH)) / REF_WIDTH);
+      if (editMode) {
+        setScale((w - EDIT_PANEL) / REF_WIDTH);
+      } else if (w <= MAX_WIDTH) {
+        // Мобила: вписываем по ширине и добавляем оверскан — края срезаются обрезом обёртки.
+        setScale((w / REF_WIDTH) * MOBILE_OVERSCAN);
+      } else {
+        // Десктоп: фикс 880, лист целиком по центру (без обреза).
+        setScale(MAX_WIDTH / REF_WIDTH);
+      }
     };
     calc();
     window.addEventListener("resize", calc);
@@ -103,6 +142,24 @@ export default function Design06() {
     const ro = new ResizeObserver(measure);
     ro.observe(inner);
     return () => ro.disconnect();
+  }, [noScale]);
+
+  // Проявляем лист, когда шрифты догрузились (см. fontsReady выше). noScale рендерит сразу.
+  useEffect(() => {
+    if (noScale) return;
+    let done = false;
+    const reveal = () => {
+      if (done) return;
+      done = true;
+      setFontsReady(true);
+    };
+    if (typeof document !== "undefined" && document.fonts?.ready) {
+      void document.fonts.ready.then(reveal);
+    } else {
+      reveal();
+    }
+    const t = window.setTimeout(reveal, 3000);
+    return () => window.clearTimeout(t);
   }, [noScale]);
 
   // Палитра. На маунте применяем сохранённый цвет (paletteState.ts) — работает и на проде.
@@ -159,7 +216,7 @@ export default function Design06() {
           box-sizing/font-smoothing Canva задаёт сам, поэтому больше сбрасывать нечего. */}
       {/* Поля по краям (вне листа ≤880px) — основным цветом, а не белым. Перебивает
           `html,body{background:#fff}` из сгенерированного override.css по порядку правил. */}
-      <style>{`html,body{background:${PAGE_BG}}.yIDCqA section.rGeu6w{padding:0;position:static;overflow:visible}`}</style>
+      <style>{`html,body{background:${PAGE_BG}}.yIDCqA section.rGeu6w{padding:0;position:static;overflow:visible}${CV_CSS}`}</style>
       {noScale ? (
         page
       ) : editMode ? (
@@ -167,7 +224,7 @@ export default function Design06() {
         // Масштабируем через transform: scale() (не zoom — iOS Safari ломает раскладку текста
         // при zoom, см. WebKit bug). transform-origin: top left + бокс с уже масштабированными
         // размерами (REF_WIDTH*scale × natHeight*scale), чтобы поток занимал ровно видимый лист.
-        <div style={{ paddingTop: EDIT_BAR, boxSizing: "border-box" }}>
+        <div style={{ paddingTop: EDIT_BAR, boxSizing: "border-box", opacity: fontsReady ? 1 : 0, transition: "opacity .2s ease" }}>
           <div style={{ width: REF_WIDTH * scale, height: natHeight * scale }}>
             <div ref={innerRef} style={{ width: REF_WIDTH, transform: `scale(${scale})`, transformOrigin: "top left" }}>
               {page}
@@ -179,7 +236,7 @@ export default function Design06() {
         // пересчитывает позиции absolute-текста (наезжает друг на друга), хотя Chrome/DevTools
         // рендерит верно. transform-origin: top left, а внешний бокс зажат под видимый размер
         // листа (REF_WIDTH*scale × natHeight*scale) — иначе под листом пустота на высоту 1:1.
-        <div style={{ display: "flex", justifyContent: "center", width: "100%", overflow: "hidden" }}>
+        <div style={{ display: "flex", justifyContent: "center", width: "100%", overflow: "hidden", opacity: fontsReady ? 1 : 0, transition: "opacity .2s ease" }}>
           <div style={{ width: REF_WIDTH * scale, height: natHeight * scale }}>
             <div ref={innerRef} style={{ width: REF_WIDTH, transform: `scale(${scale})`, transformOrigin: "top left" }}>
               {page}
