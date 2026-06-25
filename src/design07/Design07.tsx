@@ -33,11 +33,18 @@ const cssHrefs: string[] = (JSON.parse(headLinksRaw) as string[]).filter((h) => 
 
 const REF_WIDTH = 1776; // нативная ширина листа = база координат (1 канва-юнит = 1 px на 1776)
 const MAX_WIDTH = 880; // макс. ширина листа на десктопе (центрируется)
-// Оверскан мобилы (как в d06): на узких экранах (≤MAX_WIDTH) cqw-контейнер делаем ШИРЕ экрана
-// в MOBILE_OVERSCAN раз → 1cqw больше → контент крупнее, а поля-подложка по краям уходят под
-// обрез (внешняя обёртка центрирует и режет overflow-x:clip). 1.25 → срез ~12.5% с каждой
-// стороны. На десктопе (>MAX_WIDTH) оверскана нет — лист 880 целиком по центру.
+// Оверскан мобилы (как в d06): на узких экранах cqw-контейнер делаем ШИРЕ экрана → 1cqw больше →
+// контент крупнее, а поля-подложка по краям уходят под обрез (внешняя обёртка центрирует и режет
+// overflow-x:clip). Оверскан ПЛАВНО спадает 1.25→1.0 между OVERSCAN_FULL_AT и MAX_WIDTH (без
+// media-query — через min() линейных кусков по vw):
+//   ≤OVERSCAN_FULL_AT → ×MOBILE_OVERSCAN ; OVERSCAN_FULL_AT→MAX_WIDTH линейно к full ; ≥MAX_WIDTH → лист целиком.
 const MOBILE_OVERSCAN = 1.25;
+const OVERSCAN_FULL_AT = 440; // ширина (px), при которой оверскан = максимум
+// Линейный кусок, соединяющий (OVERSCAN_FULL_AT, MOBILE_OVERSCAN*OVERSCAN_FULL_AT) и (MAX_WIDTH, MAX_WIDTH).
+const OS_SLOPE = (MAX_WIDTH - MOBILE_OVERSCAN * OVERSCAN_FULL_AT) / (MAX_WIDTH - OVERSCAN_FULL_AT);
+const OS_INTERCEPT = MOBILE_OVERSCAN * OVERSCAN_FULL_AT - OS_SLOPE * OVERSCAN_FULL_AT;
+// Фактор оверскана = width/vw = 0.75 + OS_INTERCEPT/vw → гладко спадает к 1.0 на MAX_WIDTH.
+const OVERSCAN_WIDTH = `min(${MOBILE_OVERSCAN * 100}vw, calc(${OS_SLOPE * 100}vw + ${OS_INTERCEPT}px), ${MAX_WIDTH}px)`;
 const PAGE_BG = "#faf7f0"; // кремовый тон полей по краям листа (вместо белого)
 const EDIT_BAR = 36; // высота тулбара редактора
 const EDIT_PANEL = 300; // зарезервировано справа под инспектор (панель 280 + зазор)
@@ -168,7 +175,7 @@ export default function Design07() {
   } else {
     sheet = (
       <div style={{ display: "flex", justifyContent: "center", width: "100%", overflowX: "clip" }}>
-        <div className="d07-root d07-overscan" style={baseRoot}>
+        <div className="d07-root" style={{ ...baseRoot, width: OVERSCAN_WIDTH }}>
           {page}
         </div>
       </div>
@@ -182,9 +189,8 @@ export default function Design07() {
       ))}
       <style dangerouslySetInnerHTML={{ __html: overrideCss }} />
       {/* Поля по краям — основным (кремовым) цветом, а не белым; точечный сброс протечки
-          `section{}` из base.css приложения. Перебивает html,body{background:#fff} из override.css.
-          Оверскан мобилы: десктоп — лист MAX_WIDTH; ≤MAX_WIDTH — шире экрана ×MOBILE_OVERSCAN. */}
-      <style>{`html,body{background:${PAGE_BG}}.yIDCqA section.rGeu6w{padding:0;position:static;overflow:visible}.d07-overscan{width:${MAX_WIDTH}px}@media (max-width:${MAX_WIDTH}px){.d07-overscan{width:${MOBILE_OVERSCAN * 100}vw}}${noMedia ? ".yIDCqA img{display:none!important}" : ""}`}</style>
+          `section{}` из base.css приложения. Перебивает html,body{background:#fff} из override.css. */}
+      <style>{`html,body{background:${PAGE_BG}}.yIDCqA section.rGeu6w{padding:0;position:static;overflow:visible}${noMedia ? ".yIDCqA img{display:none!important}" : ""}`}</style>
       {sheet}
       {editMode && Editor && (
         <Suspense fallback={null}>
