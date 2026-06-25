@@ -16,14 +16,14 @@ export const layout: Record<string, El> = {
   "survey/eyebrow-span": { color: INK, raw: { fontSize: "1em", fontWeight: "400" } },
 
   // — заголовок «Для нас важно знать» —
-  "survey/title": { w: 1200, h: 130, x: 288, y: 208, raw: { position: "absolute", top: "0px", left: "0px", touchAction: "pan-x pan-y pinch-zoom" } },
+  "survey/title": { x: 299.19632048491195, y: 207.72418295148248, w: 1200, h: 130, raw: { "position": "absolute", "top": "0px", "left": "0px", "touchAction": "pan-x pan-y pinch-zoom" } },
   "survey/title-field": { w: 1200, h: 130, raw: { writingMode: "horizontal-tb", transformOrigin: "0px 0px" } },
   "survey/title-box": { x: 0, y: 0 },
   "survey/title-p": { font: "\"Jost\", system-ui, sans-serif", fontSize: 92, letterSpacing: "0em", lineHeight: "104px", textAlign: "center", textTransform: "none", color: "rgb(53, 80, 116)", raw: { "listStyleType": "none" } },
   "survey/title-span": { color: INK, raw: { fontSize: "1em", fontWeight: "400" } },
 
   // — поясняющий абзац —
-  "survey/body": { w: 1200, h: 220, x: 288, y: 432, raw: { position: "absolute", top: "0px", left: "0px", touchAction: "pan-x pan-y pinch-zoom" } },
+  "survey/body": { x: 299.19632048491184, y: 433.03782008086256, w: 1200, h: 220, raw: { "position": "absolute", "top": "0px", "left": "0px", "touchAction": "pan-x pan-y pinch-zoom" } },
   "survey/body-field": { w: 1200.015960506135, h: 220, raw: { "writingMode": "horizontal-tb", "transformOrigin": "0px 0px" } },
   "survey/body-box": { x: 0, y: 0 },
   "survey/body-p": { font: "\"Jost\", system-ui, sans-serif", fontSize: 42, letterSpacing: "0em", lineHeight: "58px", textAlign: "center", textTransform: "none", color: "rgb(53, 80, 116)", raw: { "listStyleType": "none", "whiteSpace": "normal" } },
