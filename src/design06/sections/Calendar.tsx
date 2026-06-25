@@ -464,12 +464,20 @@ const MAP_SRC =
 const FRAME_BORDER = "2px solid var(--d06-ink, rgb(53, 80, 116))";
 const FRAME_RADIUS = 16;
 
+// Размер задаётся в редакторе под десктоп (calendar/map). Но на узких экранах весь лист
+// 1776px ужимается под ширину экрана, поэтому крупная карта забирает почти всю ширину и
+// «доминирует». На мобиле уменьшаем карту на MAP_MOBILE_SCALE от заданного, держа центр.
+// Порог = 880 (как MAX_WIDTH в Design06: ≤880 лист = весь экран, >880 — поля по бокам).
+const MAP_MOBILE_BP = 880;
+const MAP_MOBILE_SCALE = 0.6;
+
 type Box = { top: number; left: number; width: number; height: number };
 
 function Map() {
   const holderRef = useRef<HTMLDivElement>(null);
   const [box, setBox] = useState<Box | null>(null);
   const [failed, setFailed] = useState(false);
+  const [vw, setVw] = useState(() => (typeof window !== "undefined" ? window.innerWidth : 1280));
 
   // Меряем плейсхолдер и переводим в координаты документа (rect + scroll). rect уже
   // учитывает transform: scale(), т.е. это реальный размер/позиция карты на экране.
@@ -490,21 +498,35 @@ function Map() {
       cancelAnimationFrame(raf);
       raf = requestAnimationFrame(measure);
     };
+    const onResize = () => {
+      setVw(window.innerWidth); // меняет геометрию плейсхолдера → перемер ниже
+      schedule();
+    };
     schedule();
     // Догрузка шрифтов/картинок и применение scale в Design06 двигают раскладку — добираем позже.
     const t1 = setTimeout(schedule, 300);
     const t2 = setTimeout(schedule, 1200);
-    window.addEventListener("resize", schedule);
+    window.addEventListener("resize", onResize);
     const ro = new ResizeObserver(schedule);
     ro.observe(document.body);
     return () => {
       cancelAnimationFrame(raf);
       clearTimeout(t1);
       clearTimeout(t2);
-      window.removeEventListener("resize", schedule);
+      window.removeEventListener("resize", onResize);
       ro.disconnect();
     };
   }, []);
+
+  // Геометрия плейсхолдера: на мобиле уменьшаем от заданного в редакторе, держим центр.
+  const base = layout["calendar/map"];
+  const f = vw <= MAP_MOBILE_BP ? MAP_MOBILE_SCALE : 1;
+  const bw = (base.w ?? 0) * f;
+  const bh = (base.h ?? 0) * f;
+  const holderEl =
+    f === 1
+      ? base
+      : { ...base, w: bw, h: bh, x: (base.x ?? 0) + ((base.w ?? 0) - bw) / 2, y: (base.y ?? 0) + ((base.h ?? 0) - bh) / 2 };
 
   return (
     <>
@@ -514,7 +536,7 @@ function Map() {
         className={cx(styles.DF_utQ, styles._682gpw, styles._0xkaeQ)}
         data-eid="calendar/map"
         style={{
-          ...elStyle(layout["calendar/map"]),
+          ...elStyle(holderEl),
           border: FRAME_BORDER,
           borderRadius: FRAME_RADIUS,
           background: "color-mix(in srgb, var(--d06-ink, rgb(53, 80, 116)) 6%, transparent)",
