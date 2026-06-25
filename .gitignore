@@ -27,3 +27,4 @@ blob-report/
 
 # Референсы/захваты — не публикуем
 refs/
+tests/d07-baseline/**/diff-*.png
