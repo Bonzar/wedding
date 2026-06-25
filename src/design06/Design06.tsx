@@ -48,26 +48,6 @@ const PAGE_BG = "#faf7f0";
 const EDIT_BAR = 36; // высота тулбара редактора
 const EDIT_PANEL = 300; // зарезервировано справа под инспектор (панель 280 + зазор)
 
-// content-visibility: auto на секциях — браузер пропускает рендер/растеризацию/декод
-// картинок офф-скрин секций. Критично для мобилы: весь лист 1776×~15000 живёт в одном
-// scaled-слое; без этого все ~9 секций декодируются и держатся в памяти разом, и быстрый
-// скролл переращивает гигантский слой → краш рендера на iOS. contain-intrinsic-size = РЕАЛЬНАЯ
-// высота секции (canvas px), поэтому offsetHeight/замер высоты листа не меняется (без прыжков
-// скролла). [id, высота frame] из *.layout.ts. Survey пропущен (живой RSVP, переменная высота).
-const SECTION_HEIGHTS: [string, number][] = [
-  ["PBbM6hRVrsx6MjPz", 1412], // Hero
-  ["PBtLyKJDZDgGk7P1", 2699], // Calendar
-  ["PBGrcDNxzKvrxrJt", 1840], // Timeline
-  ["PBsHbr4J9zLLY08q", 1554], // Details
-  ["PBL8ZPfjvBzXjMPd", 969], // Attire
-  ["PB09PH75zdFrcMmz", 1172], // Gift
-  ["PBYbv3X7MfRLX7B4", 4488], // Journey
-  ["PB9GyzXqcqH056Yr", 1131], // Closing
-];
-const CV_CSS = SECTION_HEIGHTS.map(
-  ([id, h]) => `#${id}{content-visibility:auto;contain-intrinsic-size:${REF_WIDTH}px ${h}px}`,
-).join("");
-
 // Один добавленный элемент (текст или картинка). Простой absolute-бокс в координатах канвы,
 // data-eid `add/<id>` → редактор адресует его как обычный объект. pointer-events:auto, чтобы
 // его можно было выбрать (слой-контейнер сам pointer-events:none и не мешает странице).
@@ -95,6 +75,11 @@ export default function Design06() {
   // (его в Canva-рефе нет) скрывается, чтобы не ломать полностраничный пиксель-дифф.
   const baseline = params.has("baseline");
   const editMode = import.meta.env.DEV && params.has("edit");
+  // --- Отладочные флаги для бисекта краша на iOS (включаются ?d06&<flag>) ---
+  const noMedia = params.has("nomedia"); // не рисовать картинки → тест: декод/память картинок виноваты?
+  const onlyN = parseInt(params.get("only") || "0", 10) || 0; // рендерить только первые N секций (?only=2)
+  const useZoom = params.has("zoom"); // масштаб через zoom вместо transform: scale() (тест GPU-слоя)
+  const forceVp = params.has("fvp"); // форсировать vp-режим независимо от UA (тест в desktop-превью)
   const [scale, setScale] = useState(1);
   // Шрифты (Canva + кастомные скрипты) грузятся с font-display:swap: пока их нет,
   // текст рисуется фолбэком с другими метриками глифов → при подмене высота листа
@@ -108,6 +93,38 @@ export default function Design06() {
   const [natHeight, setNatHeight] = useState(0);
   const innerRef = useRef<HTMLDivElement>(null);
   const adds = useAdditions();
+  // Мобила? Детект по userAgent (мобильная ОС), а НЕ по ширине. Почему: vp-режим ставит
+  // <meta viewport width=1776>, который «shrink-to-fit» (ужимает лист под экран) РАБОТАЕТ
+  // ТОЛЬКО на мобильной ОС. В обычном узком окне десктопа эта мета не ужимает → лист 1776px →
+  // горизонтальный скролл. Детект по clientWidth ловил и узкое окно десктопа = поломка.
+  // UA-детект включает vp-режим только там, где он корректен: real iOS/Android, а также Safari
+  // responsive mode и Chrome device mode (они подменяют UA на мобильный). Десктоп (любая ширина,
+  // включая узкое окно) → transform, который масштабирует верно. UA не меняется → флипа нет.
+  const [isMobile] = useState(() => typeof navigator !== "undefined" && /iphone|ipad|ipod|android/i.test(navigator.userAgent));
+  // На мобиле масштабируем НЕ через transform: scale() — он держит весь лист 1776×~15000 в
+  // одном гигантском GPU-слое, и iOS убивает GPU-процесс по памяти (jetsam highwater;
+  // подтверждено: ?noscale краша нет). Вместо этого масштабируем ВЬЮПОРТОМ: рендерим лист
+  // нативно и сжимаем под экран через <meta viewport width=1776>. Браузерный зум тайлится как
+  // обычная страница (без огромного слоя), текст в нативных координатах (нет CSS-zoom-бага iOS).
+  // Десктоп оставляем на transform — там памяти хватает.
+  const mobileVp = !noScale && !editMode && (isMobile || forceVp);
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    const meta = document.querySelector('meta[name="viewport"]');
+    if (!meta) return;
+    if (mobileVp) {
+      // ВАЖНО: одной width=1776 мало — современные браузеры БОЛЬШЕ НЕ делают авто-shrink-to-fit,
+      // лист 1776 показывается в натуре → горизонтальный скролл. Поэтому initial-scale задаём
+      // ЯВНО = ширина_устройства / 1776 (лист точно вписывается по ширине). Ширину устройства
+      // читаем сейчас — мета ещё дефолтная (device-width), значит clientWidth = реальная ширина.
+      const dw = document.documentElement.clientWidth;
+      const s = dw > 0 ? dw / REF_WIDTH : 1;
+      meta.setAttribute("content", `width=${REF_WIDTH}, initial-scale=${s.toFixed(4)}`);
+    } else {
+      meta.setAttribute("content", "width=device-width, initial-scale=1");
+    }
+    return () => meta.setAttribute("content", "width=device-width, initial-scale=1");
+  }, [mobileVp]);
 
   useEffect(() => {
     if (noScale) return;
@@ -186,7 +203,7 @@ export default function Design06() {
             <div className="ZRRuDw">
               <div style={{ height: "100%", width: "100%" }}>
                 <div className="KYQZFA">
-                  {DESIGN06_SECTIONS.map((Section, i) => (
+                  {(onlyN > 0 ? DESIGN06_SECTIONS.slice(0, onlyN) : DESIGN06_SECTIONS).map((Section, i) => (
                     <Section key={i} />
                   ))}
                 </div>
@@ -216,7 +233,7 @@ export default function Design06() {
           box-sizing/font-smoothing Canva задаёт сам, поэтому больше сбрасывать нечего. */}
       {/* Поля по краям (вне листа ≤880px) — основным цветом, а не белым. Перебивает
           `html,body{background:#fff}` из сгенерированного override.css по порядку правил. */}
-      <style>{`html,body{background:${PAGE_BG}}.yIDCqA section.rGeu6w{padding:0;position:static;overflow:visible}${CV_CSS}`}</style>
+      <style>{`html,body{background:${PAGE_BG}}.yIDCqA section.rGeu6w{padding:0;position:static;overflow:visible}${noMedia ? ".yIDCqA img{display:none!important}" : ""}`}</style>
       {noScale ? (
         page
       ) : editMode ? (
@@ -230,6 +247,21 @@ export default function Design06() {
               {page}
             </div>
           </div>
+        </div>
+      ) : mobileVp ? (
+        // Мобила: нативный рендер, масштаб — браузерным вьюпортом (см. mobileVp выше). Без
+        // transform/zoom → нет гигантского GPU-слоя и нет iOS-zoom-бага. width=REF_WIDTH +
+        // overflow-x:clip обрезают bleed фоновых фото за край листа (раньше это делала
+        // масштаб-обёртка), чтобы не было горизонтального скролла. fontsReady — без мигания шрифта.
+        <div style={{ width: REF_WIDTH, overflowX: "clip", opacity: fontsReady ? 1 : 0, transition: "opacity .2s ease" }}>{page}</div>
+      ) : useZoom ? (
+        // ЭКСПЕРИМЕНТ (?d06&zoom): масштаб через zoom, а НЕ transform: scale().
+        // zoom масштабирует саму раскладку и НЕ создаёт один гигантский композитный слой
+        // (виновник jetsam-kill GPU-процесса), поэтому не должен ронять вкладку. Бокс
+        // натуральной высоты не нужен — zoom уже сжимает поток. Риск: старый iOS-баг с
+        // наездом абсолютного текста — это и проверяем на устройстве.
+        <div style={{ display: "flex", justifyContent: "center", width: "100%", overflow: "hidden", opacity: fontsReady ? 1 : 0, transition: "opacity .2s ease" }}>
+          <div style={{ width: REF_WIDTH, zoom: scale }}>{page}</div>
         </div>
       ) : (
         // Масштабируем через transform: scale() вместо zoom: iOS Safari при zoom неверно
