@@ -82,7 +82,7 @@ export const additions: Addition[] = [
     "y": 749.0610059760957,
     "w": 420,
     "h": 420,
-    "src": "/design06-exact/_assets/media/tile_1_3-3.png",
+    "src": "/design06-exact/_assets/media/tile_1_3-7.png",
     "raw": {
       "touchAction": "pan-x pan-y pinch-zoom"
     },
@@ -95,7 +95,7 @@ export const additions: Addition[] = [
     "y": 915.6557069000409,
     "w": 420,
     "h": 420,
-    "src": "/design06-exact/_assets/media/tile_1_1-3.png",
+    "src": "/design06-exact/_assets/media/tile_1_1-12.png",
     "raw": {
       "touchAction": "pan-x pan-y pinch-zoom"
     },

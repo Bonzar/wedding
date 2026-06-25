@@ -5,9 +5,7 @@ import { cx } from "../cx";
 import { elStyle } from "../layout";
 import styles from "../canva.module.css";
 import { layout } from "./Calendar.layout";
-import { ErrorBoundary } from "../ErrorBoundary";
-import { useEffect, useRef, useState } from "react";
-import { createPortal } from "react-dom";
+import { useEffect, useState } from "react";
 import { assetUrl } from "../assetUrl";
 import { useCountdown } from "@/hooks/useCountdown";
 import { WEDDING_DATE_ISO } from "@/content/wedding";
@@ -447,19 +445,18 @@ function EngravingLeaf2() {
   );
 }
 
-// Встроенная карта Yandex (виджет «Три кедра»). Занимает пустое поле между адресом
-// и кнопкой «Яндекс Карты». Позиция/размер плейсхолдера — в Calendar.layout.ts (data-eid).
+// Карта места («Три кедра»). Занимает пустое поле между адресом и кнопкой «Яндекс Карты».
+// Позиция/размер — в Calendar.layout.ts (data-eid="calendar/map").
 //
-// ВАЖНО (мобильная стабильность): вся страница design06 — это лист 1776px, ужатый под
-// экран через `transform: scale()` (см. Design06.tsx). Живой WebGL-iframe ВНУТРИ предка
-// с CSS-transform — известный баг iOS Safari: WebKit раздувает буфер/непрерывно
-// перерисовывает GPU-слой карты → вкладка падает по памяти → «A problem repeatedly
-// occurred» при каждом появлении карты в скролле. Поэтому iframe выносим ИЗ канвы:
-// рендерим порталом в <body> (вне transform), а позицию синхронизируем с плейсхолдером
-// в координатах документа. position:absolute (не fixed) → карта скроллится со страницей
-// нативно, без обработчика scroll, который на iOS лагает из-за инерционного скролла.
-const MAP_SRC =
-  "https://yandex.ru/map-widget/v1/?um=constructor%3Acac75de5edf5273bae52f678d421076b55368f6fadced06b0eb9da0f89586e99&source=constructor";
+// ВАЖНО: живой WebGL-виджет Яндекс-карты роняет вкладку на iOS (краш рендер-процесса →
+// «A problem repeatedly occurred» при появлении карты в скролле). Ни вынос iframe из
+// transform-канвы, ни сжатие картинок страницы не помогли — поэтому отказались от живого
+// виджета в пользу СТАТИЧНОЙ КАРТИНКИ: обычный <img> (никакого WebGL/iframe), который
+// гарантированно не падает. Тап по карте открывает полные интерактивные Яндекс-карты.
+// Статика — локальный PNG (скачан с Яндекс Static Maps по координатам места), лежит в
+// ассетах: никакой внешней зависимости/referer/устаревания, ~0.8 МБ в памяти.
+const MAP_IMG_SRC = assetUrl("/design06-exact/_assets/media/map-tri-kedra.png");
+const MAP_LINK = "https://yandex.ru/maps/-/CTQNvQK3";
 
 const FRAME_BORDER = "2px solid var(--d06-ink, rgb(53, 80, 116))";
 const FRAME_RADIUS = 16;
@@ -471,54 +468,16 @@ const FRAME_RADIUS = 16;
 const MAP_MOBILE_BP = 880;
 const MAP_MOBILE_SCALE = 0.6;
 
-type Box = { top: number; left: number; width: number; height: number };
-
 function Map() {
-  const holderRef = useRef<HTMLDivElement>(null);
-  const [box, setBox] = useState<Box | null>(null);
-  const [failed, setFailed] = useState(false);
   const [vw, setVw] = useState(() => (typeof window !== "undefined" ? window.innerWidth : 1280));
-
-  // Меряем плейсхолдер и переводим в координаты документа (rect + scroll). rect уже
-  // учитывает transform: scale(), т.е. это реальный размер/позиция карты на экране.
   useEffect(() => {
-    const holder = holderRef.current;
-    if (!holder || typeof window === "undefined") return;
-    let raf = 0;
-    const measure = () => {
-      const r = holder.getBoundingClientRect();
-      setBox((prev) => {
-        const next = { top: r.top + window.scrollY, left: r.left + window.scrollX, width: r.width, height: r.height };
-        return prev && prev.top === next.top && prev.left === next.left && prev.width === next.width && prev.height === next.height
-          ? prev
-          : next;
-      });
-    };
-    const schedule = () => {
-      cancelAnimationFrame(raf);
-      raf = requestAnimationFrame(measure);
-    };
-    const onResize = () => {
-      setVw(window.innerWidth); // меняет геометрию плейсхолдера → перемер ниже
-      schedule();
-    };
-    schedule();
-    // Догрузка шрифтов/картинок и применение scale в Design06 двигают раскладку — добираем позже.
-    const t1 = setTimeout(schedule, 300);
-    const t2 = setTimeout(schedule, 1200);
+    if (typeof window === "undefined") return;
+    const onResize = () => setVw(window.innerWidth);
     window.addEventListener("resize", onResize);
-    const ro = new ResizeObserver(schedule);
-    ro.observe(document.body);
-    return () => {
-      cancelAnimationFrame(raf);
-      clearTimeout(t1);
-      clearTimeout(t2);
-      window.removeEventListener("resize", onResize);
-      ro.disconnect();
-    };
+    return () => window.removeEventListener("resize", onResize);
   }, []);
 
-  // Геометрия плейсхолдера: на мобиле уменьшаем от заданного в редакторе, держим центр.
+  // Геометрия: на мобиле уменьшаем от заданного в редакторе, держим центр.
   const base = layout["calendar/map"];
   const f = vw <= MAP_MOBILE_BP ? MAP_MOBILE_SCALE : 1;
   const bw = (base.w ?? 0) * f;
@@ -529,50 +488,35 @@ function Map() {
       : { ...base, w: bw, h: bh, x: (base.x ?? 0) + ((base.w ?? 0) - bw) / 2, y: (base.y ?? 0) + ((base.h ?? 0) - bh) / 2 };
 
   return (
-    <>
-      {/* Плейсхолдер в канве: резервирует место и рамку; реальная карта — порталом сверху. */}
-      <div
-        ref={holderRef}
-        className={cx(styles.DF_utQ, styles._682gpw, styles._0xkaeQ)}
-        data-eid="calendar/map"
-        style={{
-          ...elStyle(holderEl),
-          border: FRAME_BORDER,
-          borderRadius: FRAME_RADIUS,
-          background: "color-mix(in srgb, var(--d06-ink, rgb(53, 80, 116)) 6%, transparent)",
-        }}
-      />
-      {box &&
-        !failed &&
-        typeof document !== "undefined" &&
-        createPortal(
-          // ErrorBoundary: сбой рендера не валит страницу. sandbox БЕЗ allow-top-navigation —
-          // виджет физически не может перезагрузить родную страницу.
-          <ErrorBoundary fallback={null}>
-            <iframe
-              title="Карта — Сочи, Три кедра"
-              src={MAP_SRC}
-              loading="lazy"
-              sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
-              referrerPolicy="no-referrer-when-downgrade"
-              onError={() => setFailed(true)}
-              style={{
-                position: "absolute",
-                top: box.top,
-                left: box.left,
-                width: box.width,
-                height: box.height,
-                boxSizing: "border-box",
-                border: FRAME_BORDER,
-                borderRadius: FRAME_RADIUS,
-                display: "block",
-                zIndex: 5,
-              }}
-            />
-          </ErrorBoundary>,
-          document.body,
-        )}
-    </>
+    <div
+      className={cx(styles.DF_utQ, styles._682gpw, styles._0xkaeQ)}
+      data-eid="calendar/map"
+      style={{
+        ...elStyle(holderEl),
+        border: FRAME_BORDER,
+        borderRadius: FRAME_RADIUS,
+        overflow: "hidden",
+        background: "color-mix(in srgb, var(--d06-ink, rgb(53, 80, 116)) 6%, transparent)",
+      }}
+    >
+      <a
+        href={MAP_LINK}
+        target="_blank"
+        rel="noopener nofollow"
+        draggable={false}
+        aria-label="Открыть карту — Сочи, Три кедра"
+        style={{ display: "block", width: "100%", height: "100%" }}
+      >
+        <img
+          src={MAP_IMG_SRC}
+          alt="Карта — Сочи, Центральный район, Три кедра"
+          loading="lazy"
+          decoding="async"
+          draggable={false}
+          style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+        />
+      </a>
+    </div>
   );
 }
 
