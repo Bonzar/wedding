@@ -287,8 +287,8 @@ export const layout: Record<string, El> = {
   "calendar/box-41": { h: 483.354, w: 484.177, scale: 1, raw: { "position": "absolute", "top": "0px", "left": "0px", "transformOrigin": "0px 0px", "pointerEvents": "none" } },
   // Встроенная карта Yandex — в пустом поле между адресом (низ ~1905) и кнопкой (верх 2340).
   // Соотношение ~533:395; ширина по центру канвы 1776.
-  "calendar/map": { x: 553.5457928135306, y: 1942.507370283019, w: 681.2685126234129, h: 344.67731599070794, raw: { "touchAction": "pan-x pan-y pinch-zoom" } },
-  "calendar/maps-button": { x: 692.6975048461005, y: 2317.27353719256, w: 402.689, h: 88.7355, raw: { "touchAction": "pan-x pan-y pinch-zoom" } },
+  "calendar/map": { x: 206.78369289465945, y: 1937.8173334935504, w: 1369.631102066644, h: 584.1125095178868, raw: { "touchAction": "pan-x pan-y pinch-zoom" } },
+  "calendar/maps-button": { x: 691.5215090682196, y: 2428.9554831578566, w: 402.689, h: 88.7355, raw: { "touchAction": "pan-x pan-y pinch-zoom" } },
   "calendar/box-42": { h: 88.7355, w: 402.689, scale: 1, raw: { "position": "absolute", "top": "0px", "left": "0px", "transformOrigin": "0px 0px" } },
   "calendar/mask": { w: 402.689, h: 88.7355, raw: { "marginLeft": "0px", "marginTop": "0px" } },
   "calendar/maps-button-pill": { w: 1161.75, h: 256, scale: 0.346623, raw: { "clipPath": "url(\"#__id27\")", "background": "rgb(53, 80, 116)", "transformOrigin": "0px 0px" } },
@@ -317,7 +317,7 @@ export const layout: Record<string, El> = {
   "calendar/box-46": { x: 0, y: -5.6 },
   "calendar/location-address-text": { font: "\"Jost\", system-ui, sans-serif", fontSize: 56, letterSpacing: "0em", lineHeight: "78px", textTransform: "none", color: "rgb(53, 80, 116)", raw: { "--gixK-A": "0", "--kJ5CrQ": "0", "--zPlnxA": "none", "listStyleType": "none", "whiteSpace": "normal" } },
   "calendar/span-41": { color: "rgb(53, 80, 116)", raw: { "fontSize": "1em", "fontWeight": "300", "fontStyle": "normal", "fontKerning": "normal", "textDecorationLine": "none", "textDecorationThickness": "initial", "textDecorationStyle": "initial" } },
-  "calendar/maps-link": { x: 674.0509524309134, y: 2338.9963632890967, w: 440.257, h: 45.2958, raw: { "touchAction": "pan-x pan-y pinch-zoom" } },
+  "calendar/maps-link": { x: 672.8749566530325, y: 2450.6783092543933, w: 440.257, h: 45.2958, raw: { "touchAction": "pan-x pan-y pinch-zoom" } },
   "calendar/text-6": { w: 440.257, h: 45.2958, raw: { "writingMode": "horizontal-tb" } },
   "calendar/box-47": { x: 0, y: -3.8521 },
   "calendar/maps-link-anchor": { font: "\"Jost\", system-ui, sans-serif", fontSize: 38.521, letterSpacing: "0em", lineHeight: "53px", textTransform: "none", color: "rgb(255, 255, 255)", raw: { "--gixK-A": "0", "--kJ5CrQ": "0", "--zPlnxA": "none", "listStyleType": "none" } },
