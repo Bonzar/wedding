@@ -495,18 +495,23 @@ function Map() {
         if (dead || !mapRef.current) return;
         const Y = ymaps as unknown as {
           Map: new (...a: unknown[]) => { behaviors: { disable: (n: string) => void }; controls: { add: (c: unknown) => void }; destroy: () => void };
-          control: { SearchControl: new (cfg: unknown) => { events: { add: (n: string, cb: (e: { get: (k: string) => unknown }) => void) => void }; getResultsCount: () => number; showResult: (i: number) => void; search: (q: string) => void } };
+          control: { SearchControl: new (cfg: unknown) => { getResultsCount: () => number; showResult: (i: number) => void; search: (q: string) => Promise<unknown> } };
         };
         const m = new Y.Map(mapRef.current, { center: VENUE_CENTER, zoom: 16, controls: [] }, { suppressMapOpenBlock: true });
         m.behaviors.disable("scrollZoom"); // скролл страницы не зумит карту
-        // СИСТЕМНАЯ карточка организации: ищем «Три кедра» провайдером yandex#search и показываем
-        // результат — у него нативный балун-карточка Яндекса. ВНИМАНИЕ: провайдер требует apikey.
+        // СИСТЕМНАЯ карточка организации: ищем «Три кедра» провайдером yandex#search (в текущем
+        // вьюпорте — карта уже на точке) и показываем результат — нативный балун-карточка Яндекса.
         const sc = new Y.control.SearchControl({ options: { provider: "yandex#search", noPopup: true, noSelect: true } });
         m.controls.add(sc);
-        sc.events.add("load", (e) => {
-          if (!e.get("skip") && sc.getResultsCount()) sc.showResult(0);
-        });
-        sc.search("Три кедра, Сочи, Ривьерский переулок, 5Б");
+        sc.search("Три кедра").then(
+          () => {
+            if (sc.getResultsCount() > 0) sc.showResult(0);
+          },
+          (err: unknown) =>
+            // scriptError = поиск по организациям отклонён: на ключе должен быть включён доступ
+            // «Поиск по организациям» (Geosearch/Places API), не только «JavaScript API и Геокодер».
+            console.warn("[map] поиск «Три кедра» не удался:", (err as { message?: string })?.message),
+        );
         map = m;
       })
       .catch(() => {});
