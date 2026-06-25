@@ -1,6 +1,6 @@
 // design06 section Calendar (Canva id PBtLyKJDZDgGk7P1). Структура + утилиты-классы — база (0%).
 // Редактируемые стили вынесены в Calendar.layout.ts и применяются по data-eid (Approach A2).
-import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { useEffect, useRef, type CSSProperties } from "react";
 import { cx } from "../cx";
 import { elStyle, cqw } from "../layout";
 import styles from "../canva.module.css";
@@ -455,11 +455,15 @@ const FRAME_BORDER = `${cqw(2)} solid var(--d06-ink, rgb(53, 80, 116))`; // d07:
 const FRAME_RADIUS = cqw(16);
 
 // «Три кедра», кафе (Сочи, Ривьерский пер., 5Б; oid=1040306482) — из короткой ссылки
-// yandex.ru/maps/-/CTQNvQK3. Порядок координат [lat, lon]. Карточку показываем СИСТЕМНУЮ
-// (нативный POI организации Яндекса), без кастомных меток/балунов.
+// yandex.ru/maps/-/CTQNvQK3. Порядок координат [lat, lon].
 const VENUE_CENTER: [number, number] = [43.587809, 39.714851];
 
-// Ленивая загрузка скрипта Яндекс-карт 2.1 (один раз на страницу). v2.1 пробуем без ключа.
+// API-ключ Яндекс-карт — из env (Vite инлайнит на сборке). Нужен для поиска по организациям
+// (yandex#search), т.е. для СИСТЕМНОЙ карточки орга. Положить в .env(.local): VITE_YANDEX_MAPS_KEY=...
+// (и в секреты CI для деплоя). Без ключа — «Invalid API key», карточка не покажется.
+const YMAPS_KEY = (import.meta.env.VITE_YANDEX_MAPS_KEY as string | undefined) || "";
+
+// Ленивая загрузка скрипта Яндекс-карт 2.1 (один раз на страницу).
 let ymapsReady: Promise<unknown> | null = null;
 function loadYmaps(): Promise<{ Map: new (...a: unknown[]) => unknown } & Record<string, unknown>> {
   const w = window as unknown as { ymaps?: { ready: (cb: () => void) => void; Map?: unknown } & Record<string, unknown> };
@@ -467,7 +471,7 @@ function loadYmaps(): Promise<{ Map: new (...a: unknown[]) => unknown } & Record
     ymapsReady = new Promise((resolve, reject) => {
       if (w.ymaps?.Map) return w.ymaps.ready(() => resolve(w.ymaps));
       const s = document.createElement("script");
-      s.src = "https://api-maps.yandex.ru/2.1/?lang=ru_RU";
+      s.src = `https://api-maps.yandex.ru/2.1/?lang=ru_RU${YMAPS_KEY ? `&apikey=${encodeURIComponent(YMAPS_KEY)}` : ""}`;
       s.async = true;
       s.onload = () => w.ymaps!.ready(() => resolve(w.ymaps));
       s.onerror = reject;
@@ -478,24 +482,11 @@ function loadYmaps(): Promise<{ Map: new (...a: unknown[]) => unknown } & Record
 }
 
 function Map() {
-  const boxRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<HTMLDivElement>(null);
   const base = layout["calendar/map"];
-  // Референс рендера = ширина карты на ДЕСКТОП-листе (880/1776 от нативной): десктоп → scale 1
-  // (контролы нативного размера), уже → пропорционально меньше. (Натив 1776 давал ×0.5 — мелко.)
-  const NW = (base.w ?? 1369.63) * (880 / 1776);
-  const NH = (base.h ?? 584.11) * (880 / 1776);
-  const [scale, setScale] = useState(1);
-  useEffect(() => {
-    const box = boxRef.current;
-    if (!box) return;
-    const apply = () => setScale(box.clientWidth / NW);
-    apply();
-    const ro = new ResizeObserver(apply);
-    ro.observe(box);
-    return () => ro.disconnect();
-  }, [NW]);
-  // Инициализация карты 2.1 в mapRef; destroy при размонтировании.
+  // Карта 2.1 на полную ширину бокса. БЕЗ transform: scale — он ломает hit-тестинг ymaps (тапы/
+  // пан мимо). Контролы — только zoom (иначе фикс-px кнопки давят узкий бокс). Превью «Три кедра»
+  // открыто СРАЗУ балуном (нативный POI-балун программно не открыть) — фото орга + адрес + ссылка.
   useEffect(() => {
     let map: { destroy: () => void } | null = null;
     let dead = false;
@@ -503,13 +494,19 @@ function Map() {
       .then((ymaps) => {
         if (dead || !mapRef.current) return;
         const Y = ymaps as unknown as {
-          Map: new (...a: unknown[]) => { behaviors: { disable: (n: string) => void }; destroy: () => void };
+          Map: new (...a: unknown[]) => { behaviors: { disable: (n: string) => void }; controls: { add: (c: unknown) => void }; destroy: () => void };
+          control: { SearchControl: new (cfg: unknown) => { events: { add: (n: string, cb: (e: { get: (k: string) => unknown }) => void) => void }; getResultsCount: () => number; showResult: (i: number) => void; search: (q: string) => void } };
         };
-        // Системная карточка организации: нативный POI «Три кедра» интерактивен (НЕ выключаем
-        // yandexMapDisablePoiInteractivity) → тап по нему открывает СИСТЕМНУЮ карточку Яндекса
-        // с фото/инфо. Никаких кастомных меток/балунов.
-        const m = new Y.Map(mapRef.current, { center: VENUE_CENTER, zoom: 17, controls: ["zoomControl"] }, { suppressMapOpenBlock: true });
+        const m = new Y.Map(mapRef.current, { center: VENUE_CENTER, zoom: 16, controls: [] }, { suppressMapOpenBlock: true });
         m.behaviors.disable("scrollZoom"); // скролл страницы не зумит карту
+        // СИСТЕМНАЯ карточка организации: ищем «Три кедра» провайдером yandex#search и показываем
+        // результат — у него нативный балун-карточка Яндекса. ВНИМАНИЕ: провайдер требует apikey.
+        const sc = new Y.control.SearchControl({ options: { provider: "yandex#search", noPopup: true, noSelect: true } });
+        m.controls.add(sc);
+        sc.events.add("load", (e) => {
+          if (!e.get("skip") && sc.getResultsCount()) sc.showResult(0);
+        });
+        sc.search("Три кедра, Сочи, Ривьерский переулок, 5Б");
         map = m;
       })
       .catch(() => {});
@@ -520,7 +517,6 @@ function Map() {
   }, []);
   return (
     <div
-      ref={boxRef}
       className={cx(styles.DF_utQ, styles._682gpw, styles._0xkaeQ)}
       data-eid="calendar/map"
       style={{
@@ -531,7 +527,7 @@ function Map() {
         background: "color-mix(in srgb, var(--d06-ink, rgb(53, 80, 116)) 6%, transparent)",
       }}
     >
-      <div ref={mapRef} style={{ width: `${NW}px`, height: `${NH}px`, transform: `scale(${scale})`, transformOrigin: "top left" }} />
+      <div ref={mapRef} style={{ width: "100%", height: "100%" }} />
     </div>
   );
 }
