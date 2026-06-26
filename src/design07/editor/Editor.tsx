@@ -16,6 +16,8 @@ import type { El } from "../layout";
 import { applyEl, imgUnder, nodeFor, resetEl, setImgSrc, setText, textOf } from "./apply";
 import { BASE, hasGeometry, hasTypography, isField, isObject, isSection } from "./registry";
 import { addStore } from "./additionsStore";
+import { manifestStore, useManifest } from "./manifestStore";
+import { SectionsPanel } from "./SectionsPanel";
 import { Panel, type FieldKey } from "./Panel";
 import { PalettePicker } from "./PalettePicker";
 import { activePalette, applyPalette } from "../palette";
@@ -103,6 +105,7 @@ export default function Editor({ scale }: { scale: number }) {
   const [marquee, setMarquee] = useState<{ x0: number; y0: number; x1: number; y1: number } | null>(null);
   const marqueeRef = useRef<{ x0: number; y0: number; x1: number; y1: number; sectionObj: string | null; moved: boolean } | null>(null);
   const [saving, setSaving] = useState(false);
+  const [showSections, setShowSections] = useState(false);
   const [tick, setTick] = useState(0);
   const dragRef = useRef<Drag>(null);
 
@@ -304,12 +307,37 @@ export default function Editor({ scale }: { scale: number }) {
     return { x: (window.innerWidth / 2 - left) / scale, y: (window.innerHeight / 2 - top) / scale };
   }, [scale]);
 
+  // Секция под центром вьюпорта → {slug, top, left} в координатах канвы. Новый элемент крепится
+  // к ней — фича «секционные additions»: x/y станут от верха секции, и элемент поедет вместе с
+  // ней (рост Survey/высота секции). i-я section.rGeu6w == SECTION_SLUGS[i] (в edit baseline off).
+  const sectionAtViewportCenter = useCallback((): { slug: string; top: number; left: number } | null => {
+    const layer = document.querySelector(".d06-add-layer") ?? document.querySelector(".KYQZFA");
+    const lr = layer?.getBoundingClientRect();
+    if (!lr) return null;
+    const cy = window.innerHeight / 2;
+    // Порядок отрисованных секций == манифест без скрытых (i-я section.rGeu6w == order[i]) —
+    // корректно при reorder/кастомных секциях (статичный SECTION_SLUGS тут бы врал).
+    const order = manifestStore.list().filter((e) => e.enabled !== false).map((e) => e.slug);
+    const secs = [...document.querySelectorAll<HTMLElement>("section.rGeu6w")];
+    for (let i = 0; i < secs.length; i++) {
+      const r = secs[i].getBoundingClientRect();
+      if (cy >= r.top && cy <= r.bottom) {
+        const slug = order[i];
+        return slug ? { slug, top: (r.top - lr.top) / scale, left: (r.left - lr.left) / scale } : null;
+      }
+    }
+    return null;
+  }, [scale]);
+
   const addText = useCallback(() => {
     const { x, y } = canvasPoint();
     const id = newId();
-    addStore.add({ id, kind: "text", x: x - 200, y: y - 30, w: 400, h: 60, fontSize: 40, color: "rgb(53, 80, 116)", lineHeight: "1.25", text: "Новый текст" });
+    const sec = sectionAtViewportCenter();
+    const base = { id, kind: "text" as const, w: 400, h: 60, fontSize: 40, color: "rgb(53, 80, 116)", lineHeight: "1.25", text: "Новый текст" };
+    if (sec) addStore.add({ ...base, section: sec.slug, x: x - sec.left - 200, y: y - sec.top - 30 });
+    else addStore.add({ ...base, x: x - 200, y: y - 30 });
     setSelected(`add/${id}`); setTick((t) => t + 1);
-  }, [canvasPoint]);
+  }, [canvasPoint, sectionAtViewportCenter]);
 
   const fileRef = useRef<HTMLInputElement>(null);
   const addImageFile = useCallback(async (file: File) => {
@@ -321,9 +349,12 @@ export default function Editor({ scale }: { scale: number }) {
     const w = 420, h = Math.max(1, Math.round(w * dims.h / dims.w));
     const { x, y } = canvasPoint();
     const id = newId();
-    addStore.add({ id, kind: "image", x: x - w / 2, y: y - h / 2, w, h, src: path });
+    const sec = sectionAtViewportCenter();
+    const base = { id, kind: "image" as const, w, h, src: path };
+    if (sec) addStore.add({ ...base, section: sec.slug, x: x - sec.left - w / 2, y: y - sec.top - h / 2 });
+    else addStore.add({ ...base, x: x - w / 2, y: y - h / 2 });
     setSelected(`add/${id}`); setTick((t) => t + 1);
-  }, [uploadFile, canvasPoint]);
+  }, [uploadFile, canvasPoint, sectionAtViewportCenter]);
 
   // копия одного объекта как свободный addition (в тех же экранных координатах); возвращает add-eid
   const copyOne = useCallback((eid: string): string | null => {
@@ -684,10 +715,13 @@ export default function Editor({ scale }: { scale: number }) {
   };
 
   // ---- save / reset ------------------------------------------------------------------
+  const manifest = useManifest(); // подписка: тулбар-индикатор и панель реагируют на правки манифеста
   const dirty = Object.keys(drafts);
   const dirtyContent = Object.keys(content);
   const paletteDirty = palette !== paletteSaved.current;
-  const totalDirty = dirty.length + dirtyContent.length + (addStore.dirty() ? 1 : 0) + (paletteDirty ? 1 : 0);
+  const manifestDirty = manifestStore.dirty();
+  const totalDirty = dirty.length + dirtyContent.length + (addStore.dirty() ? 1 : 0) + (paletteDirty ? 1 : 0) + (manifestDirty ? 1 : 0);
+  void manifest;
   const onReset = () => {
     for (const eid of dirty) resetEl(eid, BASE[eid] ?? {});
     for (const eid of dirtyContent) {
@@ -696,6 +730,7 @@ export default function Editor({ scale }: { scale: number }) {
       if (o.src != null) { setImgSrc(eid, o.src); const img = imgUnder(eid); if (img) img.style.objectFit = ""; } // вернуть class-овый fill
     }
     addStore.reset();
+    manifestStore.reset();
     applyPalette(paletteSaved.current); // вернуть сохранённый цвет палитры
     setPalette(paletteSaved.current);
     setSelected(null);
@@ -716,12 +751,14 @@ export default function Editor({ scale }: { scale: number }) {
           changes: dirty.map((eid) => ({ eid, record: drafts[eid] })),
           content: dirtyContent.map((eid) => ({ eid, ...content[eid] })),
           additions: addStore.list(),
+          ...(manifestDirty ? { manifest: manifestStore.list() } : {}), // порядок/высота/скрытие/кастом секций
           ...(paletteDirty ? { palette } : {}), // null = вернуть базовые чернила
         }),
       });
       const json = await res.json();
       if (!res.ok || !json.ok) throw new Error(json.error || res.statusText);
       addStore.markSaved();
+      manifestStore.markSaved();
       paletteSaved.current = palette;
       setDrafts({});
       setContent({});
@@ -758,6 +795,7 @@ export default function Editor({ scale }: { scale: number }) {
           onChange={(e) => { const f = e.target.files?.[0]; if (f) addImageFile(f); e.target.value = ""; }} />
         <button className="d06e-tool" title="Вертикальная направляющая" onClick={() => addGuide("x")}>Гид |</button>
         <button className="d06e-tool" title="Горизонтальная направляющая" onClick={() => addGuide("y")}>Гид —</button>
+        <button className={`d06e-tool${showSections ? " d06e-toolon" : ""}${manifestDirty ? " d06e-tooldirty" : ""}`} title="Порядок / высота / скрыть / добавить секцию" onClick={() => setShowSections((s) => !s)}>Секции</button>
         <PalettePicker value={palette} dirty={paletteDirty} onPick={onPickPalette} />
         <span className="d06e-hint">Shift — мультивыбор · рамкой по фону · 2× по гиду — убрать · Option — без привязки</span>
         {sel.length > 1 && <span className="d06e-bardirty">◆ {sel.length} выбрано</span>}
@@ -766,6 +804,12 @@ export default function Editor({ scale }: { scale: number }) {
         <button className="d06e-tool d06e-toolsave" disabled={totalDirty === 0 || saving} onClick={onSave}>{saving ? "Сохраняю…" : "Сохранить"}</button>
         <a className="d06e-exit" href={withoutEdit()}>Выйти</a>
       </div>
+      {showSections && (
+        <SectionsPanel
+          onClose={() => setShowSections(false)}
+          onAddCustom={(slug) => { setTick((t) => t + 1); requestAnimationFrame(() => document.getElementById(slug)?.scrollIntoView({ block: "center" })); }}
+        />
+      )}
 
       {hovBox && hover !== selected && !sel.length && (
         <div className="d06e-hov" style={obStyle(hovBox)} />

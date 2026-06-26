@@ -173,31 +173,52 @@ export default function Survey() {
   const baseline = typeof window !== "undefined" && new URLSearchParams(window.location.search).has("baseline");
   if (baseline) return null;
 
-  // Фон — та же кремовая бумажная текстура, что у соседних Canva-секций (Rsvp/Closing).
+  // Фон — та же кремовая бумажная текстура, что у соседних Canva-секций (Journey/Closing). Кладём
+  // его ОТДЕЛЬНЫМ абсолютным слоем, а не на саму <section>: эффект высоты в Design07.tsx чистит
+  // inline-фон секций без minHeight (`sec.style.background = ""`), и фон на <section> не выжил бы
+  // (у Survey весь inline-стиль секции — это только background-*, шорткат стёр бы его целиком).
+  //
+  // Повторяем рендер соседей 1-в-1: картинка (натуральная 1280×937) масштабируется до ~306cqw по
+  // ширине (как у Journey над Survey) и ПОВОРАЧИВАЕТСЯ на 90° — так совпадают и масштаб зерна, и
+  // ориентация волокон бумаги, и стык на границе секций не «прыгает». Бокс оверсайз и обрезается
+  // overflow:hidden. (На scale()-фолбэке старых браузеров transform может чуть мылить растр — см.
+  // d07-scale-blur; на современном cqw-пути scale-родителя нет, мыла нет.)
   return (
-    <section
-      className="rGeu6w"
-      id="survey"
-      style={{
-        backgroundColor: "var(--paper)",
-        backgroundImage: `url(${assetUrl("/design06-exact/_assets/media/2a2388e813cb85fb095b9a0c836a0688.jpg")})`,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundRepeat: "no-repeat",
-      }}
-    >
-      {/* Канва интро: relative-контейнер, внутри — абсолютные редактируемые объекты. */}
-      <div style={{ position: "relative", width: cqw(1776), height: cqw(700), margin: "0 auto" }}>
-        <Eyebrow />
-        <Title />
-        <div style={{ position: "absolute", left: "50%", top: cqw(352), transform: "translateX(-50%)", color: INK }}>
-          <Sprig size={56} />
-        </div>
-        <BodyText />
+    <section className="rGeu6w" id="survey" style={{ position: "relative" }}>
+      <div aria-hidden="true" style={{ position: "absolute", inset: 0, overflow: "hidden", backgroundColor: "var(--paper)" }}>
+        <img
+          loading="lazy"
+          decoding="async"
+          draggable={false}
+          src={assetUrl("/design06-exact/_assets/media/2a2388e813cb85fb095b9a0c836a0688.jpg")}
+          style={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            width: cqw(5442), // 306.4cqw — масштаб бумаги как у соседней Journey
+            height: cqw(3984), // 224.3cqw = 306.4/1.366 → натуральный аспект (objectFit:fill не искажает)
+            objectFit: "fill",
+            transform: "translate(-50%, -50%) rotate(90deg)",
+            display: "block",
+            pointerEvents: "none",
+          }}
+        />
       </div>
-      {/* Список гостей — интерактив, вне редактируемого слоя. */}
-      <div style={{ width: cqw(1776), boxSizing: "border-box", padding: `0 ${cqw(138)} ${cqw(168)}`, margin: "0 auto", textAlign: "center" }}>
-        <GuestList />
+      {/* Контент поверх фонового слоя (relative — печатается выше абсолютного backdrop'а). */}
+      <div style={{ position: "relative" }}>
+        {/* Канва интро: relative-контейнер, внутри — абсолютные редактируемые объекты. */}
+        <div style={{ position: "relative", width: cqw(1776), height: cqw(700), margin: "0 auto" }}>
+          <Eyebrow />
+          <Title />
+          <div style={{ position: "absolute", left: "50%", top: cqw(352), transform: "translateX(-50%)", color: INK }}>
+            <Sprig size={56} />
+          </div>
+          <BodyText />
+        </div>
+        {/* Список гостей — интерактив, вне редактируемого слоя. */}
+        <div style={{ width: cqw(1776), boxSizing: "border-box", padding: `0 ${cqw(138)} ${cqw(168)}`, margin: "0 auto", textAlign: "center" }}>
+          <GuestList />
+        </div>
       </div>
     </section>
   );

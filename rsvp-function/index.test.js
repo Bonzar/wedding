@@ -14,9 +14,11 @@ process.env.ALLOWED_ORIGINS = "https://bonzarr.github.io";
 const { handler } = require("./index.js");
 
 const GUESTS_COLLECTION = "2fd42736-e580-ff98-a421-e5ba577ad706";
+const INVITATIONS_COLLECTION = "837b2719-f541-b7ab-6b78-538f05c61066";
 // СТАБИЛЬНЫЕ ключи колонок (должны совпадать с index.js): деривированы из латинских
 // имён колонок «Гости». inv = id приглашения; связь — relation guests_group.
 const F = { invitation: "guests_group", attending: "attending", drinks: "alcohol", drinkList: "drinks", answered: "answered", date: "answeredat", comment: "comment" };
+const INV_F = { congratulation: "congratulation" };
 
 // --- фикстуры: несколько приглашений (inv = id), для проверки скоупинга ---
 function fixtureGuests() {
@@ -42,14 +44,33 @@ function toItem(g) {
   };
 }
 
+// --- фикстуры приглашений: AAA с кастомным обращением (с хвостовыми переносами!),
+//     BBB пустое, CCC без поля ---
+function fixtureInvitations() {
+  return [
+    { id: "AAA", congratulation: "Дорогие Оля и Влад!\n\n\n" },
+    { id: "BBB", congratulation: "" },
+    { id: "CCC" }, // поле congratulation вовсе отсутствует
+  ];
+}
+function toInvItem(i) {
+  const properties = {};
+  if ("congratulation" in i) properties[INV_F.congratulation] = i.congratulation;
+  return { id: i.id, type: "collectionItem", title: "Группа", properties };
+}
+
 // --- мок fetch: записывает вызовы, отдаёт канонические ответы Craft -----------
 let calls;
 let originalFetch;
-function installMock(guests = fixtureGuests()) {
+function installMock(guests = fixtureGuests(), invitations = fixtureInvitations()) {
   calls = [];
   global.fetch = async (url, opts = {}) => {
     const method = (opts.method || "GET").toUpperCase();
     calls.push({ url, method, headers: opts.headers, body: opts.body ? JSON.parse(opts.body) : undefined });
+    // проверка приглашений идёт первой — она специфичнее общего /blocks?id=
+    if (method === "GET" && url.includes(`/blocks?id=${INVITATIONS_COLLECTION}`)) {
+      return mockRes(200, { type: "collection", items: invitations.map(toInvItem) });
+    }
     if (method === "GET" && url.includes("/blocks?id=")) {
       return mockRes(200, { type: "collection", items: guests.map(toItem) });
     }
@@ -120,6 +141,43 @@ test("GET читает именно гостевую коллекцию чере
 test("GET неизвестный inv -> 404", async () => {
   const r = await handler(ev("GET", { q: { inv: "ZZZ" } }));
   assert.equal(r.statusCode, 404);
+});
+
+// ============================ GET congratulation (обращение) ==================
+test("GET inv с кастомным Congratulation -> отдаётся ДОСЛОВНО (переносы строк не режутся)", async () => {
+  const r = await handler(ev("GET", { q: { inv: "AAA" } }));
+  assert.equal(r.statusCode, 200);
+  // хвостовые \n\n\n сохраняются — автор сам задаёт число пустых строк-отступов
+  assert.equal(parse(r).congratulation, "Дорогие Оля и Влад!\n\n\n");
+});
+
+test("GET inv с пустым Congratulation -> пустая строка (фронт перечислит имена)", async () => {
+  const r = await handler(ev("GET", { q: { inv: "BBB" } }));
+  assert.equal(parse(r).congratulation, "");
+});
+
+test("GET inv без поля Congratulation -> пустая строка", async () => {
+  const r = await handler(ev("GET", { q: { inv: "CCC" } }));
+  assert.equal(parse(r).congratulation, "");
+});
+
+test("GET читает коллекцию приглашений за обращением", async () => {
+  await handler(ev("GET", { q: { inv: "AAA" } }));
+  assert.ok(calls.some((c) => c.method === "GET" && c.url.includes(`/blocks?id=${INVITATIONS_COLLECTION}`)));
+});
+
+test("GET: сбой чтения приглашений не ломает выдачу гостей (обращение пустое)", async () => {
+  // гости читаются нормально, а коллекция приглашений падает
+  global.fetch = async (url, opts = {}) => {
+    const method = (opts.method || "GET").toUpperCase();
+    if (method === "GET" && url.includes(`/blocks?id=${INVITATIONS_COLLECTION}`)) return mockRes(500, {});
+    if (method === "GET") return mockRes(200, { type: "collection", items: fixtureGuests().map(toItem) });
+    return mockRes(404, { error: "unmocked", url });
+  };
+  const r = await handler(ev("GET", { q: { inv: "AAA" } }));
+  assert.equal(r.statusCode, 200);
+  assert.equal(parse(r).congratulation, "");
+  assert.equal(parse(r).guests.length, 2);
 });
 
 // ============================ POST security ==================================

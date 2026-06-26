@@ -21,7 +21,7 @@ export const layout: Record<string, El> = {
   "attire/box-3": { x: 0, y: -5.6 },
   "attire/title-text": { font: "\"Jost\", system-ui, sans-serif", fontSize: 55, letterSpacing: "0em", lineHeight: "78px", textTransform: "none", color: "rgb(53, 80, 116)", raw: { "--gixK-A": "0", "--kJ5CrQ": "0", "--zPlnxA": "none", "listStyleType": "none", "whiteSpace": "normal" } },
   "attire/span-1": { color: "rgb(53, 80, 116)", raw: { "fontSize": "1em", "fontWeight": "200", "fontStyle": "normal", "fontKerning": "none", "textDecorationLine": "none", "textDecorationThickness": "initial", "textDecorationStyle": "initial" } },
-  "attire/paragraph": { x: 242.64711361366636, y: 102.75638197912082, w: 1312.41, h: 222.8, raw: { "touchAction": "pan-x pan-y pinch-zoom" } },
+  "attire/paragraph": { x: 250.06677179308844, y: 264.0911438116447, w: 1312.41, h: 222.8, raw: { "touchAction": "pan-x pan-y pinch-zoom" } },
   "attire/text-2": { w: 1311.2874444018405, h: 313.1041857798165, raw: { "writingMode": "horizontal-tb" } },
   "attire/box-4": { x: 0, y: -5.6 },
   "attire/paragraph-text": { font: "\"Jost\", system-ui, sans-serif", fontSize: 56, letterSpacing: "0em", lineHeight: "78px", textTransform: "none", color: "rgb(53, 80, 116)", raw: { "--gixK-A": "0", "--kJ5CrQ": "0", "--zPlnxA": "none", "listStyleType": "none", "whiteSpace": "normal" } },

@@ -14,8 +14,8 @@ const MARKER = { touchAction: "pan-x pan-y pinch-zoom" }; // маркер top-le
 // Addition → редактируемая запись El в BASE (без id/kind/content, с маркером объекта).
 // `photo` (слой фото внутри рамки) — отдельная запись BASE[`add/<id>/photo`], не часть рамки.
 function toRecord(a: Addition): El {
-  const { id: _id, kind: _kind, text: _text, src: _src, photo: _photo, raw, ...el } = a;
-  void _id; void _kind; void _text; void _src; void _photo;
+  const { id: _id, kind: _kind, text: _text, src: _src, photo: _photo, section: _section, bind: _bind, raw, ...el } = a;
+  void _id; void _kind; void _text; void _src; void _photo; void _section; void _bind;
   return { ...el, raw: { ...MARKER, ...(raw ?? {}) } };
 }
 

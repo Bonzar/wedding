@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { createPortal } from "react-dom";
 import { observer } from "mobx-react-lite";
 import { useRsvp } from "@/stores/context";
-import { ATT_YES, ATT_NO } from "@/rsvp/api";
+import { ATT_YES, ATT_NO, DRINK_COLUMNS } from "@/rsvp/api";
 import type { YesNo } from "@/rsvp/types";
 import styles from "./RsvpModal.module.css";
 
@@ -20,6 +20,21 @@ export const RsvpModal = observer(function RsvpModal() {
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
   }, [guest, rsvp]);
+
+  // Блокируем прокрутку фона, пока открыта модалка. Скроллер — <html>, но
+  // _generated/override.css вешает на html/body `overflow: visible !important`,
+  // поэтому перебиваем его тоже через `important`.
+  useEffect(() => {
+    if (!guest) return;
+    const html = document.documentElement;
+    const prevValue = html.style.getPropertyValue("overflow");
+    const prevPriority = html.style.getPropertyPriority("overflow");
+    html.style.setProperty("overflow", "hidden", "important");
+    return () => {
+      if (prevValue) html.style.setProperty("overflow", prevValue, prevPriority);
+      else html.style.removeProperty("overflow");
+    };
+  }, [guest]);
 
   useEffect(() => {
     if (rsvp.message && !rsvp.message.error && rsvp.message.text.startsWith("Спасибо")) {
@@ -75,11 +90,23 @@ export const RsvpModal = observer(function RsvpModal() {
           <div className={styles.q}>
             <p className={styles.qTtl}>Какие алкогольные напитки вы предпочитаете?</p>
             <div className={styles.checks}>
-              {rsvp.drinks.map((d) => (
-                <label key={d} className={styles.opt}>
-                  <input type="checkbox" checked={draft.drinkList.includes(d)} onChange={() => rsvp.toggleDrink(d)} />
-                  <span>{d}</span>
-                </label>
+              {DRINK_COLUMNS.map((col, ci) => (
+                <div key={ci} className={styles.col}>
+                  {col.map((group, gi) => (
+                    <div key={gi} className={styles.group}>
+                      {group.map((item) => (
+                        <label key={item.value} className={styles.opt}>
+                          <input
+                            type="checkbox"
+                            checked={draft.drinkList.includes(item.value)}
+                            onChange={() => rsvp.toggleDrink(item.value)}
+                          />
+                          <span>{item.label}</span>
+                        </label>
+                      ))}
+                    </div>
+                  ))}
+                </div>
               ))}
             </div>
           </div>

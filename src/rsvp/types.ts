@@ -30,6 +30,9 @@ export interface SavePayload {
 /** Ответ GET ?inv=TOKEN. */
 export interface InviteResponse {
   token?: string;
+  inv?: string;
+  /** Кастомное обращение из «Приглашения».Congratulation; "" если не задано. */
+  congratulation?: string;
   guests?: Guest[];
   notFound?: boolean;
 }

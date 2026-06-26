@@ -1,6 +1,6 @@
 import { makeAutoObservable, runInAction } from "mobx";
 import type { Answers, FetchLike, Guest, YesNo } from "./types";
-import { DRINKS, fetchInvite, saveAnswer, validateAnswers } from "./api";
+import { DRINKS, buildGreeting, fetchInvite, saveAnswer, validateAnswers } from "./api";
 
 export type ListState = "no-token" | "loading" | "ready" | "empty" | "error";
 
@@ -38,6 +38,8 @@ export class RsvpStore {
   token = "";
   listState: ListState = "loading";
   guests: Guest[] = [];
+  /** Кастомное обращение приглашения (если задано в Craft); иначе "". */
+  congratulation = "";
 
   activeGuestId: string | null = null;
   draft: Answers = emptyAnswers();
@@ -57,6 +59,14 @@ export class RsvpStore {
 
   get hasToken(): boolean {
     return this.token.length > 0;
+  }
+
+  /**
+   * Обращение для Hero: кастомный текст из Craft или перечисление имён гостей.
+   * "" — нет ни того, ни другого (UI решает фолбэк). См. buildGreeting в api.ts.
+   */
+  get greeting(): string {
+    return buildGreeting(this.congratulation, this.guests);
   }
 
   get activeGuest(): Guest | null {
@@ -86,6 +96,7 @@ export class RsvpStore {
     try {
       const data = await fetchInvite(this.token, this.fetchImpl);
       runInAction(() => {
+        this.congratulation = data.congratulation || "";
         if (data.notFound || !data.guests || !data.guests.length) {
           this.guests = [];
           this.listState = "empty";

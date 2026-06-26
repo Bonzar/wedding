@@ -50,13 +50,22 @@ const K = 100 / REF_WIDTH; // px → cqw
 // в исходные px (натив 0%). Округление (toFixed) копило −0.008px на секцию и давало +1px в
 // растеризации скриншота из-за дробного верха следующей секции.
 const PX_RE = /(-?(?:\d+\.?\d*|\.\d+)(?:e[-+]?\d+)?)px/gi;
-const px2cqw = (v: string): string => v.replace(PX_RE, (_, n) => `${parseFloat(n) * K}cqw`);
+
+// d07-fallback: единицу масштаба выносим в CSS-переменную --d07-u (по умолчанию = 1cqw). Для
+// браузеров БЕЗ контейнерных единиц (старые Chromium <105 / Firefox <110 / Android WebView)
+// Design07 подменяет --d07-u на фикс. px (REF_WIDTH/100) и масштабирует весь лист целиком
+// (zoom|transform). В современных браузерах И в 0%-гейте var() резолвится обратно в 1cqw, а
+// `calc(<n> * 1cqw)` === прежний литерал `<n>cqw` (та же арифметика n × 1cqw) → пиксель-в-пиксель
+// сохраняется. См. Design07.tsx (детект cqw + ветка fallback).
+export const U = "var(--d07-u, 1cqw)";
+const unit = (cqwCount: number): string => `calc(${cqwCount} * ${U})`;
+const px2cqw = (v: string): string => v.replace(PX_RE, (_, n) => unit(parseFloat(n) * K));
 
 // Публичный хелпер для КОМПОНЕНТОВ, которые рисуют кастомный контент НЕ через elStyle
 // (Calendar-отсчёт, SVG-иконки, рамка карты, поля Journey/Survey…). В d06 их хардкод-px
 // масштабировал глобальный transform; в d07 transform'а нет, поэтому такие px ОБЯЗАНЫ быть в
-// cqw, иначе не масштабируются при сужении. cqw(58) → "3.26…cqw" (на 1776 = 58px).
-export const cqw = (px: number): string => `${px * K}cqw`;
+// cqw-единице, иначе не масштабируются при сужении. cqw(58) → "calc(3.26… * var(--d07-u,1cqw))".
+export const cqw = (px: number): string => unit(px * K);
 
 // keepInk=true — НЕ проводить чернила через палитру (для фиксированных образцов цвета:
 // кружки-сэмплы дресс-кода Attire должны показывать СВОИ цвета, а не цвет палитры).
