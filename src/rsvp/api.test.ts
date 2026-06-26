@@ -8,6 +8,7 @@ import {
   fetchInvite,
   saveAnswer,
   DRINKS,
+  DRINK_COLUMNS,
 } from "./api";
 import type { FetchLike } from "./types";
 
@@ -80,5 +81,16 @@ test("DRINKS содержит ожидаемый набор", () => {
   expect(DRINKS).toContain("Игристое вино (полуслад)");
   expect(DRINKS).toContain("Настойки");
   expect(DRINKS).not.toContain("Ром");
-  expect(DRINKS.length).toBe(11);
+  expect(DRINKS).not.toContain("Ликёр");
+  expect(DRINKS.length).toBe(10);
+});
+
+test("DRINK_COLUMNS покрывает ровно набор DRINKS (значения каноничны)", () => {
+  const items = DRINK_COLUMNS.flat(2);
+  expect(items.length).toBe(DRINKS.length);
+  expect(new Set(items.map((d) => d.value))).toEqual(new Set(DRINKS));
+  // подписи уникальны и непустые
+  const labels = items.map((d) => d.label);
+  expect(new Set(labels).size).toBe(labels.length);
+  expect(labels.every((l) => l.length > 0)).toBe(true);
 });

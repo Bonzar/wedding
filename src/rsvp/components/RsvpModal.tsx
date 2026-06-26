@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { createPortal } from "react-dom";
 import { observer } from "mobx-react-lite";
 import { useRsvp } from "@/stores/context";
-import { ATT_YES, ATT_NO } from "@/rsvp/api";
+import { ATT_YES, ATT_NO, DRINK_COLUMNS } from "@/rsvp/api";
 import type { YesNo } from "@/rsvp/types";
 import styles from "./RsvpModal.module.css";
 
@@ -75,11 +75,23 @@ export const RsvpModal = observer(function RsvpModal() {
           <div className={styles.q}>
             <p className={styles.qTtl}>Какие алкогольные напитки вы предпочитаете?</p>
             <div className={styles.checks}>
-              {rsvp.drinks.map((d) => (
-                <label key={d} className={styles.opt}>
-                  <input type="checkbox" checked={draft.drinkList.includes(d)} onChange={() => rsvp.toggleDrink(d)} />
-                  <span>{d}</span>
-                </label>
+              {DRINK_COLUMNS.map((col, ci) => (
+                <div key={ci} className={styles.col}>
+                  {col.map((group, gi) => (
+                    <div key={gi} className={styles.group}>
+                      {group.map((item) => (
+                        <label key={item.value} className={styles.opt}>
+                          <input
+                            type="checkbox"
+                            checked={draft.drinkList.includes(item.value)}
+                            onChange={() => rsvp.toggleDrink(item.value)}
+                          />
+                          <span>{item.label}</span>
+                        </label>
+                      ))}
+                    </div>
+                  ))}
+                </div>
               ))}
             </div>
           </div>
