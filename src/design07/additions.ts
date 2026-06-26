@@ -444,8 +444,8 @@ export const additions: Addition[] = [
   {
     "id": "mqtwci8h1",
     "kind": "image",
-    "x": 1299.0756632630553,
-    "y": 916.9788263572634,
+    "x": 1299.075663263055,
+    "y": 956.2805528122518,
     "w": 420,
     "h": 420,
     "src": "/design06-exact/_assets/media/tile_1_1-16.png",

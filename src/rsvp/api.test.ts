@@ -33,8 +33,8 @@ test("validateAnswers: attending обязателен", () => {
 });
 
 test("buildPayload: придёт+пьёт -> напитки сохраняются, мусор отфильтрован", () => {
-  const p = buildPayload("T", "g1", { attending: "Да", drinks: "Да", drinkList: ["Водка", "ВЗЛОМ", "Ром"] as string[], comment: "  hi " });
-  expect(p).toEqual({ inv: "T", guestId: "g1", answers: { attending: "Да", drinks: "Да", drinkList: ["Водка", "Ром"], comment: "hi" } });
+  const p = buildPayload("T", "g1", { attending: "Да", drinks: "Да", drinkList: ["Водка", "ВЗЛОМ", "Коньяк"] as string[], comment: "  hi " });
+  expect(p).toEqual({ inv: "T", guestId: "g1", answers: { attending: "Да", drinks: "Да", drinkList: ["Водка", "Коньяк"], comment: "hi" } });
 });
 
 test("buildPayload: не придёт -> напитки/алкоголь очищаются", () => {
@@ -49,8 +49,8 @@ test("buildPayload: не пьёт -> напитки очищаются", () => {
 });
 
 test("buildPayload: дубли напитков схлопываются", () => {
-  const p = buildPayload("T", "g1", { attending: "Да", drinks: "Да", drinkList: ["Ром", "Ром", "Водка"] });
-  expect(p.answers.drinkList).toEqual(["Ром", "Водка"]);
+  const p = buildPayload("T", "g1", { attending: "Да", drinks: "Да", drinkList: ["Коньяк", "Коньяк", "Водка"] });
+  expect(p.answers.drinkList).toEqual(["Коньяк", "Водка"]);
 });
 
 test("fetchInvite: 200 -> данные, 404 -> notFound, 500 -> throw", async () => {
@@ -63,13 +63,13 @@ test("fetchInvite: 200 -> данные, 404 -> notFound, 500 -> throw", async ()
 
 test("saveAnswer: POST с корректным телом", async () => {
   let captured: { url: string; method?: string; body: unknown } | undefined;
-  const r = await saveAnswer("T", "g1", { attending: "Да", drinks: "Да", drinkList: ["Ром"] }, (async (url: string, opts: RequestInit) => {
+  const r = await saveAnswer("T", "g1", { attending: "Да", drinks: "Да", drinkList: ["Коньяк"] }, (async (url: string, opts: RequestInit) => {
     captured = { url, method: opts.method, body: JSON.parse(opts.body as string) };
     return res(200, { ok: true });
   }) as unknown as FetchLike);
   expect(r.ok).toBe(true);
   expect(captured?.method).toBe("POST");
-  expect(captured?.body).toEqual({ inv: "T", guestId: "g1", answers: { attending: "Да", drinks: "Да", drinkList: ["Ром"], comment: "" } });
+  expect(captured?.body).toEqual({ inv: "T", guestId: "g1", answers: { attending: "Да", drinks: "Да", drinkList: ["Коньяк"], comment: "" } });
 });
 
 test("saveAnswer: не-ok -> throw", async () => {
@@ -77,6 +77,8 @@ test("saveAnswer: не-ok -> throw", async () => {
 });
 
 test("DRINKS содержит ожидаемый набор", () => {
-  expect(DRINKS).toContain("Игристое вино");
-  expect(DRINKS.length).toBe(10);
+  expect(DRINKS).toContain("Игристое вино (полуслад)");
+  expect(DRINKS).toContain("Настойки");
+  expect(DRINKS).not.toContain("Ром");
+  expect(DRINKS.length).toBe(11);
 });

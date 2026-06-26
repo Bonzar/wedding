@@ -58,7 +58,7 @@ test("ошибка сети -> error", async () => {
 });
 
 test("openGuest заполняет draft, условные вопросы деривируются", async () => {
-  const s = new RsvpStore({ search: "?inv=T", fetchImpl: mockFetch({ guests: [guest({ attending: "Да", drinks: "Да", drinkList: ["Ром"] })] }) });
+  const s = new RsvpStore({ search: "?inv=T", fetchImpl: mockFetch({ guests: [guest({ attending: "Да", drinks: "Да", drinkList: ["Водка"] })] }) });
   await s.load();
   s.openGuest("g1");
   expect(s.activeGuest?.guestId).toBe("g1");
@@ -76,9 +76,9 @@ test("toggleDrink добавляет и убирает", async () => {
   s.openGuest("g1");
   s.setAttending("Да");
   s.setDrinks("Да");
-  s.toggleDrink("Ром");
-  expect(s.draft.drinkList).toEqual(["Ром"]);
-  s.toggleDrink("Ром");
+  s.toggleDrink("Водка");
+  expect(s.draft.drinkList).toEqual(["Водка"]);
+  s.toggleDrink("Водка");
   expect(s.draft.drinkList).toEqual([]);
 });
 
@@ -99,10 +99,10 @@ test("save валидный -> POST с нормализованным телом
   s.openGuest("g1");
   s.setAttending("Да");
   s.setDrinks("Да");
-  s.toggleDrink("Ром");
+  s.toggleDrink("Водка");
   s.setComment("без лактозы");
   await s.save();
-  expect(body).toEqual({ inv: "T", guestId: "g1", answers: { attending: "Да", drinks: "Да", drinkList: ["Ром"], comment: "без лактозы" } });
+  expect(body).toEqual({ inv: "T", guestId: "g1", answers: { attending: "Да", drinks: "Да", drinkList: ["Водка"], comment: "без лактозы" } });
   expect(s.activeGuest?.answered).toBe(true);
   expect(s.message?.error).toBe(false);
 });
