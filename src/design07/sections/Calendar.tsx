@@ -516,16 +516,20 @@ function Map() {
           `<a href="${VENUE_ROUTE_URL}" target="_blank" rel="noopener nofollow" style="font-size:11px;font-weight:600">Маршрут до «Три кедра» →</a>` +
           ` &middot; <a href="${VENUE_ORG_URL}" target="_blank" rel="noopener nofollow" style="font-size:11px">на картах</a>` +
           "</div></div>";
+        // Метка = кружок в цвете чернил + ПОСТОЯННАЯ подпись «Три кедра» рядом (всегда видна).
+        // Клик по метке открывает балун-карточку (по умолчанию она СКРЫТА — не авто-открываем).
         const iconLayout = Y.templateLayoutFactory.createClass(
-          '<div style="width:18px;height:18px;border-radius:50%;background:#355074;border:3px solid #fff;box-shadow:0 1px 4px rgba(53,80,116,.55);transform:translate(-50%,-50%)"></div>',
+          '<div style="transform:translate(-12px,-12px);display:flex;align-items:center;gap:6px;white-space:nowrap;pointer-events:auto;cursor:pointer">' +
+          '<div style="width:18px;height:18px;border-radius:50%;background:#355074;border:3px solid #fff;box-shadow:0 1px 4px rgba(53,80,116,.55);flex:0 0 auto"></div>' +
+          "<div style=\"font:600 13px/1 'Jost',system-ui,sans-serif;color:#355074;text-shadow:0 1px 2px #fff,0 0 3px #fff,1px 0 2px #fff,-1px 0 2px #fff\">Три кедра</div>" +
+          "</div>",
         );
         const pm = new Y.Placemark(
           VENUE_CENTER,
           { balloonContent: html, hintContent: "«Три кедра», кафе" },
-          { iconLayout, iconShape: { type: "Circle", coordinates: [0, 0], radius: 12 } },
+          { iconLayout, iconShape: { type: "Rectangle", coordinates: [[-12, -12], [110, 14]] } },
         );
         m.geoObjects.add(pm);
-        pm.balloon.open();
         map = m;
       })
       .catch(() => {});
