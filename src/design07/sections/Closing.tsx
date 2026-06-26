@@ -55,7 +55,7 @@ function BodyText() {
               <div className={cx(styles._2UyCZQ, styles.vkN2Cw, styles.Mb8E_A, styles.e1_zQg)} lang="en">
                 <p className={cx(styles._28USrA, styles.AfeL7g, styles.XN6uKA, styles._4N4NA)} data-eid="closing/bodyTextParagraph" style={elStyle(layout["closing/bodyTextParagraph"])}>
                   <span className={styles.a_GcMg} data-eid="closing/bodyTextSpan" style={elStyle(layout["closing/bodyTextSpan"])}>
-                    {"Мы безумно вас любим и очень  ждем. \nВаше присутствие сделает этот день особенным, и мы с нетерпением ждем возможности разделеить этот день с вами и создать незабываемые воспоминания."}
+                    {"Мы безумно Вас любим и очень ждем!\n\nВаше присутствие сделает этот день особенным, и мы с нетерпением ждем возможности разделеить этот день с Вами и создать незабываемые воспоминания."}
                   </span>
                 </p>
               </div>
