@@ -374,7 +374,7 @@ function Caption1() {
               <div className={cx(styles._2UyCZQ, styles.vkN2Cw, styles.Mb8E_A, styles.e1_zQg)} lang="en">
                 <p className={cx(styles._28USrA, styles.AfeL7g, styles.XN6uKA, styles._4N4NA)} data-eid="journey/para-2" style={elStyle(layout["journey/para-2"])}>
                   <span className={styles.a_GcMg} data-eid="journey/caption-1-text" style={elStyle(layout["journey/caption-1-text"])}>
-                    {"наше знакомсчтво началось с "}
+                    {"Нельзя сказать, что нас свел Яндекс. Мы познакомились в его дворе, еще не зная, что являемся коллегами"}
                   </span>
                 </p>
               </div>
@@ -397,7 +397,7 @@ function Caption2() {
               <div className={cx(styles._2UyCZQ, styles.vkN2Cw, styles.Mb8E_A, styles.e1_zQg)} lang="en">
                 <p className={cx(styles._28USrA, styles.AfeL7g, styles.XN6uKA, styles._4N4NA)} data-eid="journey/para-3" style={elStyle(layout["journey/para-3"])}>
                   <span className={styles.a_GcMg} data-eid="journey/caption-2-text" style={elStyle(layout["journey/caption-2-text"])}>
-                    {"вместе мы много путешествовали, работали, отдыхали и много-много всего обсуждали"}
+                    {"Мы много разговаривали, много путешествовали... И поняли, что стали друг для другами самыми важными людьми"}
                   </span>
                 </p>
               </div>
@@ -420,7 +420,7 @@ function Caption3() {
               <div className={cx(styles._2UyCZQ, styles.vkN2Cw, styles.Mb8E_A, styles.e1_zQg)} lang="en">
                 <p className={cx(styles._28USrA, styles.AfeL7g, styles.XN6uKA, styles._4N4NA)} data-eid="journey/para-4" style={elStyle(layout["journey/para-4"])}>
                   <span className={styles.a_GcMg} data-eid="journey/caption-3-text" style={elStyle(layout["journey/caption-3-text"])}>
-                    {"и теперь мы хотим сохранить эту связь навсегда "}
+                    {"И теперь мы хотим сохранить эту связь навсегда "}
                   </span>
                 </p>
               </div>

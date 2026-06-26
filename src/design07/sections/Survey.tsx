@@ -99,7 +99,7 @@ function BodyText() {
               <div className={cx(styles._2UyCZQ, styles.vkN2Cw, styles.Mb8E_A, styles.e1_zQg)} lang="ru">
                 <p className={cx(styles._28USrA, styles.AfeL7g, styles.XN6uKA, styles._4N4NA)} data-eid="survey/body-p" style={elStyle(layout["survey/body-p"])}>
                   <span className={styles.a_GcMg} data-eid="survey/body-span" style={elStyle(layout["survey/body-span"])}>
-                    {"Пожалуйста, ответьте на несколько вопросов, чтобы подтвердить своё присутствие, до 10 августа 2026. Ваш ответ очень поможет нам в подготовке к свадьбе."}
+                    {"Пожалуйста, ответьте на несколько вопросов, чтобы подтвердить своё присутствие, до 26 августа 2026. Ваш ответ очень поможет нам в подготовке к свадьбе."}
                   </span>
                 </p>
               </div>
