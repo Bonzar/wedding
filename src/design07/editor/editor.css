@@ -107,3 +107,20 @@
 .d06e-btn:disabled { opacity: 0.5; cursor: default; }
 .d06e-primary { background: #2563eb; border-color: #2563eb; color: #fff; }
 .d06e-primary:not(:disabled):hover { background: #1d4fd0; }
+
+/* Панель секций (фичи 2–3: порядок / высота / скрыть / добавить) */
+.d06e-toolon { background: #25416f; border-color: #4a6aa0; }
+.d06e-tooldirty { box-shadow: inset 0 -2px 0 #e0457b; }
+.d06e-sections { position: fixed; top: 40px; left: 14px; width: 360px; max-height: 80vh; overflow: auto; background: #fff; border: 1px solid #d8e0ec; border-radius: 10px; box-shadow: 0 10px 30px rgba(17,32,58,0.22); pointer-events: auto; z-index: 20; padding: 8px; }
+.d06e-sections-hd { display: flex; align-items: center; justify-content: space-between; font-weight: 600; color: #11203a; padding: 4px 6px 8px; }
+.d06e-x { background: none; border: 0; color: #5b7099; cursor: pointer; font-size: 14px; }
+.d06e-sections-body { display: flex; flex-direction: column; gap: 4px; }
+.d06e-sec-row { display: flex; align-items: center; gap: 6px; padding: 4px 6px; border: 1px solid #e6ecf5; border-radius: 7px; background: #fbfdff; }
+.d06e-sec-row[data-hidden="true"] { opacity: 0.5; }
+.d06e-sec-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #1a2233; }
+.d06e-sec-btn { padding: 2px 7px; border: 1px solid #cdd7e6; background: #fff; border-radius: 6px; cursor: pointer; line-height: 1.2; }
+.d06e-sec-btn:hover:not(:disabled) { background: #eef3fb; }
+.d06e-sec-btn:disabled { opacity: 0.4; cursor: default; }
+.d06e-sec-h { display: inline-flex; align-items: center; gap: 3px; color: #5b7099; }
+.d06e-sec-h input { width: 56px; padding: 2px 4px; border: 1px solid #cdd7e6; border-radius: 5px; }
+.d06e-sec-add { margin-top: 8px; width: 100%; }

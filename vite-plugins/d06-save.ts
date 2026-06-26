@@ -131,10 +131,10 @@ export function d06Save(): Plugin {
       server.middlewares.use("/__d06/save", async (req, res) => {
         if (req.method !== "POST") return json(res, 405, { ok: false, error: "POST only" });
         try {
-          const { changes = [], content = [], additions = null, palette, design } = JSON.parse(await readBody(req)) as {
-            changes?: StyleChange[]; content?: ContentChange[]; additions?: unknown[] | null; palette?: string | null; design?: string;
+          const { changes = [], content = [], additions = null, manifest = null, palette, design } = JSON.parse(await readBody(req)) as {
+            changes?: StyleChange[]; content?: ContentChange[]; additions?: unknown[] | null; manifest?: unknown[] | null; palette?: string | null; design?: string;
           };
-          if (!changes.length && !content.length && !additions && palette === undefined)
+          if (!changes.length && !content.length && !additions && !manifest && palette === undefined)
             return json(res, 400, { ok: false, error: "nothing to save" });
 
           // Целевой дизайн: редактор шлёт design ("design06"|"design07"). Дефолт design06 (совместимость).
@@ -181,6 +181,16 @@ export function d06Save(): Plugin {
             const marker = "export const additions: Addition[] =";
             const head = src.includes(marker) ? src.slice(0, src.indexOf(marker)) : src + "\n";
             await writeFile(file, `${head}${marker} ${JSON.stringify(additions, null, 2)};\n`);
+          }
+
+          // SECTION MANIFEST → src/<design>/sectionManifest.ts (заменяем массив, шапку/тип сохраняем).
+          // Порядок секций + мета (скрытие/высота/кастомные). Дефолт == исходные секции → 0%.
+          if (Array.isArray(manifest)) {
+            const file = join(dRoot, "sectionManifest.ts");
+            const src = await readFile(file, "utf8");
+            const marker = "export const sectionManifest: SectionEntry[] =";
+            const head = src.includes(marker) ? src.slice(0, src.indexOf(marker)) : src + "\n";
+            await writeFile(file, `${head}${marker} ${JSON.stringify(manifest, null, 2)};\n`);
           }
 
           // PALETTE → src/<design>/paletteState.ts (один экспорт; шапку-комментарий сохраняем).

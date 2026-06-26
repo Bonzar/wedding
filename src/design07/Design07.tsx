@@ -11,17 +11,19 @@
 // Живёт за ?d07 (см. App.tsx), грузится лениво. Флаги: ?noscale (контейнер ровно 1776 — для
 // 0%-гейта/пиксельного сравнения), ?baseline (скрыть Survey), dev-only ?edit, debug ?nomedia/?only=N.
 
-import { lazy, Suspense, useEffect, useState, type CSSProperties } from "react";
+import { lazy, Suspense, useEffect, useRef, useState, type CSSProperties } from "react";
 import "./canva-base.css"; // Canva :root/тема-переменные + @keyframes (грузится только на ?d07)
 import "./custom-fonts.css"; // доп. (не-Canva) шрифты из assets/fonts (грузится только на ?d07)
 import overrideCss from "./_generated/override.css?raw";
 import headLinksRaw from "./_generated/head-links.json?raw";
-import { DESIGN06_SECTIONS } from "./sections";
+import { SECTION_COMPONENTS } from "./sections";
+import CustomSection from "./sections/Custom"; // кастомная (не-Canva) секция из манифеста
 import { RsvpModal } from "@/rsvp/components/RsvpModal"; // анкета гостя для раздела Survey (портал в body, rem)
 import { cqw, elStyle } from "./layout";
 import { assetUrl } from "./assetUrl";
 import { photoOf, type Addition } from "./additions";
 import { useAdditions } from "./editor/additionsStore"; // слой добавленных в редакторе элементов
+import { useManifest } from "./editor/manifestStore"; // манифест секций (порядок + мета: высота/скрытие)
 import { activePalette, applyPalette, currentPalette, teardownPalette } from "./palette"; // акцентный цвет
 
 // Визуальный редактор — только dev и только по ?edit (как в d06). В прод-сборке DEV=false →
@@ -46,6 +48,9 @@ const OS_INTERCEPT = MOBILE_OVERSCAN * OVERSCAN_FULL_AT - OS_SLOPE * OVERSCAN_FU
 // Фактор оверскана = width/vw = 0.75 + OS_INTERCEPT/vw → гладко спадает к 1.0 на MAX_WIDTH.
 const OVERSCAN_WIDTH = `min(${MOBILE_OVERSCAN * 100}vw, calc(${OS_SLOPE * 100}vw + ${OS_INTERCEPT}px), ${MAX_WIDTH}px)`;
 const PAGE_BG = "#faf7f0"; // кремовый тон полей по краям листа (вместо белого)
+// Бумажная текстура секций (та же, что у Survey/Closing/Custom). Ей заливаем секцию при minHeight,
+// чтобы выросший бокс не зиял дыркой под внутренним backdrop'ом фиксированной высоты.
+const PAPER = "/design06-exact/_assets/media/2a2388e813cb85fb095b9a0c836a0688.jpg";
 const EDIT_BAR = 36; // высота тулбара редактора
 const EDIT_PANEL = 300; // зарезервировано справа под инспектор (панель 280 + зазор)
 
@@ -93,6 +98,18 @@ export default function Design07() {
   // Держим лист скрытым (opacity 0) до fonts.ready и плавно проявляем. noScale рендерит сразу.
   const [fontsReady, setFontsReady] = useState(noScale);
   const adds = useAdditions();
+  const manifest = useManifest();
+  // Секции к рендеру = манифест без скрытых (enabled:false). onlyN — debug-обрезка (?only=N).
+  // i-я отрисованная section.rGeu6w == renderedSlugs[i] (этим маппим узлы на slug в замере/высоте).
+  const renderedEntries = (onlyN > 0 ? manifest.slice(0, onlyN) : manifest).filter((e) => e.enabled !== false);
+  const renderedSlugs = renderedEntries.map((e) => e.slug);
+
+  // Верх каждой секции в cqw. Секционный элемент (a.section) рендерится в оффсет-обёртке
+  // top:<cqw>, поэтому едет ВМЕСТЕ с секцией в потоке (рост Survey толкает её элементы, а не
+  // оставляет их «висеть» в координатах страницы — это и есть фикс пальмы). Слой additions —
+  // сиблинг секций, сам по потоку не двигается, поэтому верхи меряем рантайм-наблюдателем.
+  const pageRef = useRef<HTMLDivElement>(null);
+  const [sectionTops, setSectionTops] = useState<Record<string, number>>({});
 
   // Масштаб ТОЛЬКО для редактора: линейный коэффициент «рендер-px на канва-юнит» =
   // ширина_листа / REF_WIDTH. cqw — равномерный линейный масштаб, поэтому editScale = это же
@@ -131,18 +148,65 @@ export default function Design07() {
     applyPalette(currentPalette()); // перекрасить только что добавленные элементы
   }, [adds]);
 
+  // Замер верхов секций → cqw (1cqw = ширина .d06-page / 100). ResizeObserver на странице и на
+  // каждой секции ловит рост Survey / догрузку картинок и пересчитывает оффсеты секционных additions.
+  useEffect(() => {
+    const pageEl = pageRef.current;
+    if (!pageEl) return;
+    const measure = () => {
+      const pr = pageEl.getBoundingClientRect();
+      if (!pr.width) return;
+      const secs = pageEl.querySelectorAll<HTMLElement>("section.rGeu6w");
+      const tops: Record<string, number> = {};
+      secs.forEach((sec, i) => {
+        const slug = renderedSlugs[i];
+        if (slug) tops[slug] = ((sec.getBoundingClientRect().top - pr.top) / pr.width) * 100;
+      });
+      setSectionTops((prev) => {
+        const k = Object.keys(tops);
+        if (k.length === Object.keys(prev).length && k.every((s) => Math.abs((prev[s] ?? -1) - tops[s]) < 1e-3)) return prev;
+        return tops;
+      });
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(pageEl);
+    pageEl.querySelectorAll("section.rGeu6w").forEach((s) => ro.observe(s));
+    window.addEventListener("resize", measure);
+    return () => { ro.disconnect(); window.removeEventListener("resize", measure); };
+  }, [adds, manifest]);
+
+  // Высота секций: ставим minHeight из манифеста прямо на узлы section.rGeu6w по порядку рендера.
+  // Эффект перезапускается на смену манифеста и переписывает стиль (React при ре-рендере секции
+  // его не несёт — как draft-превью в editor/apply.ts). Нет minHeight → "" (натуральная высота, 0%).
+  useEffect(() => {
+    const pageEl = pageRef.current;
+    if (!pageEl) return;
+    pageEl.querySelectorAll<HTMLElement>("section.rGeu6w").forEach((sec, i) => {
+      const e = renderedEntries[i];
+      if (e?.custom) return; // кастомная секция держит свою высоту инлайном (CustomSection)
+      const grow = !!e?.minHeight;
+      sec.style.minHeight = grow ? cqw(e!.minHeight!) : "";
+      // Внутренний backdrop секции фиксированной высоты → при росте бокса снизу дырка. Заливаем
+      // сам <section> бумагой (backdrop сверху перекрывает свою зону). Без minHeight — снимаем (0%).
+      sec.style.background = grow ? `var(--paper) url(${assetUrl(PAPER)}) center / cover no-repeat` : "";
+    });
+  }, [manifest]);
+
   // Слой добавленных — сиблинг Canva-вёрстки (см. d06): position:relative на внешней .d06-page.
   const page = (
-    <div className="d06-page" style={{ position: "relative" }}>
+    <div className="d06-page" ref={pageRef} style={{ position: "relative" }}>
       <div className="yIDCqA">
         <main className="_8OlyIw">
           <div className="_4KoDHA">
             <div className="ZRRuDw">
               <div style={{ height: "100%", width: "100%" }}>
                 <div className="KYQZFA">
-                  {(onlyN > 0 ? DESIGN06_SECTIONS.slice(0, onlyN) : DESIGN06_SECTIONS).map((Section, i) => (
-                    <Section key={i} />
-                  ))}
+                  {renderedEntries.map((e) => {
+                    if (e.custom) return <CustomSection key={e.slug} entry={e} />;
+                    const C = SECTION_COMPONENTS[e.slug];
+                    return C ? <C key={e.slug} /> : null;
+                  })}
                 </div>
               </div>
             </div>
@@ -151,9 +215,23 @@ export default function Design07() {
       </div>
       {(editMode || adds.length > 0) && (
         <div className="d06-add-layer" style={{ position: "absolute", top: 0, left: 0, width: "100cqw", height: "100%", pointerEvents: "none" }}>
-          {adds.map((a) => (
+          {/* page-absolute элементы (без секции) — от верха страницы, как раньше (back-compat). */}
+          {adds.filter((a) => !a.section).map((a) => (
             <AddedEl key={a.id} a={a} />
           ))}
+          {/* секционные элементы — по слагу в оффсет-обёртке top:<верх секции, cqw>; внутри неё
+              elStyle(a) даёт translate от её начала → итог = верх секции + (a.x, a.y). */}
+          {renderedSlugs.map((slug) => {
+            const group = adds.filter((a) => a.section === slug);
+            if (!group.length) return null;
+            return (
+              <div key={slug} data-add-section={slug} style={{ position: "absolute", top: `${sectionTops[slug] ?? 0}cqw`, left: 0, width: "100cqw" }}>
+                {group.map((a) => (
+                  <AddedEl key={a.id} a={a} />
+                ))}
+              </div>
+            );
+          })}
         </div>
       )}
     </div>

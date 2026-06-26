@@ -21,6 +21,21 @@ export const RsvpModal = observer(function RsvpModal() {
     return () => document.removeEventListener("keydown", onKey);
   }, [guest, rsvp]);
 
+  // Блокируем прокрутку фона, пока открыта модалка. Скроллер — <html>, но
+  // _generated/override.css вешает на html/body `overflow: visible !important`,
+  // поэтому перебиваем его тоже через `important`.
+  useEffect(() => {
+    if (!guest) return;
+    const html = document.documentElement;
+    const prevValue = html.style.getPropertyValue("overflow");
+    const prevPriority = html.style.getPropertyPriority("overflow");
+    html.style.setProperty("overflow", "hidden", "important");
+    return () => {
+      if (prevValue) html.style.setProperty("overflow", prevValue, prevPriority);
+      else html.style.removeProperty("overflow");
+    };
+  }, [guest]);
+
   useEffect(() => {
     if (rsvp.message && !rsvp.message.error && rsvp.message.text.startsWith("Спасибо")) {
       const id = setTimeout(() => rsvp.closeModal(), 900);
