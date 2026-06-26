@@ -550,8 +550,8 @@ export const additions: Addition[] = [
   {
     "id": "mquqabz20",
     "kind": "text",
-    "x": 217.12680734627776,
-    "y": 633.9800895024225,
+    "x": 220.3437677717936,
+    "y": 571.4366466929555,
     "w": 1366.6752140150156,
     "h": 222.7849770642202,
     "text": "Просим девушек воздержаться от выбора белого цвета",
@@ -567,25 +567,6 @@ export const additions: Addition[] = [
     },
     "fontWeight": "100",
     "section": "attire"
-  },
-  {
-    "id": "mqurnefc0",
-    "kind": "image",
-    "x": 359.17389419975615,
-    "y": 252.4663735485974,
-    "w": 433.4346744642345,
-    "h": 433.4346330275229,
-    "src": "/design06-exact/_assets/media/photo_2026-06-24_12.30.46__1_.jpeg",
-    "raw": {
-      "touchAction": "pan-x pan-y pinch-zoom"
-    },
-    "photo": {
-      "x": -32.36334690423172,
-      "y": -32.36334381026913,
-      "w": 498.1613682726979,
-      "h": 498.1613206480612
-    },
-    "section": "journey"
   },
   {
     "id": "mquzml3k0",
@@ -613,7 +594,7 @@ export const additions: Addition[] = [
     "bind": "greeting",
     "section": "hero",
     "x": 295.24262185698643,
-    "y": 1371.8045156534438,
+    "y": 1408.8606442942205,
     "raw": {
       "touchAction": "pan-x pan-y pinch-zoom",
       "whiteSpaceCollapse": "preserve-breaks"
@@ -671,5 +652,19 @@ export const additions: Addition[] = [
       "h": 1038.3600770694377
     },
     "section": "journey"
+  },
+  {
+    "id": "mqv2zpsl0",
+    "kind": "image",
+    "w": 433.4346330275229,
+    "h": 433.4346330275229,
+    "src": "/design06-exact/_assets/media/photo_2026-06-24_12.30.46__1_.jpeg",
+    "section": "journey",
+    "x": 359.1746085453959,
+    "y": 252.528547861044,
+    "raw": {
+      "touchAction": "pan-x pan-y pinch-zoom"
+    },
+    "scale": 1
   }
 ];
