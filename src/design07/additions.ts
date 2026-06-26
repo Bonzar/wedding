@@ -140,18 +140,6 @@ export const additions: Addition[] = [
     "rot": -20
   },
   {
-    "id": "mqs4mrdz2",
-    "kind": "image",
-    "x": 7.220434671387707,
-    "y": 5407.785786138538,
-    "w": 420,
-    "h": 420,
-    "src": "/design06-exact/_assets/media/tile_2_2.png",
-    "raw": {
-      "touchAction": "pan-x pan-y pinch-zoom"
-    }
-  },
-  {
     "id": "mqsehxhu0",
     "kind": "image",
     "x": 34.56219276777838,
@@ -185,8 +173,8 @@ export const additions: Addition[] = [
   {
     "id": "mqs63zuk0",
     "kind": "image",
-    "x": 1382.6816578379471,
-    "y": 6208.442093508566,
+    "x": 59.9829150501746,
+    "y": 8048.442254775768,
     "w": 420,
     "h": 420,
     "src": "/design06-exact/_assets/media/tile_1_2.png",
@@ -398,19 +386,6 @@ export const additions: Addition[] = [
     "scale": 1.5754043259508603
   },
   {
-    "id": "mqsdx3pf0",
-    "kind": "image",
-    "x": 1269.3898083463187,
-    "y": 4132.459739829011,
-    "w": 420,
-    "h": 403,
-    "src": "/design06-exact/_assets/media/tile_1_1-10.png",
-    "raw": {
-      "touchAction": "pan-x pan-y pinch-zoom"
-    },
-    "scale": 1.8971021587961385
-  },
-  {
     "id": "mqseijsu1",
     "kind": "image",
     "x": 905.5409797606765,
@@ -455,18 +430,6 @@ export const additions: Addition[] = [
     "w": 596.3359253258718,
     "h": 782.6250315869272,
     "src": "/design06-exact/_assets/media/photo_2026-06-24_12.30.50.jpeg",
-    "raw": {
-      "touchAction": "pan-x pan-y pinch-zoom"
-    }
-  },
-  {
-    "id": "mqtviax01",
-    "kind": "image",
-    "x": 1244.1692103581324,
-    "y": 4509.762889430427,
-    "w": 420,
-    "h": 421,
-    "src": "/design06-exact/_assets/media/tile_1_1-13.png",
     "raw": {
       "touchAction": "pan-x pan-y pinch-zoom"
     }
@@ -551,5 +514,42 @@ export const additions: Addition[] = [
       "touchAction": "pan-x pan-y pinch-zoom"
     },
     "fontWeight": "200"
+  },
+  {
+    "id": "mqupp07c0",
+    "kind": "image",
+    "w": 420,
+    "h": 421,
+    "src": "/design06-exact/_assets/media/tile_1_1-26.png",
+    "x": 1245.2030286876438,
+    "y": 401.2417753727063,
+    "raw": {
+      "touchAction": "pan-x pan-y pinch-zoom"
+    }
+  },
+  {
+    "id": "mquprh5x1",
+    "kind": "image",
+    "w": 420,
+    "h": 403,
+    "src": "/design06-exact/_assets/media/tile_1_1-25.png",
+    "x": 1244.1690998602348,
+    "y": 27.458197637434754,
+    "raw": {
+      "touchAction": "pan-x pan-y pinch-zoom"
+    },
+    "scale": 1.8168282315251059
+  },
+  {
+    "id": "mqupx3q20",
+    "kind": "image",
+    "w": 420,
+    "h": 420,
+    "src": "/design06-exact/_assets/media/tile_2_2_2.png",
+    "x": 1319.319921651018,
+    "y": 209.78836367545918,
+    "raw": {
+      "touchAction": "pan-x pan-y pinch-zoom"
+    }
   }
 ];
