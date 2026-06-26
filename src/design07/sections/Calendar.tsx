@@ -455,12 +455,9 @@ const FRAME_BORDER = `${cqw(2)} solid var(--d06-ink, rgb(53, 80, 116))`; // d07:
 const FRAME_RADIUS = cqw(16);
 
 // «Три кедра», кафе (Сочи, Ривьерский пер., 5Б; oid=1040306482) — из короткой ссылки
-// yandex.ru/maps/-/CTQNvQK3. Порядок координат [lat, lon]. Фото — og:image карточки орга.
+// yandex.ru/maps/-/CTQNvQK3. Порядок координат [lat, lon]. Клик по метке → карточка орга.
 const VENUE_CENTER: [number, number] = [43.587809, 39.714851];
-const VENUE_PHOTO = "https://avatars.mds.yandex.net/get-altay/8075227/2a00000185785826ec50ffb29dbde139f8e3/L_height";
 const VENUE_ORG_URL = "https://yandex.ru/maps/org/1040306482/";
-// Маршрут до самого орга «Три кедра» (страница орга в режиме маршрута — точный объект, названный).
-const VENUE_ROUTE_URL = "https://yandex.ru/maps/org/1040306482/?mode=routes";
 
 // API-ключ Яндекс-карт — из env (Vite инлайнит на сборке). Нужен для поиска по организациям
 // (yandex#search), т.е. для СИСТЕМНОЙ карточки орга. Положить в .env(.local): VITE_YANDEX_MAPS_KEY=...
@@ -499,36 +496,27 @@ function Map() {
         if (dead || !mapRef.current) return;
         const Y = ymaps as unknown as {
           Map: new (...a: unknown[]) => { behaviors: { disable: (n: string) => void }; geoObjects: { add: (o: unknown) => void }; destroy: () => void };
-          Placemark: new (pos: unknown, props: unknown, opts: unknown) => { balloon: { open: () => void } };
+          Placemark: new (pos: unknown, props: unknown, opts: unknown) => { events: { add: (n: string, cb: () => void) => void } };
           templateLayoutFactory: { createClass: (s: string) => unknown };
         };
         const m = new Y.Map(mapRef.current, { center: VENUE_CENTER, zoom: 16, controls: ["zoomControl"] }, { suppressMapOpenBlock: true });
         m.behaviors.disable("scrollZoom"); // скролл страницы не зумит карту
-        // Метка кафе «Три кедра» (кастомный кружок в цвете чернил, НЕ системный пин) + наш
-        // балун-карточка на ней, открытый СРАЗУ (системную карточку Яндекс отдаёт только за платный
-        // «Поиск по организациям»). Балун/метка карты — бесплатные.
-        const html =
-          "<div style=\"display:flex;gap:8px;align-items:center;max-width:230px;font-family:'Jost',system-ui,sans-serif\">" +
-          `<img src="${VENUE_PHOTO}" style="width:56px;height:56px;border-radius:6px;object-fit:cover;flex:0 0 auto"/>` +
-          '<div style="min-width:0;color:#355074">' +
-          '<div style="font-weight:600">«Три кедра», кафе</div>' +
-          '<div style="font-size:11px;opacity:.85">Сочи, Ривьерский пер., 5Б</div>' +
-          `<a href="${VENUE_ROUTE_URL}" target="_blank" rel="noopener nofollow" style="font-size:11px;font-weight:600">Маршрут до «Три кедра» →</a>` +
-          ` &middot; <a href="${VENUE_ORG_URL}" target="_blank" rel="noopener nofollow" style="font-size:11px">на картах</a>` +
-          "</div></div>";
-        // Метка = кружок в цвете чернил + ПОСТОЯННАЯ подпись «Три кедра» рядом (всегда видна).
-        // Клик по метке открывает балун-карточку (по умолчанию она СКРЫТА — не авто-открываем).
+        // Метка кафе «Три кедра» = кружок в цвете чернил + подпись с ПЛАШКОЙ-фоном (всегда видна,
+        // НЕ системный пин). Балуна-попапа НЕТ — клик по метке сразу открывает карточку орга на
+        // Яндекс Картах в новой вкладке (см. events click ниже).
         const iconLayout = Y.templateLayoutFactory.createClass(
           '<div style="transform:translate(-12px,-12px);display:flex;align-items:center;gap:6px;white-space:nowrap;pointer-events:auto;cursor:pointer">' +
           '<div style="width:18px;height:18px;border-radius:50%;background:#355074;border:3px solid #fff;box-shadow:0 1px 4px rgba(53,80,116,.55);flex:0 0 auto"></div>' +
-          "<div style=\"font:600 13px/1 'Jost',system-ui,sans-serif;color:#355074;text-shadow:0 1px 2px #fff,0 0 3px #fff,1px 0 2px #fff,-1px 0 2px #fff\">Три кедра</div>" +
+          "<div style=\"background:rgba(255,255,255,.92);padding:2px 8px;border-radius:10px;box-shadow:0 1px 4px rgba(53,80,116,.3);font:600 13px/1.25 'Jost',system-ui,sans-serif;color:#355074\">Три кедра</div>" +
           "</div>",
         );
         const pm = new Y.Placemark(
           VENUE_CENTER,
-          { balloonContent: html, hintContent: "«Три кедра», кафе" },
-          { iconLayout, iconShape: { type: "Rectangle", coordinates: [[-12, -12], [110, 14]] } },
+          { hintContent: "«Три кедра», кафе" },
+          { iconLayout, iconShape: { type: "Rectangle", coordinates: [[-12, -12], [110, 14]] }, openBalloonOnClick: false },
         );
+        // Клик по метке → сразу карточка орга на Яндекс Картах (без локального попапа).
+        pm.events.add("click", () => window.open(VENUE_ORG_URL, "_blank", "noopener"));
         m.geoObjects.add(pm);
         map = m;
       })
