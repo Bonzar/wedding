@@ -94,7 +94,7 @@ function Paragraph() {
               <div className={cx(styles._2UyCZQ, styles.vkN2Cw, styles.Mb8E_A, styles.e1_zQg)} lang="en">
                 <p className={cx(styles._28USrA, styles.AfeL7g, styles.XN6uKA, styles._4N4NA)} data-eid="attire/paragraph-text" style={elStyle(layout["attire/paragraph-text"])}>
                   <span className={styles.a_GcMg} data-eid="attire/span-2" style={elStyle(layout["attire/span-2"])}>
-                    {"Мы просим наших гостей прийти в полуформальной одежде: коктейльные платья или элегантные наряды для дам и рубашки с брюками для джентльменов."}
+                    {"Чтобы атмосфера праздника получилась по‑настоящему воздушной и нежной, будем очень благодарны, если вы поддержите это настроение пастельными оттенками в своих нарядах."}
                   </span>
                 </p>
               </div>

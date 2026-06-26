@@ -19,7 +19,8 @@ export type Addition = El & {
 // Слой фото внутри рамки картинки: сохранённый кроп либо дефолт «заполнить рамку». Один
 // источник истины для рендера (Design07) и для BASE редактора (additionsStore) — чтобы синтез
 // дефолта совпадал пиксель-в-пиксель с одно-слойным object-fit:cover.
-export const photoOf = (a: Addition): El => a.photo ?? { x: 0, y: 0, w: a.w ?? 0, h: a.h ?? 0 };
+export const photoOf = (a: Addition): El =>
+  a.photo ?? { x: 0, y: 0, w: a.w ?? 0, h: a.h ?? 0 };
 
 export const additions: Addition[] = [
   {
@@ -140,18 +141,6 @@ export const additions: Addition[] = [
     "rot": -20
   },
   {
-    "id": "mqs4mrdz2",
-    "kind": "image",
-    "x": 7.220434671387707,
-    "y": 5407.785786138538,
-    "w": 420,
-    "h": 420,
-    "src": "/design06-exact/_assets/media/tile_2_2.png",
-    "raw": {
-      "touchAction": "pan-x pan-y pinch-zoom"
-    }
-  },
-  {
     "id": "mqsehxhu0",
     "kind": "image",
     "x": 34.56219276777838,
@@ -185,8 +174,8 @@ export const additions: Addition[] = [
   {
     "id": "mqs63zuk0",
     "kind": "image",
-    "x": 1382.6816578379471,
-    "y": 6208.442093508566,
+    "x": 59.9829150501746,
+    "y": 8048.442254775768,
     "w": 420,
     "h": 420,
     "src": "/design06-exact/_assets/media/tile_1_2.png",
@@ -267,8 +256,8 @@ export const additions: Addition[] = [
   {
     "id": "mqs6euwl0",
     "kind": "text",
-    "x": 740.5625398242967,
-    "y": 7146.636658547513,
+    "x": 741.2106307118038,
+    "y": 7057.711486529165,
     "w": 318.88276606834734,
     "h": 66.78939800613496,
     "text": "ДРЕСС КОД",
@@ -285,8 +274,8 @@ export const additions: Addition[] = [
   {
     "id": "mqs6f3mh1",
     "kind": "image",
-    "x": 683.118112388564,
-    "y": 7289.056802386886,
+    "x": 683.7662032760711,
+    "y": 7200.131630368538,
     "w": 257.9005400300757,
     "h": 368.7940950920245,
     "src": "/design06-exact/_assets/blobs/PBL8ZPfjvBzXjMPd_0.svg",
@@ -297,8 +286,8 @@ export const additions: Addition[] = [
   {
     "id": "mqs6f3mi2",
     "kind": "image",
-    "x": 941.0230581833541,
-    "y": 7289.056802386886,
+    "x": 941.6711490708612,
+    "y": 7200.131630368538,
     "w": 151.85889570552146,
     "h": 217.27569018404907,
     "src": "/design06-exact/_assets/blobs/PBL8ZPfjvBzXjMPd_1.svg",
@@ -344,7 +333,7 @@ export const additions: Addition[] = [
     "y": 8465.536486435036,
     "w": 1151.742417786019,
     "h": 245.42288674007614,
-    "text": "Самый дорогой подарок для нас — это вы рядом в этот день. Ваше присутствие, объятия и улыбки — уже всё, о чём мы могли мечтать.",
+    "text": "Самый дорогой подарок для нас — это вы рядом в этот день. Ваше присутствие, объятия и улыбки — всё, о чём мы могли мечтать.",
     "font": "\"Jost\", system-ui, sans-serif",
     "fontSize": 48,
     "color": "rgb(53, 80, 116)",
@@ -358,8 +347,8 @@ export const additions: Addition[] = [
   {
     "id": "mqs6ku2q5",
     "kind": "image",
-    "x": 1289.332252346999,
-    "y": 9292.57463135306,
+    "x": 1320.7474952333237,
+    "y": 9329.568664466593,
     "w": 420,
     "h": 420,
     "src": "/design06-exact/_assets/media/tile_2_3.png",
@@ -396,19 +385,6 @@ export const additions: Addition[] = [
       "touchAction": "pan-x pan-y pinch-zoom"
     },
     "scale": 1.5754043259508603
-  },
-  {
-    "id": "mqsdx3pf0",
-    "kind": "image",
-    "x": 1269.3898083463187,
-    "y": 4132.459739829011,
-    "w": 420,
-    "h": 403,
-    "src": "/design06-exact/_assets/media/tile_1_1-10.png",
-    "raw": {
-      "touchAction": "pan-x pan-y pinch-zoom"
-    },
-    "scale": 1.8971021587961385
   },
   {
     "id": "mqseijsu1",
@@ -454,35 +430,29 @@ export const additions: Addition[] = [
     "y": 13172.785398416443,
     "w": 596.3359253258718,
     "h": 782.6250315869272,
-    "src": "/design06-exact/_assets/media/photo_2026-06-24_12.30.50.jpeg",
+    "src": "/design06-exact/_assets/media/photo_2026-06-24_12.31.05.jpeg",
     "raw": {
       "touchAction": "pan-x pan-y pinch-zoom"
-    }
-  },
-  {
-    "id": "mqtviax01",
-    "kind": "image",
-    "x": 1244.1692103581324,
-    "y": 4509.762889430427,
-    "w": 420,
-    "h": 421,
-    "src": "/design06-exact/_assets/media/tile_1_1-13.png",
-    "raw": {
-      "touchAction": "pan-x pan-y pinch-zoom"
+    },
+    "photo": {
+      "x": -43.673810972877334,
+      "y": -57.31705275594726,
+      "w": 683.6835472716265,
+      "h": 897.2591370988217
     }
   },
   {
     "id": "mqtwci8h1",
     "kind": "image",
-    "x": 1306.0061190220865,
-    "y": 838.250731818846,
+    "x": 1299.0756632630553,
+    "y": 916.9788263572634,
     "w": 420,
     "h": 420,
     "src": "/design06-exact/_assets/media/tile_1_1-16.png",
     "raw": {
       "touchAction": "pan-x pan-y pinch-zoom"
     },
-    "scale": 1.358070342519047
+    "scale": 1.067818954692477
   },
   {
     "id": "mqumscp01",
@@ -523,7 +493,7 @@ export const additions: Addition[] = [
     "y": 8738.809581242234,
     "w": 1151.742417786019,
     "h": 387.83257710704856,
-    "text": "Если вам хочется сделать нам что-то приятное сверх этого — мы будем рады денежному подарку. Каждый конверт станет маленьким кирпичиком в фундаменте нашей общей жизни — стартовым капиталом семьи, которая только начинает строить своё будущее.",
+    "text": "Если вам хочется сделать нам что-то приятное сверх этого — мы будем рады денежному подарку. Каждый конверт станет кирпичиком в фундаменте нашей жизни — стартовым капиталом семьи, которая только начинает строить своё будущее",
     "font": "\"Jost\", system-ui, sans-serif",
     "fontSize": 48,
     "color": "rgb(53, 80, 116)",
@@ -541,7 +511,7 @@ export const additions: Addition[] = [
     "y": 9169.714630697516,
     "w": 1151.742417786019,
     "h": 332.86164104053387,
-    "text": "Вещественные подарки и цветы, к сожалению, не сможем забрать с собой — улетаем буквально через пару дней после свадьбы. Поэтому заранее благодарим за понимание и любовь ❤️",
+    "text": "Подарки и цветы, к сожалению, не сможем забрать с собой — потому что улетаем буквально через пару дней после свадьбы. Поэтому заранее благодарим за понимание и любовь",
     "font": "\"Jost\", system-ui, sans-serif",
     "fontSize": 48,
     "color": "rgb(53, 80, 116)",
@@ -551,5 +521,80 @@ export const additions: Addition[] = [
       "touchAction": "pan-x pan-y pinch-zoom"
     },
     "fontWeight": "200"
+  },
+  {
+    "id": "mqupp07c0",
+    "kind": "image",
+    "w": 420,
+    "h": 421,
+    "src": "/design06-exact/_assets/media/tile_1_1-26.png",
+    "x": 1245.2030286876438,
+    "y": 4510.214825831421,
+    "raw": {
+      "touchAction": "pan-x pan-y pinch-zoom"
+    }
+  },
+  {
+    "id": "mquprh5x1",
+    "kind": "image",
+    "w": 420,
+    "h": 403,
+    "src": "/design06-exact/_assets/media/tile_1_1-25.png",
+    "x": 1244.1691558557911,
+    "y": 4152.637684673343,
+    "raw": {
+      "touchAction": "pan-x pan-y pinch-zoom"
+    },
+    "scale": 1.8168282315251059
+  },
+  {
+    "id": "mqupx3q20",
+    "kind": "image",
+    "w": 420,
+    "h": 420,
+    "src": "/design06-exact/_assets/media/tile_2_2_2.png",
+    "x": 1344.4047952354501,
+    "y": 6152.194250264301,
+    "raw": {
+      "touchAction": "pan-x pan-y pinch-zoom"
+    }
+  },
+  {
+    "id": "mquqabz20",
+    "kind": "text",
+    "x": 214.6668600379873,
+    "y": 7937.049804687497,
+    "w": 1366.6752140150156,
+    "h": 222.7849770642202,
+    "text": "Просим девушек воздержаться от выбора белого цвета",
+    "font": "\"Jost\", system-ui, sans-serif",
+    "fontSize": 56,
+    "color": "rgb(53, 80, 116)",
+    "lineHeight": "78px",
+    "letterSpacing": "0em",
+    "raw": {
+      "touchAction": "pan-x pan-y pinch-zoom",
+      "fontStyle": "italic",
+      "textAlign": "center"
+    },
+    "fontWeight": "100"
+  },
+  {
+    "id": "mqurnefc0",
+    "kind": "image",
+    "x": 359.17389419975615,
+    "y": 9892.466373548597,
+    "w": 433.4346744642345,
+    "h": 433.4346330275229,
+    "src": "/design06-exact/_assets/media/photo_2026-06-24_12.30.46__1_.jpeg",
+    "raw": {
+      "touchAction": "pan-x pan-y pinch-zoom"
+    },
+    "photo": {
+      "x": -32.36334690423172,
+      "y": -32.36334381026913,
+      "w": 498.1613682726979,
+      "h": 498.1613206480612
+    }
   }
 ];

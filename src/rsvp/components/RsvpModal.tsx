@@ -87,7 +87,7 @@ export const RsvpModal = observer(function RsvpModal() {
 
         <div className={styles.q}>
           <p className={styles.qTtl}>
-            Пожелания / аллергии <span className={styles.hint}>(необязательно)</span>
+            Пожелания / комментарии / аллергии <span className={styles.hint}>(необязательно)</span>
           </p>
           <textarea
             className={styles.textarea}
