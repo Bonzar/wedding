@@ -1,7 +1,7 @@
 /* design06 — общий модуль утилит Canva (union по всем секциям). Единый источник
    для всех секций и шаблонов редактора. Генерится tools/design06-shared-css.mjs. */
 ._2UyCZQ {
-  --H97cbQ: 0.9009009009009009cqw; /* d07: 16px → cqw (масштаб на уровне лайаута) */
+  --H97cbQ: calc(0.9009009009009009 * var(--d07-u, 1cqw)); /* d07: 16px → cqw-единица (см. layout.ts U) */
   --Xm-_8w: 0;
   font-feature-settings: "liga" var(--I1TtXQ,off),"clig" var(--rt6TaA,off),"calt" var(--o_YY6w,off);
   -webkit-font-smoothing: antialiased;
@@ -249,8 +249,8 @@
 
 .Fe_H_Q {
   display: block;
-  min-height: 0.05630630630630631cqw; /* d07: 1px → cqw */
-  min-width: 0.05630630630630631cqw;
+  min-height: calc(0.05630630630630631 * var(--d07-u, 1cqw)); /* d07: 1px → cqw-единица */
+  min-width: calc(0.05630630630630631 * var(--d07-u, 1cqw));
   overflow: visible;
   position: absolute;
 }
@@ -565,7 +565,7 @@
 }
 
 .KOdbkg,._CObZw {
-  border-radius: 0.45045045045045046cqw; /* d07: 8px → cqw */
+  border-radius: calc(0.45045045045045046 * var(--d07-u, 1cqw)); /* d07: 8px → cqw-единица */
 }
 
 .Rt1H_w,._5sVuA {
@@ -646,5 +646,5 @@
 }
 
 :global(.rGeu6w)~:global(.rGeu6w) {
-  margin-top: -0.05630630630630631cqw; /* d07: -1px → cqw */
+  margin-top: calc(-0.05630630630630631 * var(--d07-u, 1cqw)); /* d07: -1px → cqw-единица */
 }

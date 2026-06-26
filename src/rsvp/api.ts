@@ -88,6 +88,50 @@ export function validateAnswers(a: Partial<Answers>): string | null {
   return null;
 }
 
+/**
+ * Перечисление имён гостей для обращения (русская пунктуация):
+ *   1 → «Имя»
+ *   2 → «Имя и Имя»
+ *   3 → «Имя, Имя и Имя»
+ *   n → «Имя, …, Имя и Имя»
+ * Пустые/пробельные имена отбрасываются. Порядок — как пришёл с бэка.
+ */
+export function joinGuestNames(names: ReadonlyArray<string>): string {
+  const clean = names.map((n) => String(n ?? "").trim()).filter(Boolean);
+  if (clean.length <= 1) return clean[0] ?? "";
+  return `${clean.slice(0, -1).join(", ")} и ${clean[clean.length - 1]}`;
+}
+
+/**
+ * Обращение в начале приглашения (Hero):
+ * - кастомный «Приглашения».Congratulation → ДОСЛОВНО, как сохранено (без запятой, без
+ *   нормализации; точные переносы строк/пустые строки автора сохраняются);
+ * - иначе перечисление имён → «Имя, Имя и Имя,» (с запятой-обращением);
+ * - нет ни того, ни другого → "" (фолбэк решает UI).
+ * Отступ до текста-приглашения добавляет prependGreeting (см. правила там).
+ */
+export function buildGreeting(
+  congratulation: string | undefined,
+  guests: ReadonlyArray<{ name: string }>,
+): string {
+  const custom = String(congratulation ?? "");
+  if (custom.trim()) return custom;
+  const names = joinGuestNames(guests.map((g) => g.name));
+  return names ? `${names},` : "";
+}
+
+/**
+ * Склейка обращения и текста-приглашения для Hero. Пустое обращение → только текст.
+ * Если обращение уже заканчивается переносом(ами) строки (кастомное — автор сам задаёт
+ * их количество) — склеиваем КАК ЕСТЬ, сохраняя точное число пустых строк. Если переноса
+ * нет (имена с запятой, либо кастом без хвостового переноса) — добавляем РОВНО один, чтобы
+ * текст-приглашение начался со следующей строки.
+ */
+export function prependGreeting(greeting: string, body: string): string {
+  if (!greeting.trim()) return body;
+  return greeting.endsWith("\n") ? greeting + body : `${greeting}\n${body}`;
+}
+
 /** Нормализует ответ так же, как это сделает сервер (на случай рассинхрона UI). */
 export function buildPayload(token: string, guestId: string, a: Partial<Answers>): SavePayload {
   const attending = (a.attending as YesNo | "" | undefined) ?? "";

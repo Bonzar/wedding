@@ -7,6 +7,16 @@
   "engines": {
     "node": ">=20"
   },
+  "//browserslist": "Цель поддержки старых браузеров (см. wedding-app-d07-fallback). Читают autoprefixer (css.postcss в vite.config) и @vitejs/plugin-legacy (targets там продублированы — держать в синхроне). 2016+, без IE. iOS/Safari тех же годов — BEST-EFFORT (префиксы/полифилы аддитивны; старый iOS пойдёт по zoom-фолбэку, который легче по памяти — может сработать, но не гарантируем).",
+  "browserslist": [
+    "chrome >= 49",
+    "firefox >= 52",
+    "edge >= 79",
+    "and_chr >= 49",
+    "android >= 5",
+    "ios_saf >= 10",
+    "safari >= 10"
+  ],
   "scripts": {
     "dev": "vite --port 5173 --strictPort",
     "build": "tsc --noEmit && vite build",
@@ -23,18 +33,22 @@
     "mobx": "^6.13.5",
     "mobx-react-lite": "^4.0.7",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "resize-observer-polyfill": "^1.5.1"
   },
   "devDependencies": {
     "@playwright/test": "^1.49.1",
     "@types/node": "^22.10.2",
     "@types/react": "^18.3.18",
     "@types/react-dom": "^18.3.5",
+    "@vitejs/plugin-legacy": "^5.4.3",
     "@vitejs/plugin-react": "^4.3.4",
+    "autoprefixer": "^10.5.2",
     "happy-dom": "^15.11.7",
     "pixelmatch": "^6.0.0",
     "pngjs": "^7.0.0",
     "sharp": "^0.35.2",
+    "terser": "^5.48.0",
     "typescript": "^5.7.2",
     "vite": "^5.4.11",
     "vitest": "^2.1.8"

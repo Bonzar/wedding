@@ -12,6 +12,7 @@ function guest(partial: Partial<Guest> = {}): Guest {
 
 interface MockOpts {
   guests?: Guest[];
+  congratulation?: string;
   notFound?: boolean;
   getFail?: boolean;
   saveFail?: boolean;
@@ -23,7 +24,7 @@ function mockFetch(opts: MockOpts = {}): FetchLike {
     if (method === "GET") {
       if (opts.notFound) return res(404, { error: "invitation_not_found" });
       if (opts.getFail) return res(500, {});
-      return res(200, { token: "T", guests: opts.guests ?? [guest()] });
+      return res(200, { inv: "T", congratulation: opts.congratulation ?? "", guests: opts.guests ?? [guest()] });
     }
     if (opts.onPost) opts.onPost(JSON.parse(init?.body as string));
     if (opts.saveFail) return res(502, {});
@@ -43,6 +44,32 @@ test("load с токеном -> ready и гости загружены", async (
   await s.load();
   expect(s.listState).toBe("ready");
   expect(s.guests.map((g) => g.name)).toEqual(["Оля", "Влад"]);
+});
+
+test("greeting: кастомный congratulation перекрывает имена", async () => {
+  const s = new RsvpStore({
+    search: "?inv=T",
+    fetchImpl: mockFetch({ congratulation: "Дорогие гости, ждём вас!", guests: [guest(), guest({ guestId: "g2", name: "Влад" })] }),
+  });
+  await s.load();
+  expect(s.congratulation).toBe("Дорогие гости, ждём вас!");
+  expect(s.greeting).toBe("Дорогие гости, ждём вас!"); // кастом — дословно, без нормализации
+});
+
+test("greeting: без congratulation — перечисление имён гостей", async () => {
+  const s = new RsvpStore({
+    search: "?inv=T",
+    fetchImpl: mockFetch({ guests: [guest({ name: "Оля" }), guest({ guestId: "g2", name: "Влад" })] }),
+  });
+  await s.load();
+  expect(s.congratulation).toBe("");
+  expect(s.greeting).toBe("Оля и Влад,"); // имена → запятая-обращение (перенос добавит prependGreeting)
+});
+
+test("greeting: нет токена -> пустая строка", async () => {
+  const s = new RsvpStore({ search: "", fetchImpl: mockFetch() });
+  await s.load();
+  expect(s.greeting).toBe("");
 });
 
 test("404 -> empty", async () => {

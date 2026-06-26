@@ -12,13 +12,29 @@ import { RootStore } from "@/stores/RootStore";
 import { StoreProvider } from "@/stores/context";
 import { App } from "./App";
 
-const store = new RootStore();
-store.rsvp.load();
+// Полифил Web API для старых браузеров (цель Chrome 49+/FF 52+, без IE; см. vite.config legacy).
+// Babel/core-js (plugin-legacy) чинят синтаксис и ECMAScript-встроенные, но НЕ Web API. Из того,
+// что мы используем, на нижней границе цели отсутствует только ResizeObserver (нативно с Chrome 64/
+// FF 69; ядро d07-замеров и cqw-фолбэка). fetch есть нативно с Chrome 42/FF 39, IntersectionObserver
+// мы не используем (lazy-фото деградируют в eager). Грузим полифил ТОЛЬКО если RO нет → на
+// современных браузерах это 0 байт (динамический чанк просто не фетчится).
+async function ensurePolyfills(): Promise<void> {
+  if (typeof window !== "undefined" && !("ResizeObserver" in window)) {
+    const { default: ResizeObserverPolyfill } = await import("resize-observer-polyfill");
+    (window as unknown as { ResizeObserver: unknown }).ResizeObserver = ResizeObserverPolyfill;
+  }
+}
 
-createRoot(document.getElementById("root")!).render(
-  <StrictMode>
-    <StoreProvider store={store}>
-      <App />
-    </StoreProvider>
-  </StrictMode>,
-);
+void ensurePolyfills().then(() => {
+  const store = new RootStore();
+  if (import.meta.env.DEV) (window as unknown as { __rootStore: RootStore }).__rootStore = store;
+  store.rsvp.load();
+
+  createRoot(document.getElementById("root")!).render(
+    <StrictMode>
+      <StoreProvider store={store}>
+        <App />
+      </StoreProvider>
+    </StrictMode>,
+  );
+});

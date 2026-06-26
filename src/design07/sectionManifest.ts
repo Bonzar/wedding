@@ -11,13 +11,34 @@ export type SectionEntry = {
 };
 
 export const sectionManifest: SectionEntry[] = [
-  { slug: "hero" },
-  { slug: "calendar" },
-  { slug: "timeline" },
-  { slug: "details" },
-  { slug: "attire" },
-  { slug: "gift" },
-  { slug: "journey" },
-  { slug: "survey" },
-  { slug: "closing" },
+  {
+    "slug": "hero",
+    "minHeight": 1800
+  },
+  {
+    "slug": "calendar"
+  },
+  {
+    "slug": "timeline"
+  },
+  {
+    "slug": "details"
+  },
+  {
+    "slug": "attire",
+    "minHeight": 1200
+  },
+  {
+    "slug": "gift",
+    "minHeight": 1300
+  },
+  {
+    "slug": "journey"
+  },
+  {
+    "slug": "survey"
+  },
+  {
+    "slug": "closing"
+  }
 ];

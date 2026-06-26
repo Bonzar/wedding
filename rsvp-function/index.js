@@ -25,6 +25,9 @@
 
 // Гостевая коллекция — захардкожена. Клиент НИКОГДА не передаёт id коллекции.
 const GUESTS_COLLECTION = "2fd42736-e580-ff98-a421-e5ba577ad706"; // «Гости (RSVP)»
+// Коллекция «Приглашения» — нужна только для чтения кастомного обращения
+// (поле Congratulation). Запись сюда функция НЕ делает.
+const INVITATIONS_COLLECTION = "837b2719-f541-b7ab-6b78-538f05c61066"; // «Приглашения»
 
 // СТАБИЛЬНЫЕ ключи колонок. В Craft ключ деривируется из ЛАТИНСКОГО имени колонки
 // ("Attending" -> "attending", "Guests group" -> "guests_group") и НЕ сдвигается при
@@ -40,6 +43,10 @@ const F = {
   answered:   "answered",     // boolean      — ответ получен
   date:       "answeredat",   // date         — дата ответа (YYYY-MM-DD)
   comment:    "comment",      // text         — комментарий
+};
+// Колонки «Приглашения» (тот же стабильный латинский ключ; см. выше про деривацию).
+const INV_F = {
+  congratulation: "congratulation", // text — кастомное обращение для Hero (перекрывает имена)
 };
 
 const YES_NO = ["Да", "Нет"];
@@ -79,9 +86,14 @@ exports.handler = async function (event) {
 
 // ---- GET ?inv=<id приглашения> ----------------------------------------------
 async function handleGet(inv, cors) {
-  const guests = (await readGuests()).filter((g) => g.invitationIds.includes(inv));
+  // Два чтения параллельно — экономим круг к Craft (важно на холодном старте функции).
+  // readCongratulation best-effort (сбой → ""), поэтому Promise.all не упадёт из-за него;
+  // падение readGuests пробрасывается выше → 500. На неизвестный inv лишний раз читаем
+  // «Приглашения» (редкий 404) — приемлемая цена за быстрый общий путь.
+  const [allGuests, congratulation] = await Promise.all([readGuests(), readCongratulation(inv)]);
+  const guests = allGuests.filter((g) => g.invitationIds.includes(inv));
   if (guests.length === 0) return jsonResp(404, cors, { error: "invitation_not_found" });
-  return jsonResp(200, cors, { inv, guests: guests.map(publicGuest) });
+  return jsonResp(200, cors, { inv, congratulation, guests: guests.map(publicGuest) });
 }
 
 // ---- POST {inv, guestId, answers} -------------------------------------------
@@ -161,6 +173,25 @@ async function readGuests() {
       comment: p[F.comment] || "",
     };
   });
+}
+
+// Кастомное обращение приглашения из «Приглашения».Congratulation (или "").
+// Возвращаем значение ДОСЛОВНО (без trim): автор управляет переносами строк и пустыми
+// строками-отступами, фронт обязан отрисовать их в точном количестве. Эмптинес-проверку
+// (пробельный текст → имена) делает фронт. Best-effort: любая ошибка чтения -> "" (обращение
+// деградирует до перечисления имён), чтобы не уронить основную выдачу гостей. Читаем коллекцию
+// тем же проверенным способом, что и гостей (list-эндпоинт глючит с title — см. README).
+async function readCongratulation(inv) {
+  try {
+    const res = await craft("GET", `/blocks?id=${INVITATIONS_COLLECTION}`);
+    if (!res.ok) return "";
+    const data = await res.json();
+    const items = data.items || data.content || [];
+    const row = items.find((it) => it.id === inv);
+    return row ? String((row.properties || {})[INV_F.congratulation] ?? "") : "";
+  } catch {
+    return "";
+  }
 }
 
 function publicGuest(g) {
