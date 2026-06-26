@@ -68,7 +68,7 @@ relation-полем «Приглашение» прямо в строке гос
   "answers": {
     "attending": "Да",
     "drinks": "Да",
-    "drinkList": ["Игристое вино", "Красное вино"],
+    "drinkList": ["Игристое вино (полуслад)", "Красное вино (полусух)"],
     "comment": "Без лактозы"
   } }
 ```
@@ -81,7 +81,7 @@ relation-полем «Приглашение» прямо в строке гос
 API="https://functions.yandexcloud.net/<function-id>"
 curl -s "$API?inv=<TEST_TOKEN>" | python3 -m json.tool
 curl -s -X POST "$API" -H 'Content-Type: application/json' \
-  -d '{"inv":"<TEST_TOKEN>","guestId":"<id Ольги>","answers":{"attending":"Да","drinks":"Да","drinkList":["Игристое вино"]}}'
+  -d '{"inv":"<TEST_TOKEN>","guestId":"<id Ольги>","answers":{"attending":"Да","drinks":"Да","drinkList":["Игристое вино (полуслад)"]}}'
 ```
 
 ## Что функция НЕ делает (намеренно)

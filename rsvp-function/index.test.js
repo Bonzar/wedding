@@ -160,7 +160,7 @@ test("POST: невалидный drinks -> 400", async () => {
 // ============================ POST запись ====================================
 test("POST valid -> 200 и корректный PUT в Craft (точный whitelist полей)", async () => {
   const r = await handler(ev("POST", {
-    body: { inv: "AAA", guestId: "g1", answers: { attending: "Да", drinks: "Да", drinkList: ["Игристое вино", "Красное вино"], comment: "Без лактозы" } },
+    body: { inv: "AAA", guestId: "g1", answers: { attending: "Да", drinks: "Да", drinkList: ["Игристое вино (полуслад)", "Красное вино (полусух)"], comment: "Без лактозы" } },
   }));
   assert.equal(r.statusCode, 200);
 
@@ -173,7 +173,7 @@ test("POST valid -> 200 и корректный PUT в Craft (точный white
   const props = put.body.itemsToUpdate[0].properties;
   assert.equal(props[F.attending], "Да");
   assert.equal(props[F.drinks], "Да");
-  assert.deepEqual(props[F.drinkList], ["Игристое вино", "Красное вино"]);
+  assert.deepEqual(props[F.drinkList], ["Игристое вино (полуслад)", "Красное вино (полусух)"]);
   assert.equal(props[F.answered], true);            // сервер ставит сам
   assert.match(props[F.date], /^\d{4}-\d{2}-\d{2}$/); // сервер ставит сам
   assert.equal(props[F.comment], "Без лактозы");
@@ -182,13 +182,13 @@ test("POST valid -> 200 и корректный PUT в Craft (точный white
 });
 
 test("POST: неизвестные напитки отфильтровываются", async () => {
-  await handler(ev("POST", { body: { inv: "AAA", guestId: "g1", answers: { attending: "Да", drinks: "Да", drinkList: ["Игристое вино", "ВЗЛОМ", "Текила"] } } }));
-  assert.deepEqual(putCall().body.itemsToUpdate[0].properties[F.drinkList], ["Игристое вино", "Текила"]);
+  await handler(ev("POST", { body: { inv: "AAA", guestId: "g1", answers: { attending: "Да", drinks: "Да", drinkList: ["Игристое вино (полуслад)", "ВЗЛОМ", "Текила"] } } }));
+  assert.deepEqual(putCall().body.itemsToUpdate[0].properties[F.drinkList], ["Игристое вино (полуслад)"]);
 });
 
 test("POST: дубли напитков схлопываются", async () => {
-  await handler(ev("POST", { body: { inv: "AAA", guestId: "g1", answers: { attending: "Да", drinks: "Да", drinkList: ["Водка", "Водка", "Ром"] } } }));
-  assert.deepEqual(putCall().body.itemsToUpdate[0].properties[F.drinkList], ["Водка", "Ром"]);
+  await handler(ev("POST", { body: { inv: "AAA", guestId: "g1", answers: { attending: "Да", drinks: "Да", drinkList: ["Водка", "Водка", "Коньяк"] } } }));
+  assert.deepEqual(putCall().body.itemsToUpdate[0].properties[F.drinkList], ["Водка", "Коньяк"]);
 });
 
 test("POST attending=Нет -> напитки очищаются", async () => {

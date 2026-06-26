@@ -33,7 +33,7 @@ test("гость отвечает и видит подтверждение", asy
   await expect(dialog.getByText("Будете ли вы пить")).toBeVisible();
   await dialog.getByText("Да", { exact: true }).click();
   await expect(dialog.getByText("Какие алкогольные напитки")).toBeVisible();
-  await dialog.getByText("Игристое вино").click();
+  await dialog.getByText("Водка").click();
 
   await dialog.getByRole("button", { name: "Сохранить" }).click();
   await expect(dialog.getByText("Спасибо! Ответ сохранён.")).toBeVisible();
@@ -43,7 +43,7 @@ test("гость отвечает и видит подтверждение", asy
   expect(posted[0]).toMatchObject({
     inv: "TEST",
     guestId: "g1",
-    answers: { attending: "Да", drinks: "Да", drinkList: ["Игристое вино"] },
+    answers: { attending: "Да", drinks: "Да", drinkList: ["Водка"] },
   });
 
   // строка гостя помечена «отвечено»

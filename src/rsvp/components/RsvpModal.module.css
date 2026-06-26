@@ -77,7 +77,13 @@
 }
 .checks {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  /* Левая колонка шире — по содержимому (max-content), чтобы длинные названия вин
+     не переносились; правая забирает остаток. */
+  grid-template-columns: max-content 1fr;
+  /* column-flow + 6 строк: левая колонка — 6 вин, правая — крепкие (как на рефе).
+     Число строк = кол-ву вин в начале DRINKS (src/rsvp/api.ts). */
+  grid-auto-flow: column;
+  grid-template-rows: repeat(6, auto);
   gap: 0 1.125rem;
 }
 .textarea {
@@ -121,5 +127,7 @@
 @media (max-width: 23.75rem) {
   .checks {
     grid-template-columns: 1fr;
+    grid-auto-flow: row;
+    grid-template-rows: none;
   }
 }

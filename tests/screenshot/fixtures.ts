@@ -6,7 +6,7 @@ export const FIXED_NOW = new Date("2026-06-21T12:00:00Z");
 /** Гости тестового приглашения (мок ответа функции-прокси). */
 export const FIXTURE_GUESTS = [
   { guestId: "g1", name: "Ольга", answered: false, isPlus: false, attending: "", drinks: "", drinkList: [] as string[], comment: "" },
-  { guestId: "g2", name: "Владислав", answered: true, isPlus: false, attending: "Да", drinks: "Да", drinkList: ["Игристое вино", "Красное вино"], comment: "" },
+  { guestId: "g2", name: "Владислав", answered: true, isPlus: false, attending: "Да", drinks: "Да", drinkList: ["Игристое вино (полуслад)", "Красное вино (полусух)"], comment: "" },
 ];
 
 /**
