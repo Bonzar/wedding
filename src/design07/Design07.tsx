@@ -18,9 +18,9 @@ import overrideCss from "./_generated/override.css?raw";
 import headLinksRaw from "./_generated/head-links.json?raw";
 import { DESIGN06_SECTIONS } from "./sections";
 import { RsvpModal } from "@/rsvp/components/RsvpModal"; // анкета гостя для раздела Survey (портал в body, rem)
-import { elStyle } from "./layout";
+import { cqw, elStyle } from "./layout";
 import { assetUrl } from "./assetUrl";
-import type { Addition } from "./additions";
+import { photoOf, type Addition } from "./additions";
 import { useAdditions } from "./editor/additionsStore"; // слой добавленных в редакторе элементов
 import { activePalette, applyPalette, currentPalette, teardownPalette } from "./palette"; // акцентный цвет
 
@@ -60,9 +60,23 @@ function AddedEl({ a }: { a: Addition }) {
       </div>
     );
   }
+  // Двухслойно (как Canva-фото): рамка add/<id> = маска (overflow:hidden), вложенный слой
+  // add/<id>/photo = само фото, пан/зумится внутри маски (редактор: 2× клик → пан/зум, ресайз →
+  // зум). photoOf даёт сохранённый кроп или дефолт «заполнить рамку» (== прежний object-fit:cover).
+  //
+  // ВАЖНО (резкость): позиционируем слой через left/top/width/height, а НЕ через transform:
+  // translate. transform на потомке промотирует его в отдельный композит-слой, и тогда scale()
+  // рамки (у тайлов почти всегда есть) апскейлит готовый битмап → фото мылит. left/top такого
+  // слоя не создаёт → браузер растрит <img> сразу в финальном масштабе (резко). Кроп-слой несёт
+  // только x/y/w/h (редактор пишет лишь их), поэтому transform тут и не нужен.
+  const p = photoOf(a);
   return (
     <div data-eid={`add/${a.id}`} className="d06-add d06-add-img" style={{ ...style, overflow: "hidden" }}>
-      {a.src && <img src={assetUrl(a.src)} draggable={false} loading="lazy" decoding="async" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />}
+      {a.src && (
+        <div data-eid={`add/${a.id}/photo`} style={{ position: "absolute", left: cqw(p.x ?? 0), top: cqw(p.y ?? 0), width: cqw(p.w ?? 0), height: cqw(p.h ?? 0) }}>
+          <img src={assetUrl(a.src)} draggable={false} loading="lazy" decoding="async" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+        </div>
+      )}
     </div>
   );
 }
@@ -190,7 +204,9 @@ export default function Design07() {
       <style dangerouslySetInnerHTML={{ __html: overrideCss }} />
       {/* Поля по краям — основным (кремовым) цветом, а не белым; точечный сброс протечки
           `section{}` из base.css приложения. Перебивает html,body{background:#fff} из override.css. */}
-      <style>{`html,body{background:${PAGE_BG}}.yIDCqA section.rGeu6w{padding:0;position:static;overflow:visible}${noMedia ? ".yIDCqA img{display:none!important}" : ""}`}</style>
+      {/* overflow-x:clip на html,body — иначе iOS Safari делает «shrink-to-fit»: видит оверскан-лист
+          (шире вьюпорта, хоть и обрезанный) и зумит страницу, гася оверскан. На ?noscale/edit не клипаем. */}
+      <style>{`html,body{background:${PAGE_BG}${!noScale && !editMode ? ";overflow-x:clip;max-width:100%" : ""}}.yIDCqA section.rGeu6w{padding:0;position:static;overflow:visible}${noMedia ? ".yIDCqA img{display:none!important}" : ""}`}</style>
       {sheet}
       {editMode && Editor && (
         <Suspense fallback={null}>

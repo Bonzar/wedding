@@ -29,6 +29,7 @@ type Cand = { pos: number; center: boolean }; // кандидат привязк
 type SnapLine = { axis: "x" | "y"; pos: number; center: boolean }; // канва-координаты
 
 const isAdd = (eid: string | null | undefined) => addStore.isAdd(eid);
+const isAddPhoto = (eid: string | null | undefined) => addStore.isAddPhoto(eid); // вложенный слой фото add/<id>/photo
 const idOf = (eid: string) => addStore.idOf(eid);
 const addKindOf = (eid: string | null) => (eid && isAdd(eid) ? addStore.get(idOf(eid))?.kind ?? null : null);
 
@@ -274,6 +275,7 @@ export default function Editor({ scale }: { scale: number }) {
 
   // ---- live edit -> draft + DOM ------------------------------------------------------
   const writeDraft = useCallback((eid: string, rec: El) => {
+    if (isAddPhoto(eid)) { addStore.patchPhoto(idOf(eid), rec); setTick((t) => t + 1); return; } // слой фото → a.photo (пан/зум в маске)
     if (isAdd(eid)) { addStore.patch(idOf(eid), rec); setTick((t) => t + 1); return; } // добавленный → стор (Design06 ре-рендерит)
     setDrafts((d) => ({ ...d, [eid]: rec }));
     applyEl(eid, rec);

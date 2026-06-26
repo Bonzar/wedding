@@ -9,7 +9,17 @@ export type Addition = El & {
   kind: "text" | "image";
   text?: string; // для kind:"text"
   src?: string; // для kind:"image"
+  // Кроп-маска (только kind:"image"): геометрия слоя ФОТО внутри рамки-обрезки (координаты
+  // относительно рамки, px как у канвы). Двухслойная модель, как у Canva-фото: рамка (add/<id>,
+  // overflow:hidden) = маска, фото (add/<id>/photo) пан/зумится внутри неё. Нет поля → фото
+  // заполняет рамку (object-fit:cover) — идентично прежнему одно-слойному рендеру (0% цел).
+  photo?: El;
 };
+
+// Слой фото внутри рамки картинки: сохранённый кроп либо дефолт «заполнить рамку». Один
+// источник истины для рендера (Design07) и для BASE редактора (additionsStore) — чтобы синтез
+// дефолта совпадал пиксель-в-пиксель с одно-слойным object-fit:cover.
+export const photoOf = (a: Addition): El => a.photo ?? { x: 0, y: 0, w: a.w ?? 0, h: a.h ?? 0 };
 
 export const additions: Addition[] = [
   {
@@ -89,19 +99,6 @@ export const additions: Addition[] = [
     "scale": 1.3572498072132004
   },
   {
-    "id": "mqs3bhms9",
-    "kind": "image",
-    "x": 1290.53273729609,
-    "y": 927.3243896462083,
-    "w": 420,
-    "h": 420,
-    "src": "/design06-exact/_assets/media/tile_1_1-12.png",
-    "raw": {
-      "touchAction": "pan-x pan-y pinch-zoom"
-    },
-    "scale": 1.3117494653445567
-  },
-  {
     "id": "mqs3ob4y0",
     "kind": "image",
     "x": 167.38285987145738,
@@ -132,20 +129,21 @@ export const additions: Addition[] = [
   {
     "id": "mqs4jg7j0",
     "kind": "image",
-    "x": 1318.3320638179628,
-    "y": 4542.648737834189,
+    "x": 320.5805795624193,
+    "y": 10589.85546446836,
     "w": 420,
     "h": 420,
     "src": "/design06-exact/_assets/media/tile_1_3-6.png",
     "raw": {
       "touchAction": "pan-x pan-y pinch-zoom"
-    }
+    },
+    "rot": -20
   },
   {
     "id": "mqs4mrdz2",
     "kind": "image",
-    "x": 134.95076940535648,
-    "y": 4995.766529640068,
+    "x": 7.220434671387707,
+    "y": 5407.785786138538,
     "w": 420,
     "h": 420,
     "src": "/design06-exact/_assets/media/tile_2_2.png",
@@ -165,7 +163,7 @@ export const additions: Addition[] = [
       "touchAction": "pan-x pan-y pinch-zoom"
     },
     "rot": 82,
-    "scale": 1.8117436629909436
+    "scale": 1.4908613860052449
   },
   {
     "id": "mqs5g3181",
@@ -311,16 +309,15 @@ export const additions: Addition[] = [
   {
     "id": "mqs6gm0n2",
     "kind": "image",
-    "x": 222.92901489405227,
-    "y": 8195.546602409338,
+    "x": 226.2963031860535,
+    "y": 8285.749682612894,
     "w": 1353.8885041219323,
     "h": 1282.75228713334,
     "src": "/design06-exact/_assets/media/589e28d0c5849c11c2508c33b5eaf489.svg",
     "raw": {
       "touchAction": "pan-x pan-y pinch-zoom"
     },
-    "sx": 1.0142813932412342,
-    "sy": 0.8976074366297726
+    "scale": 1.0425898323152811
   },
   {
     "id": "mqs6ku2q3",
@@ -343,13 +340,13 @@ export const additions: Addition[] = [
   {
     "id": "mqs6ku2q4",
     "kind": "text",
-    "x": 324.1288649001526,
-    "y": 8896.449554453957,
+    "x": 324.3323398723786,
+    "y": 8465.536486435036,
     "w": 1151.742417786019,
-    "h": 378.7960122699386,
-    "text": "Ваше присутствие — для нас будет самым лучшим подарком. Мы любим цветы, но через несколько дней улетаем и не сможем забрать их ссобой. Если вы хотите сделать подарок, вместо букета можно выбрать что-то, что сохранится на память об этом дне.",
+    "h": 245.42288674007614,
+    "text": "Самый дорогой подарок для нас — это вы рядом в этот день. Ваше присутствие, объятия и улыбки — уже всё, о чём мы могли мечтать.",
     "font": "\"Jost\", system-ui, sans-serif",
-    "fontSize": 56,
+    "fontSize": 48,
     "color": "rgb(53, 80, 116)",
     "lineHeight": "78px",
     "letterSpacing": "0em",
@@ -361,8 +358,8 @@ export const additions: Addition[] = [
   {
     "id": "mqs6ku2q5",
     "kind": "image",
-    "x": 1329.9999814360185,
-    "y": 9145.301265527372,
+    "x": 1289.332252346999,
+    "y": 9292.57463135306,
     "w": 420,
     "h": 420,
     "src": "/design06-exact/_assets/media/tile_2_3.png",
@@ -461,5 +458,98 @@ export const additions: Addition[] = [
     "raw": {
       "touchAction": "pan-x pan-y pinch-zoom"
     }
+  },
+  {
+    "id": "mqtviax01",
+    "kind": "image",
+    "x": 1244.1692103581324,
+    "y": 4509.762889430427,
+    "w": 420,
+    "h": 421,
+    "src": "/design06-exact/_assets/media/tile_1_1-13.png",
+    "raw": {
+      "touchAction": "pan-x pan-y pinch-zoom"
+    }
+  },
+  {
+    "id": "mqtwci8h1",
+    "kind": "image",
+    "x": 1306.0061190220865,
+    "y": 838.250731818846,
+    "w": 420,
+    "h": 420,
+    "src": "/design06-exact/_assets/media/tile_1_1-16.png",
+    "raw": {
+      "touchAction": "pan-x pan-y pinch-zoom"
+    },
+    "scale": 1.358070342519047
+  },
+  {
+    "id": "mqumscp01",
+    "kind": "image",
+    "x": 1244.1690584235237,
+    "y": 5171.015123279814,
+    "w": 420,
+    "h": 420,
+    "src": "/design06-exact/_assets/media/tile_1_1-18.png",
+    "raw": {
+      "touchAction": "pan-x pan-y pinch-zoom"
+    },
+    "scale": 1.305701011715973
+  },
+  {
+    "id": "mquo9tu80",
+    "kind": "image",
+    "x": 346.330905739321,
+    "y": 11388.5386996488,
+    "w": 433.435,
+    "h": 433.435,
+    "src": "/design06-exact/_assets/media/IMG_4073.jpg",
+    "raw": {
+      "touchAction": "pan-x pan-y pinch-zoom"
+    },
+    "scale": 1.0469363841976749,
+    "photo": {
+      "x": -18.178990656324732,
+      "y": -74.84434161406912,
+      "w": 508.0731797161038,
+      "h": 508.0731797161038
+    }
+  },
+  {
+    "id": "mquohyoy0",
+    "kind": "text",
+    "x": 320.33334667247925,
+    "y": 8738.809581242234,
+    "w": 1151.742417786019,
+    "h": 387.83257710704856,
+    "text": "Если вам хочется сделать нам что-то приятное сверх этого — мы будем рады денежному подарку. Каждый конверт станет маленьким кирпичиком в фундаменте нашей общей жизни — стартовым капиталом семьи, которая только начинает строить своё будущее.",
+    "font": "\"Jost\", system-ui, sans-serif",
+    "fontSize": 48,
+    "color": "rgb(53, 80, 116)",
+    "lineHeight": "78px",
+    "letterSpacing": "0em",
+    "raw": {
+      "touchAction": "pan-x pan-y pinch-zoom"
+    },
+    "fontWeight": "200"
+  },
+  {
+    "id": "mquohyw11",
+    "kind": "text",
+    "x": 320.3333483523456,
+    "y": 9169.714630697516,
+    "w": 1151.742417786019,
+    "h": 332.86164104053387,
+    "text": "Вещественные подарки и цветы, к сожалению, не сможем забрать с собой — улетаем буквально через пару дней после свадьбы. Поэтому заранее благодарим за понимание и любовь ❤️",
+    "font": "\"Jost\", system-ui, sans-serif",
+    "fontSize": 48,
+    "color": "rgb(53, 80, 116)",
+    "lineHeight": "78px",
+    "letterSpacing": "0em",
+    "raw": {
+      "touchAction": "pan-x pan-y pinch-zoom"
+    },
+    "fontWeight": "200"
   }
 ];

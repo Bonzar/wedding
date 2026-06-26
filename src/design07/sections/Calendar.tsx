@@ -1,6 +1,6 @@
 // design06 section Calendar (Canva id PBtLyKJDZDgGk7P1). Структура + утилиты-классы — база (0%).
 // Редактируемые стили вынесены в Calendar.layout.ts и применяются по data-eid (Approach A2).
-import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { useEffect, useRef, type CSSProperties } from "react";
 import { cx } from "../cx";
 import { elStyle, cqw } from "../layout";
 import styles from "../canva.module.css";
@@ -445,38 +445,89 @@ function EngravingLeaf2() {
 
 // Карта места («Три кедра»). Интерактивный виджет Яндекс-карт (constructor, растровые тайлы).
 // Позиция/размер — в Calendar.layout.ts (data-eid="calendar/map"); масштаб через cqw, как у всей
-// вёрстки (без JS-ресайза по ширине окна — он давал «media-query»-прыжок).
+// вёрстки. Контролы карты — фикс-px, поэтому рендерим карту в РЕФЕРЕНС-размере (десктоп-ширина) и
+// плавно сжимаем под cqw-бокс через transform: scale (ResizeObserver, без media-query-прыжка).
 //
-// Ранее виджет заменяли статичной картинкой из-за iOS-краша «A problem repeatedly occurred»,
-// но реальной причиной оказалась ПАМЯТЬ от глобального transform-слоя (d06), а НЕ сам виджет.
-// В d07 (cqw, без transform) краша нет → возвращаем живой интерактивный виджет.
+// Карта — Yandex Maps JS API 2.1 (без apikey). Ранее заменяли статикой/iframe-виджетом из-за
+// iOS-краша «A problem repeatedly occurred», но причиной была память от transform-слоя (d06),
+// а НЕ карта — в d07 (cqw, без transform) краша нет.
 const FRAME_BORDER = `${cqw(2)} solid var(--d06-ink, rgb(53, 80, 116))`; // d07: рамка в cqw (масштабируется)
 const FRAME_RADIUS = cqw(16);
 
+// «Три кедра», кафе (Сочи, Ривьерский пер., 5Б; oid=1040306482) — из короткой ссылки
+// yandex.ru/maps/-/CTQNvQK3. Порядок координат [lat, lon]. Клик по метке → карточка орга.
+const VENUE_CENTER: [number, number] = [43.587809, 39.714851];
+const VENUE_ORG_URL = "https://yandex.ru/maps/org/1040306482/";
+
+// API-ключ Яндекс-карт — из env (Vite инлайнит на сборке). Нужен для поиска по организациям
+// (yandex#search), т.е. для СИСТЕМНОЙ карточки орга. Положить в .env(.local): VITE_YANDEX_MAPS_KEY=...
+// (и в секреты CI для деплоя). Без ключа — «Invalid API key», карточка не покажется.
+const YMAPS_KEY = (import.meta.env.VITE_YANDEX_MAPS_KEY as string | undefined) || "";
+
+// Ленивая загрузка скрипта Яндекс-карт 2.1 (один раз на страницу).
+let ymapsReady: Promise<unknown> | null = null;
+function loadYmaps(): Promise<{ Map: new (...a: unknown[]) => unknown } & Record<string, unknown>> {
+  const w = window as unknown as { ymaps?: { ready: (cb: () => void) => void; Map?: unknown } & Record<string, unknown> };
+  if (!ymapsReady) {
+    ymapsReady = new Promise((resolve, reject) => {
+      if (w.ymaps?.Map) return w.ymaps.ready(() => resolve(w.ymaps));
+      const s = document.createElement("script");
+      s.src = `https://api-maps.yandex.ru/2.1/?lang=ru_RU${YMAPS_KEY ? `&apikey=${encodeURIComponent(YMAPS_KEY)}` : ""}`;
+      s.async = true;
+      s.onload = () => w.ymaps!.ready(() => resolve(w.ymaps));
+      s.onerror = reject;
+      document.head.appendChild(s);
+    });
+  }
+  return ymapsReady as Promise<{ Map: new (...a: unknown[]) => unknown } & Record<string, unknown>>;
+}
+
 function Map() {
-  const boxRef = useRef<HTMLDivElement>(null);
+  const mapRef = useRef<HTMLDivElement>(null);
   const base = layout["calendar/map"];
-  // Референс рендера iframe = ширина карты на ДЕСКТОП-листе (880/1776 от нативной): на десктопе
-  // box≈этому → scale 1 → контролы нативного размера (как нужно). На более узком — box меньше →
-  // scale<1 → пропорционально меньше. (Брали натив 1776 → на десктопе было ×0.5, слишком мелко.)
-  const NW = (base.w ?? 1369.63) * (880 / 1776);
-  const NH = (base.h ?? 584.11) * (880 / 1776);
-  // Контролы Яндекс-виджета — фикс-px ВНУТРИ iframe и сами не масштабируются с маленьким iframe
-  // (оттого на узком экране кнопки огромные). Рендерим iframe в референс-размере и плавно сжимаем
-  // под cqw-бокс через transform: scale (ResizeObserver — непрерывно, без media-query-прыжка).
-  const [scale, setScale] = useState(1);
+  // Карта 2.1 на полную ширину бокса. БЕЗ transform: scale — он ломает hit-тестинг ymaps (тапы/
+  // пан мимо). Контролы — только zoom (иначе фикс-px кнопки давят узкий бокс). Превью «Три кедра»
+  // открыто СРАЗУ балуном (нативный POI-балун программно не открыть) — фото орга + адрес + ссылка.
   useEffect(() => {
-    const box = boxRef.current;
-    if (!box) return;
-    const apply = () => setScale(box.clientWidth / NW);
-    apply();
-    const ro = new ResizeObserver(apply);
-    ro.observe(box);
-    return () => ro.disconnect();
-  }, [NW]);
+    let map: { destroy: () => void } | null = null;
+    let dead = false;
+    loadYmaps()
+      .then((ymaps) => {
+        if (dead || !mapRef.current) return;
+        const Y = ymaps as unknown as {
+          Map: new (...a: unknown[]) => { behaviors: { disable: (n: string) => void }; geoObjects: { add: (o: unknown) => void }; destroy: () => void };
+          Placemark: new (pos: unknown, props: unknown, opts: unknown) => { events: { add: (n: string, cb: () => void) => void } };
+          templateLayoutFactory: { createClass: (s: string) => unknown };
+        };
+        const m = new Y.Map(mapRef.current, { center: VENUE_CENTER, zoom: 16, controls: ["zoomControl"] }, { suppressMapOpenBlock: true });
+        m.behaviors.disable("scrollZoom"); // скролл страницы не зумит карту
+        // Метка кафе «Три кедра» = кружок в цвете чернил + подпись с ПЛАШКОЙ-фоном (всегда видна,
+        // НЕ системный пин). Балуна-попапа НЕТ — клик по метке сразу открывает карточку орга на
+        // Яндекс Картах в новой вкладке (см. events click ниже).
+        const iconLayout = Y.templateLayoutFactory.createClass(
+          '<div style="transform:translate(-12px,-12px);display:flex;align-items:center;gap:6px;white-space:nowrap;pointer-events:auto;cursor:pointer">' +
+          '<div style="width:18px;height:18px;border-radius:50%;background:#355074;border:3px solid #fff;box-shadow:0 1px 4px rgba(53,80,116,.55);flex:0 0 auto"></div>' +
+          "<div style=\"background:rgba(255,255,255,.92);padding:2px 8px;border-radius:10px;box-shadow:0 1px 4px rgba(53,80,116,.3);font:600 13px/1.25 'Jost',system-ui,sans-serif;color:#355074\">Три кедра</div>" +
+          "</div>",
+        );
+        const pm = new Y.Placemark(
+          VENUE_CENTER,
+          { hintContent: "«Три кедра», кафе" },
+          { iconLayout, iconShape: { type: "Rectangle", coordinates: [[-12, -12], [110, 14]] }, openBalloonOnClick: false },
+        );
+        // Клик по метке → сразу карточка орга на Яндекс Картах (без локального попапа).
+        pm.events.add("click", () => window.open(VENUE_ORG_URL, "_blank", "noopener"));
+        m.geoObjects.add(pm);
+        map = m;
+      })
+      .catch(() => {});
+    return () => {
+      dead = true;
+      if (map) map.destroy();
+    };
+  }, []);
   return (
     <div
-      ref={boxRef}
       className={cx(styles.DF_utQ, styles._682gpw, styles._0xkaeQ)}
       data-eid="calendar/map"
       style={{
@@ -487,12 +538,7 @@ function Map() {
         background: "color-mix(in srgb, var(--d06-ink, rgb(53, 80, 116)) 6%, transparent)",
       }}
     >
-      <iframe
-        title="Карта — Сочи, Три кедра"
-        src="https://yandex.ru/map-widget/v1/?um=constructor%3Acac75de5edf5273bae52f678d421076b55368f6fadced06b0eb9da0f89586e99&source=constructor"
-        loading="eager"
-        style={{ display: "block", width: `${NW}px`, height: `${NH}px`, border: "none", transform: `scale(${scale})`, transformOrigin: "top left" }}
-      />
+      <div ref={mapRef} style={{ width: "100%", height: "100%" }} />
     </div>
   );
 }

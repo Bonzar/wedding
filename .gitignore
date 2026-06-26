@@ -5,6 +5,7 @@ document_instructions_to_agent.md
 # Локальный конфиг с боевым линком, если появится
 .env
 .env.*
+!.env.example
 *secret*
 rsvp-function/.env
 
