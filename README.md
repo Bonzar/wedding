@@ -80,6 +80,10 @@ tools/parity.mjs     # инструмент сверки рендера с ре�
 Source: GitHub Actions**. `base` у Vite относительный (`./`), поэтому сайт
 работает и на `user.github.io`, и на `user.github.io/wedding/`.
 
+Статические подстраницы лежат в `public/` и попадают в `dist/` как есть:
+`public/font/index.html` → [`/wedding/font/`](https://bonzar.github.io/wedding/font/) —
+раскладка шрифта Nicoletta Script SHA (им набраны имена), шрифт встроен в страницу.
+
 ## Скриншот-тесты
 
 - **Golden-регрессия** (`tests/screenshot/`) — каждая секция + страница + модалка
