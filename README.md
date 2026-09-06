@@ -82,7 +82,9 @@ Source: GitHub Actions**. `base` у Vite относительный (`./`), по
 
 Статические подстраницы лежат в `public/` и попадают в `dist/` как есть:
 `public/font/index.html` → [`/wedding/font/`](https://bonzar.github.io/wedding/font/) —
-раскладка шрифта Nicoletta Script SHA (им набраны имена), шрифт встроен в страницу.
+раскладки шрифтов приглашения с переключателем (Nicoletta Script SHA, Jellyka, Jost,
+Futura LT Pro, TH Sarabun New, PT Serif и запасные). Самохостируемые файлы лежат в
+`public/font/fonts/`, Canva-шрифты берутся из `public/design06-exact/_assets/fonts/`.
 
 ## Скриншот-тесты
 
